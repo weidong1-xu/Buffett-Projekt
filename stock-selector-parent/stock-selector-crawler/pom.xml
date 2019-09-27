@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.hanslv</groupId>
+    <artifactId>stock-selector-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>stock-selector-crawler</artifactId>
+  <name>stock-selector-crawler</name>
+  
+  <dependencies>
+  	<!-- stock-selector-commons -->
+  	<dependency>
+	    <groupId>com.hanslv</groupId>
+	    <artifactId>stock-selector-commons</artifactId>
+	    <version>${project.version}</version>
+  	</dependency>
+  	
+  
+	<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+	<dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+	<dependency>
+	    <groupId>org.jsoup</groupId>
+	    <artifactId>jsoup</artifactId>
+	    <version>1.11.3</version>
+	</dependency>
+	
+	<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+	<dependency>
+	    <groupId>com.alibaba</groupId>
+	    <artifactId>fastjson</artifactId>
+	    <version>1.2.61</version>
+	</dependency>
+	
+	
+  </dependencies>
+</project>
