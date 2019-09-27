@@ -1,0 +1,43 @@
+-----------------------------------------------------------------------------------------------
+股票基本信息表					tab_stock_info
+股票ID							stock_id										BIGINT								PRIMARY KEY											AUTO_INCREMENT
+股票代码						stock_code										VARCHAR(6)							UNIQUE
+股票名称						stock_name										VARCHAR(8)
+-----------------------------------------------------------------------------------------------
+日历翻牌表						tab_daily
+当前日期						current_data_date								DATE
+-----------------------------------------------------------------------------------------------
+股票价格信息表（分表）			tab_stock_price
+股票ID							stock_id										BIGINT								FOREIGN KEY (fk_stock_price_info)					PRIMARY KEY
+日期							stock_price_date								VARCHAR(10)																				PRIMARY KEY
+开盘价							stock_price_start_price							DECIMAL(18,2)
+收盘价							stock_price_end_price							DECIMAL(18,2)
+最高价							stock_price_highest_price						DECIMAL(18,2)
+最低价							stock_price_lowest_price						DECIMAL(18,2)
+成交量							stock_price_volume								INT(10)
+成交额							stock_price_turnover							INT(10)
+振幅							stock_price_amplitude							VARCHAR(6)
+换手率							stock_price_turnover_rate						DECIMAL(4,1)
+-----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
