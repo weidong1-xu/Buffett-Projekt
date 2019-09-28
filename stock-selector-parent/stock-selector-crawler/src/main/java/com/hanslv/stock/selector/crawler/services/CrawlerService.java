@@ -16,7 +16,7 @@ import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
  * -----------------------------------------
  * 1、初始化股票基本信息表													public void initStockInfo()
  * -----------------------------------------
- * @author harrylu
+ * @author hanslv
  *
  */
 @Service
@@ -26,46 +26,55 @@ public class CrawlerService {
 	
 	/**
 	 * 1、初始化股票基本信息表，
-	 * 通过爬虫爬取回全部股票基本信息，并落库
+	 * 通过爬虫爬取回全部股票基本信息后，先清空原有库中全部股票基本信息，之后再将新的信息存入数据库
 	 */
 	public void initStockInfo() {
-		/**
+		/*
 		 * 爬取全部股票基本信息并存放到stockInfoList中
 		 */
 		StockInfoCrawler crawler = new StockInfoCrawler();
 		List<TabStockInfo> stockInfoList = crawler.runCrawler();
 		
-		/**
+		/*
+		 * 判断爬取回结果是否为空
+		 */
+		if(stockInfoList.size() == 0) {
+			logger.error("----------------爬取回结果为空，请检查爬虫是否正常！----------------");
+			return;
+		}
+		
+		/*
 		 * 将全部股票信息存入数据库
 		 */
 		try {
-			/**
-			 * 判断爬取回结果是否为空
-			 */
-			if(stockInfoList.size() == 0) {
-				logger.error("----------------爬取回结果为空，请检查爬虫是否正常！----------------");
-				return;
-			}
-			
 			TabStockInfoRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
 
-			/**
+			/*
 			 * 首先清空原有数据
 			 */
 			mapper.deleteAll();
 			MyBatisUtil.getInstance().commitConnection();
 			
-			/**
+			/*
 			 * 插入新数据
 			 */
 			mapper.insertList(stockInfoList);
 			logger.info("初始化数据库基本信息完毕！");
 		}finally {
-			/**
+			/*
 			 * 提交数据并关闭资源
 			 */
 			MyBatisUtil.getInstance().commitConnection();
 			MyBatisUtil.getInstance().closeConnection();
 		}
+	}
+	
+	
+	/**
+	 * 2、获取全部股票价格信息
+	 */
+	public void getStockPrice() {
+		
+		
 	}
 }

@@ -1,7 +1,8 @@
 package com.hanslv.stock.selector.commons.util;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -11,8 +12,9 @@ import org.jboss.logging.Logger;
 import com.hanslv.stock.selector.commons.constants.MyBatisConfigConstants;
 
 /**
- * MyBatis操作工具类单例
- * 
+ * MyBatis操作工具类，单例
+ * 其他模块使用时需要在当前项目的src/main/resource目录下创建mybatis/config目录结构，并将MyBatis的配置文件放置在该目录下以mybatis-config.xml命名并设置UTF-8编码
+ * junit环境下可以在src/test/resource以同样的方式创建目录和文件
  * ------------------------------------------
  * 1、获取单例MyBatis实例											public static MyBatisUtil getInstance()	
  * 2、获取SqlSession													public SqlSession getConnection()
@@ -41,8 +43,9 @@ public class MyBatisUtil {
 		 * 初始化SqlSessionFactory
 		 */
 		SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
-		try(FileInputStream fileInputStream = new FileInputStream(MyBatisConfigConstants.CONFIG_PATH)){
-			sqlSessionFactory = sqlSessionFactoryBuilder.build(fileInputStream);
+		try(InputStream inputStream = MyBatisUtil.class.getResourceAsStream(MyBatisConfigConstants.CONFIG_PATH);
+				InputStreamReader inputStreamReader = new InputStreamReader(inputStream , "UTF-8")){
+			sqlSessionFactory = sqlSessionFactoryBuilder.build(inputStreamReader);
 		}catch(IOException e) {
 			e.printStackTrace();
 		}

@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
@@ -19,28 +18,29 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
+import com.hanslv.stock.selector.crawler.util.MessageTransUtil;
 
 /**
  * 股票价格爬虫，实现Callable接口
- * @author harrylu
+ * @author hanslv
  *
  */
-public class StockPriceCrawler implements Callable<List<TabStockPriceInfo>>{
+public class StockPriceCrawler implements Runnable{
 	static Logger logger = Logger.getLogger(StockPriceCrawler.class);
-	/**
+	/*
 	 * 全部股票基本信息List
 	 */
 	private static List<TabStockInfo> stockInfoList;
 	
-	/**
-	 * 原子计数器，外层通过该计数器来判断是否停止线程调用
+	/*
+	 * 原子计数器，每个线程通过这个数字判断从stockInfoList获取下一个股票基本信息的index
 	 */
-	public static AtomicInteger listIndexCounter;
+	private static AtomicInteger listIndexCounter;
 	
 	static {
 		listIndexCounter = new AtomicInteger();
 		
-		/**
+		/*
 		 * 初始化全部股票基本信息List
 		 */
 		try {
@@ -50,7 +50,14 @@ public class StockPriceCrawler implements Callable<List<TabStockPriceInfo>>{
 					.getConnection()
 					.getMapper(TabStockInfoRepository.class)
 					.selectAll());
-			logger.info("从数据库中共获取到：" + stockInfoList.size() + "条");
+			
+			/*
+			 * 当获取到的股票基本信息数量为0时，考虑是否没有初始化股票基本信息表
+			 */
+			if(stockInfoList.size() == 0)
+				throw  new Exception("股票基本信息获取失败");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}finally {
 			MyBatisUtil.getInstance().closeConnection();
 		}
@@ -59,26 +66,28 @@ public class StockPriceCrawler implements Callable<List<TabStockPriceInfo>>{
 	
 	/**
 	 * 从全部股票基本信息List中获取一个股票信息，
-	 * 执行爬取逻辑并返回一个包含当前股票N天(在Properties文件中指定)价格信息的List
+	 * 执行爬取逻辑并向消息队列中写入一个包含当前股票N天(在Properties文件中指定)价格信息的List
 	 */
 	@Override
-	public List<TabStockPriceInfo> call() throws Exception {
-		/**
+	public void run() {
+		/*
 		 * 从股票信息List中获取一条记录
 		 */
 		TabStockInfo stockInfo = stockInfoList.get(listIndexCounter.getAndIncrement());
 		logger.info(Thread.currentThread() + " 正准备爬取股票：" + stockInfo.getStockCode() + "，" + stockInfo.getStockName() + "的信息");
 		
-		/**
+		/*
 		 * 获取页面信息并存入List
 		 */
 		JSONObject bodyTextJsonObject = getJsonObject(stockInfo);
 		
-		
-		/**
-		 * 返回解析后的数据
+		/*
+		 * 向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
 		 */
-		return parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId());
+		MessageTransUtil
+			.getInstance()
+			.writeAMessageIntoPriceInfoMessageQueue(
+					parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
 	}
 	
 	
@@ -197,5 +206,23 @@ public class StockPriceCrawler implements Callable<List<TabStockPriceInfo>>{
 		}
 		return priceInfoList;
 	}
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
