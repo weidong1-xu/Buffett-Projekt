@@ -4,10 +4,14 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.jboss.logging.Logger;
 
+import com.hanslv.stock.selector.commons.constants.KafkaConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
-import com.hanslv.stock.selector.crawler.constants.KafkaConstants;
+import com.hanslv.stock.selector.commons.util.KafkaUtil;
+import com.hanslv.stock.selector.crawler.constants.CrawlerKafkaConstants;
 
 /**
  * 消息传输工具类，单利
@@ -44,12 +48,29 @@ public class MessageTransUtil {
 		/*
 		 * priceInfoMessageQueue初始化消息队列
 		 */
-		priceInfoMessageQueue = new ArrayBlockingQueue<>(KafkaConstants.PRICE_INFO_MESSAGE_QUEUE_SIZE);
+		priceInfoMessageQueue = new ArrayBlockingQueue<>(CrawlerKafkaConstants.PRICE_INFO_MESSAGE_QUEUE_SIZE);
 		
 		
-		/**
+		/*
 		 * 启动线程，向Kafka的topic中写入消息
 		 */
+		new Thread(() -> {
+			try {
+				/*
+				 * 监听priceInfoMessageQueue，从中获取股票价格List
+				 */
+				while(true) {
+					List<TabStockPriceInfo> currentPriceInfoList = priceInfoMessageQueue.take();
+					
+					/*
+					 * 向Kafka broker发送消息
+					 */
+					writeToKafkaTopic(KafkaConstants.PRICE_INFO_TOPCI_NAME , "" , currentPriceInfoList);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}).start();
 	}
 	
 	/**
@@ -73,12 +94,34 @@ public class MessageTransUtil {
 	}
 	
 	/**
-	 * 3、向Kafka的Topci写入消息
+	 * 3、向Kafka的Topic写入消息
 	 * @param topic
 	 * @param key
 	 * @param value
 	 */
-	public void writeToKafkaTopic(String topic , String key , String value) {
-		
+	public void writeToKafkaTopic(String topic , String key , List<TabStockPriceInfo> value) {
+		/*
+		 * 获取KafkaUtil实例
+		 */
+		KafkaUtil<String , TabStockPriceInfo> kafkaUtil = new KafkaUtil<>(CrawlerKafkaConstants.KAFKA_PROP_PATH);
+		try {
+			/*
+			 * 发送一个MessageList
+			 */
+			kafkaUtil.sendMessage(topic, key, value, new Callback() {
+				@Override
+				public void onCompletion(RecordMetadata metadata , Exception exception) {
+					/*
+					 * 重试逻辑
+					 */
+//					if(exception instanceof ) {
+						
+//					}
+					
+				}
+			});
+		}finally {
+			kafkaUtil.closeProducerConnection();
+		}
 	}
 }
