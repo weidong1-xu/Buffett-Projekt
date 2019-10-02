@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.jboss.logging.Logger;
 
-import com.hanslv.stock.selector.commons.constants.KafkaConstants;
+import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 import com.hanslv.stock.selector.commons.util.KafkaUtil;
 import com.hanslv.stock.selector.crawler.constants.CrawlerKafkaConstants;
@@ -25,9 +25,9 @@ import com.hanslv.stock.selector.crawler.constants.CrawlerKafkaConstants;
  * @author hanslv
  *
  */
-public class MessageTransUtil {
+public class CrawlerMessageTransUtil {
 	private static class Singleton{
-		private static final MessageTransUtil INSTANCE = new MessageTransUtil();
+		private static final CrawlerMessageTransUtil INSTANCE = new CrawlerMessageTransUtil();
 	}
 	
 	Logger logger;
@@ -42,7 +42,7 @@ public class MessageTransUtil {
 
 	
 	
-	private MessageTransUtil() {
+	private CrawlerMessageTransUtil() {
 		logger = Logger.getLogger(Singleton.class);
 		
 		/*
@@ -56,6 +56,7 @@ public class MessageTransUtil {
 		 */
 		new Thread(() -> {
 			try {
+				logger.info("启动线程将priceInfoMessageQueue中数据写入KafkaTopic");
 				/*
 				 * 监听priceInfoMessageQueue，从中获取股票价格List
 				 */
@@ -65,7 +66,7 @@ public class MessageTransUtil {
 					/*
 					 * 向Kafka broker发送消息
 					 */
-					writeToKafkaTopic(KafkaConstants.PRICE_INFO_TOPCI_NAME , "" , currentPriceInfoList);
+					writeToKafkaTopic(CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , "" , currentPriceInfoList);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -77,7 +78,7 @@ public class MessageTransUtil {
 	 * 1、获取KafkaUtil实例
 	 * @return
 	 */
-	public static MessageTransUtil getInstance() {
+	public static CrawlerMessageTransUtil getInstance() {
 		return Singleton.INSTANCE;
 	}
 	
@@ -104,24 +105,20 @@ public class MessageTransUtil {
 		 * 获取KafkaUtil实例
 		 */
 		KafkaUtil<String , TabStockPriceInfo> kafkaUtil = new KafkaUtil<>(CrawlerKafkaConstants.KAFKA_PROP_PATH);
-		try {
-			/*
-			 * 发送一个MessageList
-			 */
-			kafkaUtil.sendMessage(topic, key, value, new Callback() {
-				@Override
-				public void onCompletion(RecordMetadata metadata , Exception exception) {
-					/*
-					 * 重试逻辑
-					 */
-//					if(exception instanceof ) {
-						
-//					}
+		/*
+		 * 发送一个MessageList
+		 */
+		kafkaUtil.sendMessage(topic, key, value, new Callback() {
+			@Override
+			public void onCompletion(RecordMetadata metadata , Exception exception) {
+				/*
+				 * 重试逻辑
+				 */
+//				if(exception instanceof ) {
 					
-				}
-			});
-		}finally {
-			kafkaUtil.closeProducerConnection();
-		}
+//				}
+					
+			}
+		});
 	}
 }

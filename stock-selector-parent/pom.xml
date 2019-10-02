@@ -88,5 +88,6 @@
   	<module>stock-selector-crawler</module>
   	<module>stock-selector-commons</module>
   	<module>stock-selector-web</module>
+  	<module>stock-selector-algorithm</module>
   </modules>
 </project>

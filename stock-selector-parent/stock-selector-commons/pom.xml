@@ -27,9 +27,14 @@
 	    <groupId>org.apache.kafka</groupId>
 	    <artifactId>kafka_2.12</artifactId>
 	</dependency>
-
+	<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+	<dependency>
+	    <groupId>com.alibaba</groupId>
+	    <artifactId>fastjson</artifactId>
+	    <version>1.2.61</version>
+	</dependency>
 	
-	
+		
 	<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 	<dependency>
 	    <groupId>org.projectlombok</groupId>

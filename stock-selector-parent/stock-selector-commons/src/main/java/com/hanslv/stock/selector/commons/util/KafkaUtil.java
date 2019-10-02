@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -17,7 +18,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jboss.logging.Logger;
 
-import com.hanslv.stock.selector.commons.constants.KafkaConstants;
+import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
 
 /**
  * Kafka工具类
@@ -26,11 +27,9 @@ import com.hanslv.stock.selector.commons.constants.KafkaConstants;
  * 每个KafkaUtil实例只支持实例化一个Consumer，多个会出现异常
  * 在使用后需要关闭资源
  * --------------------------------------------
- * 1、关闭当前currentProducerInstance										public void closeProducerConnection()
- * 2、关闭当前currentConsumerInstance										public void closeConcumerConnection()
- * 3、向指定的topic发送多条消息												public void sendMessage(String topic , K key , List<V> messageList , Callback callbackLogic)
- * 4、从Topic中获取消息														public void pollMessage(List<String> topicList , long timeout)
- * 5、从Consumer消息队列中获取一个消息										public V takeValueFromConsumerBlockingQueue()
+ * 1、向指定的topic发送多条消息												public void sendMessage(String topic , K key , List<V> messageList , Callback callbackLogic)
+ * 2、从Topic中获取消息														public void pollMessage(List<String> topicList , long timeout)
+ * 3、从Consumer消息队列中获取一个消息										public V takeValueFromConsumerBlockingQueue()
  * --------------------------------------------
  * @author hanslv
  *
@@ -44,10 +43,10 @@ public class KafkaUtil<K , V> {
 	private Properties currentProp;
 	
 	/*
-	 * 当前实例中包含的Producer、Consumer实例
+	 * 当前KafkaUtil实例中包含的Producer、Consumer实例
 	 */
-	private KafkaProducer<K , V> currentProducerInstance;
-	private KafkaConsumer<K , V> currentConsumerInstance;
+	private ThreadLocal<KafkaProducer<K , V>> producerThreadLocal;
+	private ThreadLocal<KafkaConsumer<K , V>> consumerThreadLocal;
 	
 	
 	/*
@@ -65,73 +64,55 @@ public class KafkaUtil<K , V> {
 		/*
 		 * 加载当前实例的配置文件
 		 */
+		currentProp = new Properties();
 		try(InputStream inputStream = KafkaUtil.class.getResourceAsStream(propPath);
 				InputStreamReader inputStreamReader = new InputStreamReader(inputStream , "UTF-8")){
 			currentProp.load(inputStreamReader);
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
+		
+		
+		producerThreadLocal = new ThreadLocal<>();
+		consumerThreadLocal = new ThreadLocal<>();
 	}
 	
 	
 	/**
-	 * 1、关闭当前currentProducerInstance
-	 */
-	public void closeProducerConnection() {
-		if(currentProducerInstance != null) {
-			currentProducerInstance.close();
-			currentProducerInstance = null;
-			logger.info(Thread.currentThread() + " 关闭了一个KafkaProducer");
-		}
-	}
-	
-	/**
-	 * 2、关闭当前currentConsumerInstance
-	 */
-	public void closeConcumerConnection() {
-		if(currentConsumerInstance != null) {
-			if(consumerBlockingQueue.size() > 0) {
-				try {
-					throw new Exception("当前Consumer消息队列中仍然存在未消费消息！");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return;
-			}
-			currentConsumerInstance.close();
-			currentConsumerInstance = null;
-			logger.info(Thread.currentThread() + " 关闭了一个KafkaConsumer");
-		}
-	}
-	
-	
-	/**
-	 * 3、向指定的topic发送多条消息
-	 * 创建一个新线程，采用异步发送的方式，在新创建的线程中处理可重试异常
+	 * 1、向指定的topic发送多条消息
+	 * 创建一个新线程，采用同步发送的方式等待发送结束后再发送下一条消息，在新创建的线程中处理可重试异常
 	 * @param topic 
 	 * @param key partition策略Key
 	 * @param messageList 包含全部要发送消息的集合
 	 * @param callbackLogic 重试逻辑
 	 */
 	public void sendMessage(String topic , K key , List<V> messageList , Callback callbackLogic) {
-		/*
-		 * 实例化currentProducerInstance
-		 */
-		createKafkaProducer();
 		new Thread(() -> {
+			/*
+			 * 实例化currentProducerInstance
+			 */
+			KafkaProducer<K , V> currentProducerInstance = createKafkaProducer();
 			/*
 			 * 遍历要发送的消息List
 			 */
-			for(V message : messageList) {
-				logger.info(Thread.currentThread() + " 向Topic：" + topic + "发送了一条消息：" + String.valueOf(message));
-				currentProducerInstance.send(new ProducerRecord<>(topic , key , message) , callbackLogic);
+			try {
+				for(V message : messageList) {
+					logger.info(Thread.currentThread() + " 向Topic：" + topic + "发送了一条消息：" + String.valueOf(message));
+					try {
+						currentProducerInstance.send(new ProducerRecord<>(topic , key , message) , callbackLogic).get();
+					} catch (InterruptedException | ExecutionException e) {
+						e.printStackTrace();
+					}
+				}
+			}finally {
+				closeProducerConnection();
 			}
 		}).start();
 	}
 	
 	
 	/**
-	 * 4、从Topic中获取消息
+	 * 2、从Topic中获取消息
 	 * 将会创建一个新线程并创建Consumer订阅指定的Topic，并将接收到的Topic写入到消息队列中
 	 * @param topicList
 	 * @param timeout
@@ -139,36 +120,39 @@ public class KafkaUtil<K , V> {
 	 */
 	public void pollMessage(List<String> topicList , long timeout) {
 		/*
-		 * 实例化currentConsumerInstance
-		 */
-		createKafkaConsumer(topicList);
-		
-		/*
 		 * 启动新线程订阅
 		 */
 		new Thread(() -> {
 			/*
+			 * 实例化currentConsumerInstance
+			 */
+			KafkaConsumer<K , V> currentConsumerInstance = createKafkaConsumer(topicList);
+			/*
 			 * 订阅消息并写入到消息队列
 			 */
-			while(true) {
-				ConsumerRecords<K , V> records = currentConsumerInstance.poll(Duration.ofMillis(timeout));
-				for(ConsumerRecord<K , V> record : records) {
-					try {
-						/*
-						 * 存入消息队列
-						 */
-						consumerBlockingQueue.put(record.value());
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+			try {
+				while(true) {
+					ConsumerRecords<K , V> records = currentConsumerInstance.poll(Duration.ofMillis(timeout));
+					for(ConsumerRecord<K , V> record : records) {
+						try {
+							/*
+							 * 存入消息队列
+							 */
+							consumerBlockingQueue.put(record.value());
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
+			}finally {
+				closeConcumerConnection();
 			}
 		}).start();
 	}
 	
 	
 	/**
-	 * 5、从Consumer消息队列中获取一个消息
+	 * 3、从Consumer消息队列中获取一条消息
 	 * @return
 	 */
 	public V takeValueFromConsumerBlockingQueue() {
@@ -220,7 +204,29 @@ public class KafkaUtil<K , V> {
 	
 	
 	
+	/**
+	 * 关闭当前currentProducerInstance
+	 */
+	private void closeProducerConnection() {
+		KafkaProducer<K , V> currentProducerInstance = producerThreadLocal.get();
+		if(currentProducerInstance != null) {
+			currentProducerInstance.close();
+			producerThreadLocal.remove();
+			logger.info(Thread.currentThread() + " 关闭了一个KafkaProducer");
+		}
+	}
 	
+	/**
+	 * 关闭当前currentConsumerInstance
+	 */
+	private void closeConcumerConnection() {
+		KafkaConsumer<K , V> currentConsumerInstance = consumerThreadLocal.get();
+		if(currentConsumerInstance != null) {
+			currentConsumerInstance.close();
+			consumerThreadLocal.remove();
+			logger.info(Thread.currentThread() + " 关闭了一个KafkaConsumer");
+		}
+	}
 	
 	
 	
@@ -231,11 +237,14 @@ public class KafkaUtil<K , V> {
 	/**
 	 * 实例化currentProducerInstance
 	 */
-	private void createKafkaProducer(){
+	private KafkaProducer<K , V> createKafkaProducer(){
+		KafkaProducer<K , V> currentProducerInstance = producerThreadLocal.get();
 		if(currentProducerInstance == null) {
 			logger.info(Thread.currentThread() + " 创建了一个KafkaProducer");
 			currentProducerInstance = new KafkaProducer<>(currentProp);
+			producerThreadLocal.set(currentProducerInstance);
 		}
+		return currentProducerInstance;
 	}
 	
 	
@@ -243,12 +252,13 @@ public class KafkaUtil<K , V> {
 	 * 实例化currentConsumerInstance
 	 * @param topicList 订阅的TopicList
 	 */
-	private void createKafkaConsumer(List<String> topicList){
+	private KafkaConsumer<K , V> createKafkaConsumer(List<String> topicList){
+		KafkaConsumer<K , V> currentConsumerInstance = consumerThreadLocal.get();
 		if(currentConsumerInstance == null) {
 			/*
 			 * 实例化Consumer消息队列
 			 */
-			consumerBlockingQueue = new ArrayBlockingQueue<>(KafkaConstants.CONSUMER_BLOCKINGQUEUE_SIZE);
+			consumerBlockingQueue = new ArrayBlockingQueue<>(CommonsKafkaConstants.CONSUMER_BLOCKINGQUEUE_SIZE);
 			
 			logger.info(Thread.currentThread() + " 创建了一个KafkaConsumer");
 			currentConsumerInstance = new KafkaConsumer<>(currentProp);
@@ -257,12 +267,15 @@ public class KafkaUtil<K , V> {
 			 * 设置当前Consumer订阅某些Topic
 			 */
 			currentConsumerInstance.subscribe(topicList);
+			consumerThreadLocal.set(currentConsumerInstance);
+			return currentConsumerInstance;
 		}else {
 			try {
 				throw new Exception("只支持实例化一个Consumer，多个会出现异常！");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			return null;
 		}
 	}
 	

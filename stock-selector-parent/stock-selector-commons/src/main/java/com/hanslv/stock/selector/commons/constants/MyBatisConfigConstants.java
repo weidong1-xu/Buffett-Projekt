@@ -9,6 +9,6 @@ package com.hanslv.stock.selector.commons.constants;
  * @author harrylu
  *
  */
-public class MyBatisConfigConstants {
+public abstract class MyBatisConfigConstants {
 	public static final String CONFIG_PATH = "/mybatis/config/mybatis-config.xml";//配置文件路径
 }

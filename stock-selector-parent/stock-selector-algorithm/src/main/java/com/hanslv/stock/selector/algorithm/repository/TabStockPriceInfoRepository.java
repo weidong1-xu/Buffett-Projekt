@@ -1,4 +1,4 @@
-package com.hanslv.stock.selector.crawler.repository;
+package com.hanslv.stock.selector.algorithm.repository;
 
 import java.util.List;
 
@@ -12,6 +12,7 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  * 
  * ----------------------------------------------
  * 1、插入一个集合											public void insertList(@Param("priceList")List<TabStockPriceInfo> priceList , @Param("tableName")String tableName);
+ * 2、插入一条数据											public void insertOne(@Param("tableName")String tableName , @Param("priceInfo")TabStockPriceInfo priceInfo)
  * ----------------------------------------------
  * @author harrylu
  *
@@ -24,6 +25,13 @@ public interface TabStockPriceInfoRepository {
 	 * @param priceList
 	 */
 	public void insertList(@Param("priceList")List<TabStockPriceInfo> priceList , @Param("tableName")String tableName);
+	
+	
+	/**
+	 * 2、插入一条数据
+	 * @param priceInfo
+	 */
+	public void insertOne(@Param("tableName")String tableName , @Param("priceInfo")TabStockPriceInfo priceInfo);
 	
 	
 }

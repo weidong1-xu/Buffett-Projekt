@@ -18,7 +18,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
-import com.hanslv.stock.selector.crawler.util.MessageTransUtil;
+import com.hanslv.stock.selector.crawler.util.CrawlerMessageTransUtil;
 
 /**
  * 股票价格爬虫，实现Callable接口
@@ -50,7 +50,7 @@ public class StockPriceCrawler implements Runnable{
 					.getConnection()
 					.getMapper(TabStockInfoRepository.class)
 					.selectAll());
-			
+			logger.info("共获取到了：" + stockInfoList.size() + "条股票基本信息");
 			/*
 			 * 当获取到的股票基本信息数量为0时，考虑是否没有初始化股票基本信息表
 			 */
@@ -71,23 +71,29 @@ public class StockPriceCrawler implements Runnable{
 	@Override
 	public void run() {
 		/*
-		 * 从股票信息List中获取一条记录
+		 * 从股票信息List中获取记录，
+		 * 当前下标小于List集合长度时继续执行
 		 */
-		TabStockInfo stockInfo = stockInfoList.get(listIndexCounter.getAndIncrement());
-		logger.info(Thread.currentThread() + " 正准备爬取股票：" + stockInfo.getStockCode() + "，" + stockInfo.getStockName() + "的信息");
-		
-		/*
-		 * 获取页面信息并存入List
-		 */
-		JSONObject bodyTextJsonObject = getJsonObject(stockInfo);
-		
-		/*
-		 * 向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
-		 */
-		MessageTransUtil
-			.getInstance()
-			.writeAMessageIntoPriceInfoMessageQueue(
-					parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
+		int currentIndex = 0;//获取当前股票信息List下标
+		while((currentIndex = listIndexCounter.getAndIncrement()) < stockInfoList.size()) {
+			TabStockInfo stockInfo = stockInfoList.get(currentIndex);
+			
+			/*
+			 * 获取页面信息并存入List
+			 */
+			JSONObject bodyTextJsonObject = getJsonObject(stockInfo);
+			if(bodyTextJsonObject != null) {
+				/*
+				 * 向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
+				 */
+				CrawlerMessageTransUtil
+					.getInstance()
+					.writeAMessageIntoPriceInfoMessageQueue(
+							parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
+			}else {
+				logger.warn("当前股票已退市或不存在：" + stockInfo);
+			}
+		}
 	}
 	
 	
@@ -115,7 +121,7 @@ public class StockPriceCrawler implements Runnable{
 	private JSONObject getJsonObject(TabStockInfo stockInfo) {
 		logger.info(Thread.currentThread() + " 正在爬取股票：" + stockInfo.getStockName() + "，" + stockInfo.getStockCode() + "的信息");
 		
-		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix + stockInfo.getStockCode();//爬取目标地址
+		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix + stockInfo.getStockCode();//网址
 		/**
 		 * 判断是否为上证股票
 		 */
@@ -124,7 +130,8 @@ public class StockPriceCrawler implements Runnable{
 		else
 			targetUrl += CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;
 		
-		/**
+		
+		/*
 		 * 获取返回结果的字符串对象
 		 */
 		StringBuffer contextStringBuffer = new StringBuffer(
@@ -134,13 +141,19 @@ public class StockPriceCrawler implements Runnable{
 				.select("body")
 				.text());
 		
-		/**
-		 * 爬虫取回的数据中包含了多余的报文，
-		 * 在此处除去多余部分
+		/*
+		 * 排除股票退市或其他情况
 		 */
-		int subIndex = contextStringBuffer.indexOf("name") - 2;
-		String finalContextStringBuffer = contextStringBuffer.substring(subIndex , contextStringBuffer.length()-1);
-		return JSONObject.parseObject(finalContextStringBuffer);
+		if(contextStringBuffer.length() != 0 && contextStringBuffer.indexOf("name") != -1) {
+			/*
+			 * 爬虫取回的数据中包含了多余的报文，
+			 * 在此处除去多余部分
+			 */
+			int subIndex = contextStringBuffer.indexOf("name") - 2;
+			String finalContextStringBuffer = contextStringBuffer.substring(subIndex , contextStringBuffer.length()-1);
+			return JSONObject.parseObject(finalContextStringBuffer);
+		}else 
+			return null;
 	}
 	
 	
@@ -166,7 +179,7 @@ public class StockPriceCrawler implements Runnable{
 			String[] result = String.valueOf(arrayIterator.next()).split(",");
 			
 			/**
-			 * 跳过数据确实的价格信息
+			 * 跳过数据缺失的价格信息
 			 */
 			if(result.length < 9) {
 				logger.error("--------------股票" + stockCode + "在今天："+ new Date() +" 获取到数据有缺失，请检查数据---------------------");

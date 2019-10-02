@@ -14,6 +14,7 @@ import com.hanslv.stock.selector.commons.dto.TabStockInfo;
  * 1、查询数据条数													public int getCount()
  * 2、插入一个集合													public void insertList(List<TabStockInfo> stockInfoList)
  * 3、删除全部数据													public void deleteAll()
+ * 4、获取全部股票信息数据											public List<TabStockInfo> selectAll()
  * ----------------------------------------
  * 
  * @author harrylu
