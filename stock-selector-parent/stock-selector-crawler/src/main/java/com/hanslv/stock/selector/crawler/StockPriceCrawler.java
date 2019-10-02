@@ -90,9 +90,8 @@ public class StockPriceCrawler implements Runnable{
 					.getInstance()
 					.writeAMessageIntoPriceInfoMessageQueue(
 							parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
-			}else {
+			}else 
 				logger.warn("当前股票已退市或不存在：" + stockInfo);
-			}
 		}
 	}
 	

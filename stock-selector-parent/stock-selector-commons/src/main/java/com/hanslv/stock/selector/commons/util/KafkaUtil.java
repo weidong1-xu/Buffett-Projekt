@@ -24,8 +24,6 @@ import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
  * Kafka工具类
  * 需要在引入commons模块的其他模块下自行配置kafka.properties，
  * 采取非阻塞的方式，在Producer发送消息、Consumer接收消息时都会创建新线程来完成工作，与主线程分开，
- * 每个KafkaUtil实例只支持实例化一个Consumer，多个会出现异常
- * 在使用后需要关闭资源
  * --------------------------------------------
  * 1、向指定的topic发送多条消息												public void sendMessage(String topic , K key , List<V> messageList , Callback callbackLogic)
  * 2、从Topic中获取消息														public void pollMessage(List<String> topicList , long timeout)
@@ -50,10 +48,10 @@ public class KafkaUtil<K , V> {
 	
 	
 	/*
-	 * 记录Consumer消费消息的消息队列
+	 * 存放全部线程从Kafka取回的数据
 	 */
-	private BlockingQueue<V> consumerBlockingQueue;
-
+	BlockingQueue<V> priceInfoBlockingQueue;
+	
 	
 	/**
 	 * 构造方法，需要传入一个当前KafkaUtil实例对应的Properties在当前项目中的相对路径并且文件为UTF-8编码格式，
@@ -75,6 +73,9 @@ public class KafkaUtil<K , V> {
 		
 		producerThreadLocal = new ThreadLocal<>();
 		consumerThreadLocal = new ThreadLocal<>();
+
+		
+		priceInfoBlockingQueue = new ArrayBlockingQueue<>(CommonsKafkaConstants.CONSUMER_BLOCKINGQUEUE_SIZE);
 	}
 	
 	
@@ -99,7 +100,10 @@ public class KafkaUtil<K , V> {
 				for(V message : messageList) {
 					logger.info(Thread.currentThread() + " 向Topic：" + topic + "发送了一条消息：" + String.valueOf(message));
 					try {
-						currentProducerInstance.send(new ProducerRecord<>(topic , key , message) , callbackLogic).get();
+						if(key != null)
+							currentProducerInstance.send(new ProducerRecord<>(topic , key , message) , callbackLogic).get();
+						else
+							currentProducerInstance.send(new ProducerRecord<>(topic , message) , callbackLogic).get();
 					} catch (InterruptedException | ExecutionException e) {
 						e.printStackTrace();
 					}
@@ -127,6 +131,7 @@ public class KafkaUtil<K , V> {
 			 * 实例化currentConsumerInstance
 			 */
 			KafkaConsumer<K , V> currentConsumerInstance = createKafkaConsumer(topicList);
+			
 			/*
 			 * 订阅消息并写入到消息队列
 			 */
@@ -138,7 +143,7 @@ public class KafkaUtil<K , V> {
 							/*
 							 * 存入消息队列
 							 */
-							consumerBlockingQueue.put(record.value());
+							priceInfoBlockingQueue.put(record.value());
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -157,7 +162,7 @@ public class KafkaUtil<K , V> {
 	 */
 	public V takeValueFromConsumerBlockingQueue() {
 		try {
-			return consumerBlockingQueue.take();
+			return priceInfoBlockingQueue.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return null;
@@ -255,10 +260,6 @@ public class KafkaUtil<K , V> {
 	private KafkaConsumer<K , V> createKafkaConsumer(List<String> topicList){
 		KafkaConsumer<K , V> currentConsumerInstance = consumerThreadLocal.get();
 		if(currentConsumerInstance == null) {
-			/*
-			 * 实例化Consumer消息队列
-			 */
-			consumerBlockingQueue = new ArrayBlockingQueue<>(CommonsKafkaConstants.CONSUMER_BLOCKINGQUEUE_SIZE);
 			
 			logger.info(Thread.currentThread() + " 创建了一个KafkaConsumer");
 			currentConsumerInstance = new KafkaConsumer<>(currentProp);
@@ -268,15 +269,8 @@ public class KafkaUtil<K , V> {
 			 */
 			currentConsumerInstance.subscribe(topicList);
 			consumerThreadLocal.set(currentConsumerInstance);
-			return currentConsumerInstance;
-		}else {
-			try {
-				throw new Exception("只支持实例化一个Consumer，多个会出现异常！");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
 		}
+		return currentConsumerInstance;
 	}
 	
 	

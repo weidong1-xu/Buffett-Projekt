@@ -37,7 +37,7 @@ public class DbTabSelectLogic {
 	 * @param currentPriceInfo
 	 * @return
 	 */
-	public static String tableSelector(TabStockPriceInfo currentPriceInfo) {
+	public static String tableSelector(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper) {
 		String tableName = "";
 		
 		/*
@@ -48,18 +48,14 @@ public class DbTabSelectLogic {
 		/*
 		 * 表后缀
 		 */
-		int tabSuffix = currentPriceInfoDay % 3;
+		int tabSuffix = currentPriceInfoDay % 3 + 1;
 		
 		/*
 		 * 获取当前股票基本信息
 		 */
 		TabStockInfo currentStockInfo = null;
-		TabStockInfoRepository stockInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
-		try {
-			currentStockInfo = stockInfoMapper.getStockInfoById(currentPriceInfo.getStockId());
-		}finally {
-			MyBatisUtil.getInstance().closeConnection();
-		}
+		stockInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
+		currentStockInfo = stockInfoMapper.getStockInfoById(currentPriceInfo.getStockId());
 		
 		/*
 		 * 判断是否为上证股票

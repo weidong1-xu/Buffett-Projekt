@@ -94,9 +94,7 @@ public class MyBatisUtil {
 	 */
 	public void commitConnection() {
 		SqlSession session = sessionThreadLocal.get();
-		if(session != null) {
+		if(session != null) 
 			session.commit();
-			logger.info(Thread.currentThread() + " 提交了数据！");
-		}
 	}
 }

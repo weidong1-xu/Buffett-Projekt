@@ -20,7 +20,6 @@ import com.hanslv.stock.selector.crawler.constants.CrawlerKafkaConstants;
  * ---------------------------------------
  * 1、获取KafkaUtil实例											public static KafkaUtil getInstance()
  * 2、向priceInfoMessageQueue写入一组消息						public void writeAMessageIntoPriceInfoMessageQueue(List<TabStockPriceInfo> priceInfoList)
- * 3、向Kafka的Topci写入消息										public void writeToKafkaTopic(String topic , String key , String value)
  * ---------------------------------------
  * @author hanslv
  *
@@ -66,7 +65,7 @@ public class CrawlerMessageTransUtil {
 					/*
 					 * 向Kafka broker发送消息
 					 */
-					writeToKafkaTopic(CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , "" , currentPriceInfoList);
+					writeToKafkaTopic(CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , null , currentPriceInfoList);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -94,13 +93,57 @@ public class CrawlerMessageTransUtil {
 		}
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
-	 * 3、向Kafka的Topic写入消息
+	 * 向Kafka的Topic写入消息
 	 * @param topic
 	 * @param key
 	 * @param value
 	 */
-	public void writeToKafkaTopic(String topic , String key , List<TabStockPriceInfo> value) {
+	private void writeToKafkaTopic(String topic , String key , List<TabStockPriceInfo> value) {
 		/*
 		 * 获取KafkaUtil实例
 		 */

@@ -11,5 +11,5 @@ package com.hanslv.stock.selector.commons.constants;
  */
 public abstract class CommonsKafkaConstants {
 	public static final int CONSUMER_BLOCKINGQUEUE_SIZE = 5000;//Consumer阻塞队列大小
-	public static final String PRICE_INFO_TOPCI_NAME = "priceInfo";//Kafka中股票价格Topic
+	public static final String PRICE_INFO_TOPCI_NAME = "stockPriceInfo";//Kafka中股票价格Topic
 }

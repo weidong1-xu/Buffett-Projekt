@@ -10,6 +10,7 @@ import org.jboss.logging.Logger;
 
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmKafkaConstants;
 import com.hanslv.stock.selector.algorithm.dbTabSelectLogic.DbTabSelectLogic;
+import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
@@ -68,6 +69,7 @@ public class AlgorithmMessageTransUtil {
 		 * 创建N个Consumer并设置在同一消费者组，同时消费消息并落库
 		 */
 		for(int i = 0 ; i < AlgorithmKafkaConstants.CONSUMER_COUNT ; i++) {
+//		for(int i = 0 ; i < 1 ; i++) {
 			KafkaUtil<String , TabStockPriceInfo> kafkaUtil = new KafkaUtil<>(AlgorithmKafkaConstants.KAFKA_PROP_PATH);
 			
 			/*
@@ -75,35 +77,36 @@ public class AlgorithmMessageTransUtil {
 			 */
 			kafkaUtil.pollMessage(topicList , AlgorithmKafkaConstants.BROKER_TIME_OUT_LIMIT);
 			
-			TabStockPriceInfoRepository priceInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockPriceInfoRepository.class);
-			
 			/*
 			 * 创建新线程将消费消息插入数据库
 			 */
 			new Thread(() -> {
+				TabStockPriceInfoRepository priceInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockPriceInfoRepository.class);
+				TabStockInfoRepository stockInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
 				try {
 					while(true) {
 						/*
 						 * 获取一条股票价格信息
 						 */
 						TabStockPriceInfo currentPriceInfoMessage = kafkaUtil.takeValueFromConsumerBlockingQueue();
-						logger.info(Thread.currentThread() + " 从Kafka获取到一条消息：" + currentPriceInfoMessage);
+						logger.info("-------------------" + Thread.currentThread() + " 从Kafka获取到一条消息：" + currentPriceInfoMessage + "-------------------");
 						
 						/*
 						 * 计算分表表名
 						 */
-						String tableName = DbTabSelectLogic.tableSelector(currentPriceInfoMessage);
+						String tableName = DbTabSelectLogic.tableSelector(currentPriceInfoMessage , stockInfoMapper);
+						logger.info(tableName);
 						
 						/*
 						 * 将价格信息落库
 						 */
 						priceInfoMapper.insertOne(tableName, currentPriceInfoMessage);
+						MyBatisUtil.getInstance().commitConnection();
 					}
 				}finally {
-					MyBatisUtil.getInstance().commitConnection();
 					MyBatisUtil.getInstance().closeConnection();
 				}
-			});
+			}).start();
 		}
 	}
 }
