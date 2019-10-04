@@ -9,6 +9,8 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -52,6 +54,18 @@ public class KafkaUtil<K , V> {
 	 */
 	BlockingQueue<V> priceInfoBlockingQueue;
 	
+	/*
+	 * producer线程池
+	 */
+	private static ExecutorService producerThreadPool;
+	
+	static {
+		/*
+		 * 实例化线程池
+		 */
+		producerThreadPool = Executors.newFixedThreadPool(CommonsKafkaConstants.PRODUCER_THREAD_POOL_SIZE);
+	}
+	
 	
 	/**
 	 * 构造方法，需要传入一个当前KafkaUtil实例对应的Properties在当前项目中的相对路径并且文件为UTF-8编码格式，
@@ -76,19 +90,20 @@ public class KafkaUtil<K , V> {
 
 		
 		priceInfoBlockingQueue = new ArrayBlockingQueue<>(CommonsKafkaConstants.CONSUMER_BLOCKINGQUEUE_SIZE);
+		
 	}
 	
 	
 	/**
 	 * 1、向指定的topic发送多条消息
-	 * 创建一个新线程，采用同步发送的方式等待发送结束后再发送下一条消息，在新创建的线程中处理可重试异常
+	 * 向producerThreadPool线程池中提交一个Runnable，采用同步发送的方式等待发送结束后再发送下一条消息，在新创建的线程中处理可重试异常
 	 * @param topic 
 	 * @param key partition策略Key
 	 * @param messageList 包含全部要发送消息的集合
 	 * @param callbackLogic 重试逻辑
 	 */
 	public void sendMessage(String topic , K key , List<V> messageList , Callback callbackLogic) {
-		new Thread(() -> {
+		producerThreadPool.execute(() -> {
 			/*
 			 * 实例化currentProducerInstance
 			 */
@@ -98,7 +113,7 @@ public class KafkaUtil<K , V> {
 			 */
 			try {
 				for(V message : messageList) {
-					logger.info(Thread.currentThread() + " 向Topic：" + topic + "发送了一条消息：" + String.valueOf(message));
+//					logger.info(Thread.currentThread() + " 向Topic：" + topic + "发送了一条消息：" + String.valueOf(message));
 					try {
 						if(key != null)
 							currentProducerInstance.send(new ProducerRecord<>(topic , key , message) , callbackLogic).get();
@@ -111,7 +126,7 @@ public class KafkaUtil<K , V> {
 			}finally {
 				closeProducerConnection();
 			}
-		}).start();
+		});
 	}
 	
 	
@@ -212,7 +227,7 @@ public class KafkaUtil<K , V> {
 	/**
 	 * 关闭当前currentProducerInstance
 	 */
-	private void closeProducerConnection() {
+	void closeProducerConnection() {
 		KafkaProducer<K , V> currentProducerInstance = producerThreadLocal.get();
 		if(currentProducerInstance != null) {
 			currentProducerInstance.close();

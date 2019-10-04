@@ -55,7 +55,6 @@ public class CrawlerMessageTransUtil {
 		 */
 		new Thread(() -> {
 			try {
-				logger.info("启动线程将priceInfoMessageQueue中数据写入KafkaTopic");
 				/*
 				 * 监听priceInfoMessageQueue，从中获取股票价格List
 				 */

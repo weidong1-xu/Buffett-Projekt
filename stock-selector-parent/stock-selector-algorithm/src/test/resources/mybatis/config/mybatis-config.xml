@@ -22,6 +22,7 @@
 	
 	<!-- Mapper映射 -->
 	<mappers>
+		<mapper resource="mybatis/mapper/TabAlgorithmResultMapper.xml"/>
 		<mapper resource="mybatis/mapper/TabStockPriceInfoMapper.xml"/>
 		<mapper resource="mybatis/mapper/TabStockInfoMapper.xml"/>
 	</mappers>

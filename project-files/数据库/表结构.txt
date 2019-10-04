@@ -5,7 +5,7 @@
 股票名称						stock_name										VARCHAR(8)
 -----------------------------------------------------------------------------------------------
 日历翻牌表						tab_daily
-当前日期						current_data_date								DATE
+当前日期						current_data_date								VARCHAR(10)
 -----------------------------------------------------------------------------------------------
 股票价格信息表（分表）			tab_stock_price
 股票ID							stock_id										BIGINT								FOREIGN KEY (fk_stock_price_info)					PRIMARY KEY
@@ -19,10 +19,20 @@
 振幅							stock_price_amplitude							VARCHAR(10)
 换手率							stock_price_turnover_rate						DECIMAL(4,1)
 -----------------------------------------------------------------------------------------------
-
+算法信息表						tab_algorithm_info
+算法ID							algorithm_id									BIGINT								PRIMARY KEY											AUTO_INCREMENT
+算法名称						algorithm_name									VARCHAR(50)
+算法介绍						algorithm_comment								VARCHAR(255)
+更新日期						update_date										VARCHAR(10)
+-----------------------------------------------------------------------------------------------
+算法结果表（分表）				tab_algorithm_result
+算法ID							algorithm_id									BIGINT								FOREIGN KEY (fk_algorithm_result_info)				PRIMARY KEY
+执行日期						run_date										VARCHAR(10)																				PRIMARY KEY
+股票ID							stock_id										BIGINT								FOREIGN KEY (fk_algorithm_result_stockInfo)			PRIMARY KEY
+是否成功						is_success										VARCHAR(10)							DEFAULT 'UNKNOWN'  									SUCCESS FAIL UNKNOWN
+成功率							success_rate									VARCHAR(10)
 -----------------------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------------
 

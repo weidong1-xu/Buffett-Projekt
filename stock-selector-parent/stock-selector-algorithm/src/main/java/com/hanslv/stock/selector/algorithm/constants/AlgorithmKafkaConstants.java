@@ -14,5 +14,5 @@ package com.hanslv.stock.selector.algorithm.constants;
 public abstract class AlgorithmKafkaConstants {
 	public static final String KAFKA_PROP_PATH = "/algorithm-kafka.properties";//kafka配置文件路径
 	public static final long BROKER_TIME_OUT_LIMIT = 5000;//broker处理超时时间
-	public static final int CONSUMER_COUNT = 30;//KafkaConsumer数量
+	public static final int CONSUMER_COUNT = 2;//KafkaConsumer数量
 }

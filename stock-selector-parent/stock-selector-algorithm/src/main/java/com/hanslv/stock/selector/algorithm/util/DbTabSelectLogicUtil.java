@@ -1,4 +1,4 @@
-package com.hanslv.stock.selector.algorithm.dbTabSelectLogic;
+package com.hanslv.stock.selector.algorithm.util;
 
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
@@ -30,7 +30,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
  * @author hanslv
  *
  */
-public class DbTabSelectLogic {
+public class DbTabSelectLogicUtil {
 	
 	/**
 	 * 返回当前价格信息应该插入的表名称
