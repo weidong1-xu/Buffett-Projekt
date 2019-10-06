@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Mapper PUBLIC "-//mybatis.org//DTD 3.0 mapper//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD 3.0 mapper//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--  
  * 算法结果表（分表）				tab_algorithm_result
  * 算法ID							algorithm_id									BIGINT								FOREIGN KEY (fk_algorithm_result_info)				PRIMARY KEY
@@ -16,5 +16,14 @@
 		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_002 WHERE is_success = #{type}
 		UNION
 		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_003 WHERE is_success = #{type}
+	</select>
+	
+	<!-- 获取在当前参数TabAlgorithmResult的runDate之前并且不为UNKNOWN的数据 -->
+	<select id="getAllDataNotUnknownAndByDate" parameterType="com.hanslv.stock.selector.commons.dto.TabAlgorithmResult" resultType="com.hanslv.stock.selector.commons.dto.TabAlgorithmResult">
+		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_001 WHERE is_success &lt;&gt; "UNKNOWN" AND success_rate &lt;= #{paramResultInfo.runDate}
+		UNION
+		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_002 WHERE is_success &lt;&gt; "UNKNOWN" AND success_rate &lt;= #{paramResultInfo.runDate}
+		UNION
+		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_003 WHERE is_success &lt;&gt; "UNKNOWN" AND success_rate &lt;= #{paramResultInfo.runDate}
 	</select>
 </mapper>

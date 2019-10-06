@@ -68,13 +68,4 @@ public class CrawlerService {
 			MyBatisUtil.getInstance().closeConnection();
 		}
 	}
-	
-	
-	/**
-	 * 2、获取全部股票价格信息
-	 */
-	public void getStockPrice() {
-		
-		
-	}
 }

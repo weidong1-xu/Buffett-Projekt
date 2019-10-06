@@ -44,8 +44,8 @@ public class StockInfoCrawler{
 		/**
 		 * 全部股票List
 		 */
-		List<TabStockInfo> stockInfoList = getAllStockInfo(shangzhengTargetElements);
-		stockInfoList.addAll(getAllStockInfo(shenzhengTargetElements));
+		List<TabStockInfo> stockInfoList = stockInfoCrawlerLogic(shangzhengTargetElements);
+		stockInfoList.addAll(stockInfoCrawlerLogic(shenzhengTargetElements));
 		logger.info("------------------------共获取到：" + stockInfoList.size() + "只股票基本信息------------------------");
 		return stockInfoList;
 	}
@@ -65,11 +65,11 @@ public class StockInfoCrawler{
 	
 	
 	/**
-	 * 将全部股票信息转换为List
+	 * 股票信息爬虫执行逻辑，将全部股票信息转换为List
 	 * @param targetElements
 	 * @return
 	 */
-	private List<TabStockInfo> getAllStockInfo(Elements targetElements){
+	private List<TabStockInfo> stockInfoCrawlerLogic(Elements targetElements){
 		List<TabStockInfo> stockInfoList = new LinkedList<>();
 		Iterator<Element> targetElementsIterator = targetElements.iterator();
 		while(targetElementsIterator.hasNext()) {

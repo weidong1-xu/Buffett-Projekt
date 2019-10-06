@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -21,11 +23,12 @@ import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
 import com.hanslv.stock.selector.crawler.util.CrawlerMessageTransUtil;
 
 /**
- * 股票价格爬虫，实现Callable接口
+ * 股票价格爬虫
  * @author hanslv
  *
  */
-public class StockPriceCrawler implements Runnable{
+@Component
+public class StockPriceCrawler{
 	static Logger logger = Logger.getLogger(StockPriceCrawler.class);
 	/*
 	 * 全部股票基本信息List
@@ -36,6 +39,13 @@ public class StockPriceCrawler implements Runnable{
 	 * 原子计数器，每个线程通过这个数字判断从stockInfoList获取下一个股票基本信息的index
 	 */
 	private static AtomicInteger listIndexCounter;
+	
+	/*
+	 * 爬虫数据传输类
+	 */
+	@Autowired
+	private CrawlerMessageTransUtil messageTransUtil;
+	
 	
 	static {
 		listIndexCounter = new AtomicInteger();
@@ -68,8 +78,7 @@ public class StockPriceCrawler implements Runnable{
 	 * 从全部股票基本信息List中获取一个股票信息，
 	 * 执行爬取逻辑并向消息队列中写入一个包含当前股票N天(在Properties文件中指定)价格信息的List
 	 */
-	@Override
-	public void run() {
+	public void runCrawler() {
 		/*
 		 * 从股票信息List中获取记录，
 		 * 当前下标小于List集合长度时继续执行
@@ -79,21 +88,57 @@ public class StockPriceCrawler implements Runnable{
 			TabStockInfo stockInfo = stockInfoList.get(currentIndex);
 			
 			/*
-			 * 获取页面信息并存入List
+			 * 股票价格信息爬虫执行逻辑，执行爬虫获取当前股票的价格信息
 			 */
-			JSONObject bodyTextJsonObject = getJsonObject(stockInfo);
+			JSONObject bodyTextJsonObject = stockPriceCrawlerLogic(stockInfo);
+			
+			/*
+			 * 首先判断当前返回的JSONObject是否为null，为空则不发送到Kafka
+			 */
 			if(bodyTextJsonObject != null) {
 				/*
-				 * 向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
+				 * 将爬取回的JSONObject转换为List后，向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
 				 */
-				CrawlerMessageTransUtil
-					.getInstance()
+				messageTransUtil
 					.writeAMessageIntoPriceInfoMessageQueue(
 							parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
-			}else 
-				logger.warn("当前股票已退市或不存在：" + stockInfo);
+			}
 		}
+		
+		/*
+		 * 发送传输结束标识，用于停止Algorithm模块中消费端消费线程
+		 */
+		messageTransUtil.writeAMessageIntoPriceInfoMessageQueue(null);
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -117,13 +162,13 @@ public class StockPriceCrawler implements Runnable{
 	 * 通过股票信息爬取到对应的价格信息并转换成JSONObject
 	 * @return
 	 */
-	private JSONObject getJsonObject(TabStockInfo stockInfo) {
+	private JSONObject stockPriceCrawlerLogic(TabStockInfo stockInfo) {
 		logger.info(Thread.currentThread() + " 正在爬取股票：" + stockInfo.getStockName() + "，" + stockInfo.getStockCode() + "的信息");
 		
-		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix + stockInfo.getStockCode();//网址
-		/**
-		 * 判断是否为上证股票
+		/*
+		 * 初始化爬取地址
 		 */
+		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix + stockInfo.getStockCode();
 		if(stockInfo.getStockCode().indexOf("6") != 0) 
 			targetUrl += CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;
 		else
@@ -131,7 +176,7 @@ public class StockPriceCrawler implements Runnable{
 		
 		
 		/*
-		 * 获取返回结果的字符串对象
+		 * 获取返回结果的字符串
 		 */
 		StringBuffer contextStringBuffer = new StringBuffer(
 				CrawlerUtil
@@ -218,23 +263,5 @@ public class StockPriceCrawler implements Runnable{
 		}
 		return priceInfoList;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

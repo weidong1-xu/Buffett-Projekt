@@ -18,6 +18,7 @@ import org.jsoup.nodes.Element;
 
 /**
  * 爬虫工具类（单利）
+ * 实例化的PoolingHttpClientConnectionManager不会被关闭
  * ---------------------------------------
  * 1、执行一个HttpGet请求								public Document getHttpResponse(String targetUrl , String encodingType)
  * 2、获取Element中的Text								public String getTextFromElement(Element element)

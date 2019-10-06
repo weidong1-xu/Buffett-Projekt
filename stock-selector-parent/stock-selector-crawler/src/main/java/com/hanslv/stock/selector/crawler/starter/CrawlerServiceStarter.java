@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({"com.hanslv.stock.selector.crawler"})
+@ComponentScan({"com.hanslv.stock.selector"})
 public class CrawlerServiceStarter {
 	public static void main(String[] args) {
 		new SpringApplication(CrawlerServiceStarter.class).run(args);
