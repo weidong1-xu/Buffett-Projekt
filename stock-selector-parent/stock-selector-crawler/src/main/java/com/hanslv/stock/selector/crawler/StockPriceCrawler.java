@@ -100,15 +100,15 @@ public class StockPriceCrawler{
 				 * 将爬取回的JSONObject转换为List后，向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
 				 */
 				messageTransUtil
-					.writeAMessageIntoPriceInfoMessageQueue(
+					.writePriceInfoListToKafkaByThreadPool(
 							parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
 			}
 		}
 		
 		/*
-		 * 发送传输结束标识，用于停止Algorithm模块中消费端消费线程
+		 * 关闭MessageTransUtil中的线程池
 		 */
-		messageTransUtil.writeAMessageIntoPriceInfoMessageQueue(null);
+		messageTransUtil.shudDownThreadPool();
 	}
 	
 	

@@ -31,7 +31,7 @@ public class TestReceivePriceInfoMessageFromTopic {
 		messageTransUtil.getPriceInfoFromKafka();
 		
 		try {
-			TimeUnit.SECONDS.sleep(30);
+			TimeUnit.SECONDS.sleep(10 * 60 * 1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

@@ -1,37 +1,40 @@
-package com.hanslv.stock.selector.algorithm.result;
+package com.hanslv.stock.selector.algorithm;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
+import org.springframework.stereotype.Component;
 
+import com.hanslv.stock.selector.algorithm.AbstractAlgorithm;
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
-import com.hanslv.stock.selector.algorithm.constants.AlgorithmOtherConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
+import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
- * 算法结果计算模块，继承Runnable
+ * 算法结果计算模块
  * 每实例化一个实例会创建一个私有的线程池
- * -------------------------------------------
- * 1、执行方法Runnable，																								public void run()
- * 2、从计算完毕的阻塞队列中取回一条数据																				public static TabAlgorithmResult getknownResultFromBlockingQueue()
- * -------------------------------------------
+ * 使用完毕需要关闭线程池
  * 
  * @author hanslv
  *
  */
-public class IsSuccessAlgorithm implements Runnable{
+@Component
+public class IsSuccessAlgorithm extends AbstractAlgorithm{
 	static Logger logger = Logger.getLogger(IsSuccessAlgorithm.class);
+	
+	/*
+	 * 每个算法都包含一个用于存放计算结果的消息队列
+	 */
+	private static BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
 	
 	/*
 	 * 状态为UNKNOWN的算法结果List
@@ -42,24 +45,6 @@ public class IsSuccessAlgorithm implements Runnable{
 	 * 下标计数器
 	 */
 	private static AtomicInteger indexCounter;
-	
-	/*
-	 * 执行计算的线程池，每个IsSuccessAlgorithm实例包含一个线程池
-	 */
-	private ExecutorService threadPool;
-	
-	
-	public IsSuccessAlgorithm() {
-		/*
-		 * 实例化一个线程池
-		 */
-		threadPool = Executors.newFixedThreadPool(AlgorithmOtherConstants.BASIC_THREAD_POOL_SIZE);
-	}
-	
-	/*
-	 * 计算后结果消息队列
-	 */
-	private static BlockingQueue<TabAlgorithmResult> knownResultBlockingQueue;
 	
 	static {
 		/*
@@ -73,82 +58,65 @@ public class IsSuccessAlgorithm implements Runnable{
 			MyBatisUtil.getInstance().closeConnection();
 		}
 		
-		
 		indexCounter = new AtomicInteger();
 		
-		knownResultBlockingQueue = new ArrayBlockingQueue<>(AlgorithmOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
+		/*
+		 * 实例化内置消息队列
+		 */
+		resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
 	}
 	
-	/**
-	 * 1、执行方法Runnable
-	 */
+	
 	@Override
-	public void run() {
+	void algorithmLogic() {
+		/*
+		 * 当前unKnownResultList下标
+		 */
+		int currentIndex = 0;
 		try {
 			/*
-			 * 向线程池提交任务
+			 * 循环直到unKnownResultList最后一个元素
 			 */
-			for(int i = 0 ; i < AlgorithmOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) {
-				threadPool.execute(() -> {
-					/*
-					 * 当前unKnownResultList下标
-					 */
-					int currentIndex = 0;
-					try {
-						/*
-						 * 循环直到unKnownResultList最后一个元素
-						 */
-						while((currentIndex = indexCounter.getAndIncrement()) < unknownResultList.size()) {
-							/*
-							 * 状态为unknown的算法结果
-							 */
-							TabAlgorithmResult currentUnknownResult = unknownResultList.get(currentIndex);
-							
-							/*
-							 * 查询回的股票价格信息
-							 */
-							List<TabStockPriceInfo> priceInfoList = getStockPriceInfoByCurrentUnknownResult(currentUnknownResult);
-							
-							/*
-							 * 获取结果
-							 */
-							compareLogic(priceInfoList , currentUnknownResult);
-							
-							
-							/*
-							 * 将结果放入到消息队列
-							 */
-							try {
-								knownResultBlockingQueue.put(currentUnknownResult);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}finally {
-						/*
-						 * 关闭数据库连接
-						 */
-						MyBatisUtil.getInstance().closeConnection();
-					}
-				});
+			while((currentIndex = indexCounter.getAndIncrement()) < unknownResultList.size()) {
+				/*
+				 * 状态为unknown的算法结果
+				 */
+				TabAlgorithmResult currentUnknownResult = unknownResultList.get(currentIndex);
+				
+				/*
+				 * 查询回的股票价格信息
+				 */
+				List<TabStockPriceInfo> priceInfoList = getStockPriceInfoByCurrentUnknownResult(currentUnknownResult);
+				
+				/*
+				 * 获取结果
+				 */
+				compareLogic(priceInfoList , currentUnknownResult);
+				
+				
+				/*
+				 * 将结果放入到消息队列
+				 */
+				writeToResultBlockingQueue(currentUnknownResult);
 			}
 		}finally {
 			/*
-			 * 关闭资源
+			 * 关闭数据库连接
 			 */
-			threadPool.shutdown();
+			MyBatisUtil.getInstance().closeConnection();
 		}
 	}
 	
 	
+
 	/**
-	 * 2、从计算完毕的阻塞队列中取回一条数据
+	 * 从内置消息队列中获取一个结果
 	 * @return
 	 */
-	public static TabAlgorithmResult getknownResultFromBlockingQueue() {
+	public static TabAlgorithmResult getResultFromInnerBlockingQueue() {
 		TabAlgorithmResult result = null;
 		try {
-			result =  knownResultBlockingQueue.take();
+			result = resultBlockingQueue.take();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -174,6 +142,11 @@ public class IsSuccessAlgorithm implements Runnable{
 	
 	
 	
+	
+	
+	
+	
+
 	
 	
 	
@@ -237,6 +210,16 @@ public class IsSuccessAlgorithm implements Runnable{
 	}
 	
 	
-	
+	/**
+	 * 向消息队列中写入一条消息
+	 * @param result
+	 */
+	private void writeToResultBlockingQueue(TabAlgorithmResult result) {
+		try {
+			resultBlockingQueue.put(result);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 	
 }

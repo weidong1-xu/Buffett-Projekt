@@ -5,10 +5,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +16,8 @@ import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
  * Kafka工具类
  * 
  * --------------------------------------------
- * 1、向指定的topic发送多条消息												public void sendMessage(String topic , K key , List<V> messageList)
- * 2、从Topic中获取股票价格消息并写入到消息队列中								public void pollMessageFromPriceInfoTopic(ConsumerRecord<K , V> priceInfoMessage)
+ *1、向指定的topic发送多条消息												public void sendMessage(String topic , K key , List<V> messageList , String flagName , String flagValue)
+ * 2、向Consumer消息队列中写入消息											public void writeToConsumerBlockingQueue(V value)
  * 3、从Consumer消息队列中获取一个消息										public V takeValueFromConsumerBlockingQueue()
  * --------------------------------------------
  * @author hanslv
@@ -52,9 +50,11 @@ public class KafkaUtil<K , V> {
 	 * @param topic 
 	 * @param key partition策略Key
 	 * @param messageList 包含全部要发送消息的集合
-	 * @param callbackLogic 重试逻辑
+	 * @param flagName
+	 * @param flagValue
 	 */
-	public void sendMessage(String topic , K key , List<V> messageList) {
+	public void sendMessage(String topic , K key , List<V> messageList , String flagName , String flagValue) {
+//		kafkaTemplate.setProducerListener(producerListener);//指定回调逻辑
 		/*
 		 * 遍历要发送的消息List
 		 */
@@ -71,21 +71,18 @@ public class KafkaUtil<K , V> {
 		}
 	}
 	
-	
-	/**
-	 * 2、从Topic中获取股票价格消息并写入到消息队列中
-	 * @param topicList
-	 * @param timeout
-	 * @return
+
+	/*
+	 * 2、向Consumer消息队列中写入消息
 	 */
-	@KafkaListener(topics = CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , containerFactory = "stockPriceInfoKafkaListenerContainerFactory")
-	public void pollMessageFromPriceInfoTopic(ConsumerRecord<K , V> priceInfoMessage) {
+	public void writeToConsumerBlockingQueue(V value) {
 		try {
-			priceInfoBlockingQueue.put(priceInfoMessage.value());
+			priceInfoBlockingQueue.put(value);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
+	
 	
 	
 	/**
