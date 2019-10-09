@@ -25,5 +25,6 @@
 		<mapper resource="mybatis/mapper/TabAlgorithmResultMapper.xml"/>
 		<mapper resource="mybatis/mapper/TabStockPriceInfoMapper.xml"/>
 		<mapper resource="mybatis/mapper/TabStockInfoMapper.xml"/>
+		<mapper resource="mybatis/mapper/TabAlgorithmInfoMapper.xml"/>
 	</mappers>
 </configuration>

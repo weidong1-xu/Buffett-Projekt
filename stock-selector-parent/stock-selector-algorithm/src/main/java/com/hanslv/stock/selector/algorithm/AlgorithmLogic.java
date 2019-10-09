@@ -1,18 +1,25 @@
 package com.hanslv.stock.selector.algorithm;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.stereotype.Component;
+
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmOtherConstants;
+import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmInfoRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
+import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
  * 算法模板
- * 包含一个公用线程池、需要执行的算法队列、执行完毕算法计数器
+ * 包含一个公用线程池、需要执行的算法队列、执行完毕算法计数器、当前日期String
  * 
  * 执行前准备：
  * 实例化公用线程池
@@ -25,7 +32,7 @@ import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
  *  获取当前计数器的值
  * 	while(算法计数器!=0)循环：
  * 		从算法队列中取出一个TabAlgorithmInfo
- * 		查询数据库中对应算法的最大run_date并与当前日期比较
+ * 		查询数据库中对应算法的最后run_date并与当前日期比较
  * 			小于当前日期-算法时间区间
  * 				用最大时间执行algorithmLogic()方法
  * 				将计算结果插入数据库
@@ -42,7 +49,8 @@ import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
  * 
  * @author hanslv
  */
-public abstract class AbstractAlgorithmLogic {
+@Component
+public class AlgorithmLogic {
 	/*
 	 * 公用线程池，调用runAlgorithm()方法向该线程池提交一个算法逻辑并运算
 	 */
@@ -59,6 +67,11 @@ public abstract class AbstractAlgorithmLogic {
 	private static BlockingQueue<TabAlgorithmInfo> incompleteBlockingQueue;
 	
 	/*
+	 * 当前日期String
+	 */
+	private static String currentDate;
+	
+	/*
 	 * 初始化
 	 */
 	static {
@@ -68,23 +81,57 @@ public abstract class AbstractAlgorithmLogic {
 		initAlgorithms();
 	}
 	
+	
+	/**
+	 * 运行全部算法
+	 */
+	public static void runAlgorithm() {
+		/*
+		 * 提交N个任务
+		 */
+		for(int i = 0 ; i < AlgorithmOtherConstants.ALGORITHM_THREAD_POOL_SIZE ; i++) {
+			publicThreadPool.execute(() -> {
+				int currentCounter = 0;
+				
+				/*
+				 * 获取当前计数器，while(算法计数器!=0)循环
+				 */
+				while((currentCounter = getCounter()) >= 0) {
+					TabAlgorithmInfo currentAlgorithmInfo = takeFromIncomplateBlockingQueue();
+					
+					/*
+					 * 获取算法结果表中该算法的最后更新时间
+					 */
+				}
+			});
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 需要子类实现的算法逻辑
+	 */
+	void algorithmLogic(TabAlgorithmInfo currentAlgorithmInfo) {}
+	
+	
 	/**
 	 * 关闭公用线程池
 	 */
-	void shutdownThreadPool() {
+	static void shutdownThreadPool() {
 		publicThreadPool.shutdown();
-	}
-	
-	/**
-	 * 向队列中放入未完成算法信息
-	 * @param incomplateAlgorithmInfo
-	 */
-	void putIncomplateAlgorithmInfo(TabAlgorithmInfo incomplateAlgorithmInfo) {
-		try {
-			incompleteBlockingQueue.put(incomplateAlgorithmInfo);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	
@@ -92,7 +139,7 @@ public abstract class AbstractAlgorithmLogic {
 	 * 从未完成队列中取出算法信息
 	 * @return
 	 */
-	TabAlgorithmInfo takeFromIncomplateBlockingQueue() {
+	static TabAlgorithmInfo takeFromIncomplateBlockingQueue() {
 		TabAlgorithmInfo incomplateAlgorithmInfo = null;
 		try {
 			incomplateAlgorithmInfo = incompleteBlockingQueue.take();
@@ -102,17 +149,12 @@ public abstract class AbstractAlgorithmLogic {
 		return incomplateAlgorithmInfo;
 	}
 	
-	/**
-	 * 计数器加1
-	 */
-	int addCounter() {
-		return counter.incrementAndGet();
-	}
+
 	
 	/**
 	 * 计数器减1
 	 */
-	int decrCounter() {
+	static int decrCounter() {
 		return counter.decrementAndGet();
 	}
 	
@@ -120,7 +162,7 @@ public abstract class AbstractAlgorithmLogic {
 	 * 计数器获取
 	 * @return
 	 */
-	int getCounter() {
+	static int getCounter() {
 		return counter.get();
 	}
 	
@@ -168,6 +210,58 @@ public abstract class AbstractAlgorithmLogic {
 	 * 初始化未完成算法队列
 	 */
 	private static void initAlgorithms() {
+		/*
+		 * 获取全部算法信息LIst
+		 */
+		TabAlgorithmInfoRepository algorithmInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmInfoRepository.class);
+		List<TabAlgorithmInfo> algorithmInfoList = algorithmInfoMapper.getAllAlgorithmInfo();
 		
+		/*
+		 * 将算法信息放入阻塞队列并初始化计数器
+		 */
+		for(TabAlgorithmInfo algorithmInfo : algorithmInfoList) {
+			putIncomplateAlgorithmInfo(algorithmInfo);
+			addCounter();
+		}
+		
+		/*
+		 * 初始化今天日期
+		 */
+		currentDate = getCurrentDate();
+	}
+	
+	
+	
+	
+	/**
+	 * 向队列中放入未完成算法信息
+	 * @param incomplateAlgorithmInfo
+	 */
+	private static void putIncomplateAlgorithmInfo(TabAlgorithmInfo incomplateAlgorithmInfo) {
+		try {
+			incompleteBlockingQueue.put(incomplateAlgorithmInfo);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	/**
+	 * 计数器加1
+	 */
+	private static int addCounter() {
+		return counter.incrementAndGet();
+	}
+	
+	/**
+	 * 获取当前日期
+	 * @return
+	 */
+	private static String getCurrentDate() {
+		Date currentDate = new Date();
+		String format = "yyyy-MM-dd";
+		SimpleDateFormat sdf = new SimpleDateFormat(format);
+		return sdf.format(currentDate);
 	}
 }

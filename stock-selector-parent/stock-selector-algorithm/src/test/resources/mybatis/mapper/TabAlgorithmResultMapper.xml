@@ -26,4 +26,15 @@
 		UNION
 		SELECT algorithm_id , run_date , stock_id , is_success , success_rate FROM tab_algorithm_result_003 WHERE is_success &lt;&gt; "UNKNOWN" AND success_rate &lt;= #{paramResultInfo.runDate}
 	</select>
+	
+	<!-- 获取一个算法的当前最后执行时间 -->
+	<select id="getMaxRunDateByAlgorithmId" resultType="java.lang.String" parameterType="com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo">
+		SELECT MAX(run_date) AS run_date FROM tab_algorithm_result_001 WHERE algorithm_id = #{paramResultInfo.algorithmId}
+		UNION
+		SELECT MAX(run_date) AS run_date FROM tab_algorithm_result_002 WHERE algorithm_id = #{paramResultInfo.algorithmId}
+		UNION
+		SELECT MAX(run_date) AS run_date FROM tab_algorithm_result_003 WHERE algorithm_id = #{paramResultInfo.algorithmId}
+		ORDER BY run_date
+		LIMIT 1
+	</select>
 </mapper>

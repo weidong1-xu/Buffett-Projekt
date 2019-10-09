@@ -268,6 +268,8 @@ CREATE TABLE tab_algorithm_info
 (
 	algorithm_id BIGINT PRIMARY KEY AUTO_INCREMENT,
 	algorithm_name VARCHAR(50),
+	algorithm_class_name VARCHAR(255),
+	algorithm_day_count VARCHAR(4),
 	algorithm_comment VARCHAR(255),
 	update_date VARCHAR(10)
 )
@@ -284,6 +286,10 @@ SELECT * FROM tab_algorithm_info;
 
 /*删除算法信息表全部数据*/
 DELETE FROM tab_algorithm_info;
+
+/*删除表*/
+DROP TABLE tab_algorithm_info;
+
 
 /* ------------------------------------------------------------------ */
 /*算法结果表001*/
@@ -430,6 +436,7 @@ UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
 FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
 ORDER BY stock_price_date ASC;
+
 
 
 
