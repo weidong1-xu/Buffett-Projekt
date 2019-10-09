@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jboss.logging.Logger;
 import org.springframework.stereotype.Component;
 
-import com.hanslv.stock.selector.algorithm.AbstractAlgorithm;
+import com.hanslv.stock.selector.algorithm.AbstractResultAlgorithm;
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
@@ -28,7 +28,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
  *
  */
 @Component
-public class IsSuccessAlgorithm extends AbstractAlgorithm{
+public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 	static Logger logger = Logger.getLogger(IsSuccessAlgorithm.class);
 	
 	/*

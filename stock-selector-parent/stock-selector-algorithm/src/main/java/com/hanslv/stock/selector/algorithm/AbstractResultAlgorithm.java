@@ -15,7 +15,7 @@ import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
  * @author hanslv
  *
  */
-public abstract class AbstractAlgorithm {
+public abstract class AbstractResultAlgorithm {
 	/*
 	 * 每个算法都包含一个内置线程池
 	 */

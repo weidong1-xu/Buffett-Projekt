@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.springframework.stereotype.Component;
 
-import com.hanslv.stock.selector.algorithm.AbstractAlgorithm;
+import com.hanslv.stock.selector.algorithm.AbstractResultAlgorithm;
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
@@ -22,7 +22,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
  *
  */
 @Component
-public class SuccessRateAlgorithm extends AbstractAlgorithm{
+public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	
 	/*
 	 * 每个算法都包含一个用于存放计算结果的消息队列
