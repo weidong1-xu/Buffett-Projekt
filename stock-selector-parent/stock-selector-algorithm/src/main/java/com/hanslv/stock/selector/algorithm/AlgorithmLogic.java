@@ -1,7 +1,6 @@
 package com.hanslv.stock.selector.algorithm;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmOtherConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmInfoRepository;
+import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
 import com.hanslv.stock.selector.commons.util.MyBatisUtil;
@@ -69,7 +69,7 @@ public class AlgorithmLogic {
 	/*
 	 * 当前日期String
 	 */
-	private static String currentDate;
+	private static LocalDate currentDate;
 	
 	/*
 	 * 初始化
@@ -91,17 +91,33 @@ public class AlgorithmLogic {
 		 */
 		for(int i = 0 ; i < AlgorithmOtherConstants.ALGORITHM_THREAD_POOL_SIZE ; i++) {
 			publicThreadPool.execute(() -> {
+				TabAlgorithmResultRepository algorithmResultMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
 				int currentCounter = 0;
 				
 				/*
 				 * 获取当前计数器，while(算法计数器!=0)循环
 				 */
-				while((currentCounter = getCounter()) >= 0) {
-					TabAlgorithmInfo currentAlgorithmInfo = takeFromIncomplateBlockingQueue();
-					
-					/*
-					 * 获取算法结果表中该算法的最后更新时间
-					 */
+				try {
+					while((currentCounter = getCounter()) >= 0) {
+						TabAlgorithmInfo currentAlgorithmInfo = takeFromIncomplateBlockingQueue();
+						
+						/*
+						 * 获取算法结果表中该算法的最后更新时间
+						 */
+						String lastRunDate = algorithmResultMapper.getMaxRunDateByAlgorithmId(currentAlgorithmInfo);
+						
+						/*
+						 * 小于当前日期-算法时间区间
+						 */
+						if(!checkLastRunDate(currentAlgorithmInfo.getAlgorithmDayCount() , lastRunDate)) {
+							/**
+							 * 执行当前算法的algorithmLogic()方法
+							 */
+						}
+						
+					}
+				}finally {
+					MyBatisUtil.getInstance().closeConnection();
 				}
 			});
 		}
@@ -227,7 +243,7 @@ public class AlgorithmLogic {
 		/*
 		 * 初始化今天日期
 		 */
-		currentDate = getCurrentDate();
+		currentDate = LocalDate.now();
 	}
 	
 	
@@ -255,13 +271,15 @@ public class AlgorithmLogic {
 	}
 	
 	/**
-	 * 获取当前日期
-	 * @return
+	 * 判断当前最后执行时间是否小于当前日期-算法时间区间
+	 * @param algorithmDayCount
+	 * @param currentLastRunDate
+	 * @return false需要继续执行
 	 */
-	private static String getCurrentDate() {
-		Date currentDate = new Date();
-		String format = "yyyy-MM-dd";
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return sdf.format(currentDate);
+	private static boolean checkLastRunDate(String algorithmDayCount , String currentLastRunDate) {
+		Integer currentLastRunDateInt = Integer.parseInt(currentLastRunDate.replaceAll("-", ""));//当前算法最后运行时间
+		Integer checkDateInt = Integer.parseInt(currentDate.minusDays(Long.parseLong(algorithmDayCount)).toString().replaceAll("-", ""));//需要对比的时间（当前日期-算法时间区间）
+		System.out.println(currentLastRunDateInt + "-" + checkDateInt + " <= 0");
+		return currentLastRunDateInt - checkDateInt > 0 ? true : false;
 	}
 }
