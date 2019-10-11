@@ -34,7 +34,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
  * 	while(算法计数器!=0)循环：
  * 		从算法队列中取出一个TabAlgorithmInfo
  * 		查询数据库中对应算法的最后run_date并与当前日期比较
- * 			小于当前日期-算法时间区间
+ * 			小于当前日期-(算法时间区间+1)
  * 				用最大时间执行algorithmLogic()方法
  * 				将计算结果插入数据库
  * 				将当前算法TabAlgorithmInfo放入到需要执行的算法队列
@@ -112,9 +112,9 @@ public class AlgorithmLogic {
 						String lastRunDate = algorithmResultMapper.getMaxRunDateByAlgorithmId(currentAlgorithmInfo);
 						
 						/*
-						 * 小于当前日期-算法时间区间
+						 * 小于(当前日期-(算法时间区间+1))
 						 */
-						if(!checkLastRunDate(currentAlgorithmInfo.getAlgorithmDayCount() , lastRunDate)) {
+						if(checkLastRunDate(currentAlgorithmInfo.getAlgorithmDayCount() , lastRunDate)) {
 							/**
 							 * 利用反射执行当前算法的algorithmLogic()方法
 							 */
@@ -305,15 +305,15 @@ public class AlgorithmLogic {
 	}
 	
 	/**
-	 * 判断当前最后执行时间是否小于当前日期-算法时间区间
+	 * 判断当前最后执行时间是否小于当前日期-(算法时间区间+1)
 	 * @param algorithmDayCount
 	 * @param currentLastRunDate
-	 * @return false需要继续执行
+	 * @return true需要继续执行
 	 */
 	private static boolean checkLastRunDate(String algorithmDayCount , String currentLastRunDate) {
 		Integer currentLastRunDateInt = Integer.parseInt(currentLastRunDate.replaceAll("-", ""));//当前算法最后运行时间
-		Integer checkDateInt = Integer.parseInt(currentDate.minusDays(Long.parseLong(algorithmDayCount)).toString().replaceAll("-", ""));//需要对比的时间（当前日期-算法时间区间）
+		Integer checkDateInt = Integer.parseInt(currentDate.minusDays(Long.parseLong(algorithmDayCount) + 1l).toString().replaceAll("-", ""));//需要对比的时间（当前日期-算法时间区间）
 		System.out.println(currentLastRunDateInt + "-" + checkDateInt + " <= 0");
-		return currentLastRunDateInt - checkDateInt > 0 ? true : false;
+		return currentLastRunDateInt.compareTo(checkDateInt) <= 0 ? true : false;
 	}
 }
