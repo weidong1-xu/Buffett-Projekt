@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
 import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
@@ -30,22 +31,40 @@ public class StockInfoCrawler{
 		 */
 		Document htmlDocument = CrawlerUtil.getInstance().getHttpResponse(CrawlerConstants.stockInfoTargetUrl , CrawlerConstants.stockEncoding);
 		
-		/**
+		/*
 		 * 使用CSS选择器获取获取全部符合要求的上证股票节点
 		 */
 		Elements shangzhengTargetElements = htmlDocument.select(CrawlerConstants.shangzhengStockInfoCssSelector);
 		
-		/**
+		/*
 		 * 使用CSS选择器获取获取全部符合要求的深证股票节点
 		 */
 		Elements shenzhengTargetElements = htmlDocument.select(CrawlerConstants.shenzhengStockInfoCssSelector);
 		
 		
-		/**
+		/*
 		 * 全部股票List
 		 */
 		List<TabStockInfo> stockInfoList = stockInfoCrawlerLogic(shangzhengTargetElements);
 		stockInfoList.addAll(stockInfoCrawlerLogic(shenzhengTargetElements));
+		
+		/*
+		 * 加入指数信息
+		 */
+		TabStockInfo shangzhengStockInfo = new TabStockInfo();
+		shangzhengStockInfo.setStockCode(CommonsOtherConstants.SHANGZHENG_ZHISHU_STOCK_CODE);
+		shangzhengStockInfo.setStockName(CommonsOtherConstants.SHANGZHENG_ZHISHU_STOCK_NAME);
+		TabStockInfo shenzhengStockInfo = new TabStockInfo();
+		shenzhengStockInfo.setStockCode(CommonsOtherConstants.SHENZHENG_ZHISHU_STOCK_CODE);
+		shenzhengStockInfo.setStockName(CommonsOtherConstants.SHENZHENG_ZHISHU_STOCK_NAME);
+		TabStockInfo chuangyeStockInfo = new TabStockInfo();
+		chuangyeStockInfo.setStockCode(CommonsOtherConstants.CHUANGYEBAN_ZHISHU_STOCK_CODE);
+		chuangyeStockInfo.setStockName(CommonsOtherConstants.CHUANGYEBAN_ZHISHU_STOCK_NAME);
+		
+		stockInfoList.add(shangzhengStockInfo);
+		stockInfoList.add(shenzhengStockInfo);
+		stockInfoList.add(chuangyeStockInfo);
+		
 		logger.info("------------------------共获取到：" + stockInfoList.size() + "只股票基本信息------------------------");
 		return stockInfoList;
 	}

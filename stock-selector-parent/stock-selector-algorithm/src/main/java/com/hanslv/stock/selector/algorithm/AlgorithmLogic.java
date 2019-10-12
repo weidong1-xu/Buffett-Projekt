@@ -1,6 +1,5 @@
 package com.hanslv.stock.selector.algorithm;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -13,32 +12,33 @@ import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmOtherConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmInfoRepository;
-import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
+import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
+import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
 import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
  * 算法模板
- * 包含一个公用线程池、需要执行的算法队列、执行完毕算法计数器、当前日期
+ * 包含一个公用线程池、需要执行的算法队列、执行完毕算法计数器、上证指数StockID
  * 
  * 执行前准备：
  * 实例化公用线程池
  * 实例化需要执行的算法队列(泛型：TabAlgorithmInfo)
  * 实例化执行完毕算法计数器
- * 查询数据库中全部的算法ID、算法名称、算法类全名、算法时间区间并放入需要执行的算法队列中并将计数器+1
+ * 查询数据库中全部的算法ID、算法名称、算法类全名、算法时间区间并放入需要执行的算法队列中并将计数器
  * 
  * runAlgorithm()方法逻辑：
  * 提交N个任务到线程池：
  *  获取当前计数器的值
  * 	while(算法计数器!=0)循环：
  * 		从算法队列中取出一个TabAlgorithmInfo
- * 		查询数据库中对应算法的最后run_date并与当前日期比较
- * 			小于当前日期-(算法时间区间+1)
+ * 		数据库中比当前日期currentLastRunDate大的上证指数信息数量是否大于等于时间区间
+ * 			是
  * 				用最大时间执行algorithmLogic()方法
  * 				将计算结果插入数据库
  * 				将当前算法TabAlgorithmInfo放入到需要执行的算法队列
- * 			否则
+ * 			否
  * 				执行完毕计数器-1
  * 				判断当前算法计数器是否为0
  * 					是
@@ -70,9 +70,9 @@ public class AlgorithmLogic {
 	private static BlockingQueue<TabAlgorithmInfo> incompleteBlockingQueue;
 	
 	/*
-	 * 当前日期
+	 * 上证指数StockID
 	 */
-	private static LocalDate currentDate;
+	private static String shangzhengStockId;
 	
 	/**
 	 * 运行全部算法
@@ -88,8 +88,6 @@ public class AlgorithmLogic {
 		 */
 		for(int i = 0 ; i < AlgorithmOtherConstants.ALGORITHM_THREAD_POOL_SIZE ; i++) {
 			publicThreadPool.execute(() -> {
-				TabAlgorithmResultRepository algorithmResultMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
-				
 				/*
 				 * 获取当前计数器，while(算法计数器!=0)循环
 				 * 
@@ -107,20 +105,15 @@ public class AlgorithmLogic {
 						TabAlgorithmInfo currentAlgorithmInfo = takeFromIncomplateBlockingQueue();
 						
 						/*
-						 * 获取算法结果表中该算法的最后更新时间
+						 * 数据库中比当前日期currentLastRunDate大的上证指数信息数量是否大于等于时间区间
 						 */
-						String lastRunDate = algorithmResultMapper.getMaxRunDateByAlgorithmId(currentAlgorithmInfo);
-						
-						/*
-						 * 小于(当前日期-(算法时间区间+1))
-						 */
-						if(checkLastRunDate(currentAlgorithmInfo.getAlgorithmDayCount() , lastRunDate)) {
+						if(checkLastRunDate(currentAlgorithmInfo.getAlgorithmDayCount() , currentAlgorithmInfo.getUpdateDate())) {
 							/**
 							 * 利用反射执行当前算法的algorithmLogic()方法
 							 */
 							try {
 								AlgorithmLogic currentAlgorithm = (AlgorithmLogic) Class.forName(currentAlgorithmInfo.getAlgorithmClassName()).newInstance();
-								currentAlgorithm.algorithmLogic(lastRunDate);
+								currentAlgorithm.algorithmLogic(currentAlgorithmInfo.getUpdateDate());
 								
 								/*
 								 * 将当前算法放回阻塞队列
@@ -169,6 +162,7 @@ public class AlgorithmLogic {
 	
 	/**
 	 * 需要子类实现的算法逻辑
+	 * 执行后需要更新当前算法的最后执行时间TabAlgorithmInfo.updateDate
 	 * 数据库连接交由外层runAlgorithm()方法管理，方法中不可关闭
 	 */
 	void algorithmLogic(String lastRunDate) {}
@@ -291,9 +285,10 @@ public class AlgorithmLogic {
 		}
 		
 		/*
-		 * 初始化今天日期
+		 * 上证指数StockId
 		 */
-		currentDate = LocalDate.now();
+		TabStockInfoRepository stockInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
+		shangzhengStockId = String.valueOf(stockInfoMapper.getStockInfoByCode(CommonsOtherConstants.SHANGZHENG_ZHISHU_STOCK_CODE).getStockId());
 	}
 	
 	
@@ -305,15 +300,15 @@ public class AlgorithmLogic {
 	}
 	
 	/**
-	 * 判断当前最后执行时间是否小于当前日期-(算法时间区间+1)
+	 * 数据库中比当前日期currentLastRunDate大的上证指数信息数量是否大于等于时间区间
 	 * @param algorithmDayCount
 	 * @param currentLastRunDate
 	 * @return true需要继续执行
 	 */
 	private static boolean checkLastRunDate(String algorithmDayCount , String currentLastRunDate) {
-		Integer currentLastRunDateInt = Integer.parseInt(currentLastRunDate.replaceAll("-", ""));//当前算法最后运行时间
-		Integer checkDateInt = Integer.parseInt(currentDate.minusDays(Long.parseLong(algorithmDayCount) + 1l).toString().replaceAll("-", ""));//需要对比的时间（当前日期-算法时间区间）
-		System.out.println(currentLastRunDateInt + "-" + checkDateInt + " <= 0");
-		return currentLastRunDateInt.compareTo(checkDateInt) <= 0 ? true : false;
+		TabStockPriceInfoRepository stockPriceInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockPriceInfoRepository.class);
+		int currentShangzhengDayCount = Integer.parseInt(stockPriceInfoMapper.selectPriceInfoCountByStockIdAndAfterDate(shangzhengStockId , currentLastRunDate));
+		int currentDayCountInt = Integer.parseInt(algorithmDayCount);
+		return currentShangzhengDayCount >= currentDayCountInt ? true : false;
 	}
 }

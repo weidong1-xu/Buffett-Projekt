@@ -62,4 +62,28 @@
 		ORDER BY stock_price_date ASC
 		LIMIT ${limit}
 	</select>
+	
+	<!-- 获取指定日期后的全部指定股票信息数量 -->
+	<select id="selectPriceInfoCountByStockIdAndAfterDate" resultType="java.lang.String">
+		SELECT SUM(unionTable.count_stock_id)
+		FROM(
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		UNION
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		UNION
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		UNION
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		UNION
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		UNION
+		SELECT COUNT(stock_id) AS count_stock_id
+		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt;= #{dayCondition}
+		) unionTable
+	</select>
 </mapper>

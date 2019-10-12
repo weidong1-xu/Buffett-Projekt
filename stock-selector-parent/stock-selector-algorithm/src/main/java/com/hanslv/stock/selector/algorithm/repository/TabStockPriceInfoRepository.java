@@ -16,6 +16,7 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  * 2、插入一条数据											public void insertOne(@Param("tableName")String tableName , @Param("priceInfo")TabStockPriceInfo priceInfo)
  * 3、获取一条数据											public TabStockPriceInfo selectOne(@Param("tableName") String tableName , @Param("priceInfo") TabStockPriceInfo currentPriceInfo)
  * 4、获取一只股票在指定日期后指定条数的全部信息				public List<TabStockPriceInfo> selectByStockIdAndAfterDateLimit(@Param("priceInfo")TabStockPriceInfo currentPriceInfo , @Param("limit")String limitCount)
+ * 5、获取指定日期后的全部指定股票信息数量						public String selectPriceInfoCountByStockIdAndAfterDate(@Param("dayCondition")String day)
  * ----------------------------------------------
  * @author harrylu
  *
@@ -64,6 +65,14 @@ public interface TabStockPriceInfoRepository {
 	 * @return
 	 */
 	public List<TabStockPriceInfo> selectByStockIdAndAfterDateLimit(@Param("priceInfo")TabStockPriceInfo currentPriceInfo , @Param("limit")String limitCount);
+	
+	/**
+	 * 5、获取指定日期后的全部指定股票信息数量 
+	 * @param stockId
+	 * @param day
+	 * @return
+	 */
+	public String selectPriceInfoCountByStockIdAndAfterDate(@Param("stock_id")String stockId , @Param("dayCondition")String day);
 	
 	
 }
