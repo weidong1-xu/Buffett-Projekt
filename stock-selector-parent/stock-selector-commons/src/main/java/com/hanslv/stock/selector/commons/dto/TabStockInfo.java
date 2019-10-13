@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 股票基本信息表					tab_stock_info
  * 股票ID							stock_id										BIGINT								PRIMARY KEY					AUTO_INCREMENT
- * 股票代码							stock_code										VARCHAR(6)							UNIQUE
+ * 股票代码							stock_code										VARCHAR(10)							UNIQUE
  * 股票名称							stock_name										VARCHAR(8)
  * @author harrylu
  *

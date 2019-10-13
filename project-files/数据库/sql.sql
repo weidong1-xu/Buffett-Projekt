@@ -13,7 +13,7 @@ SHOW TABLES;
 CREATE TABLE tab_stock_info
 (
 	stock_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-	stock_code VARCHAR(6) UNIQUE,
+	stock_code VARCHAR(10) UNIQUE,
 	stock_name VARCHAR(8)
 )
 ENGINE=INNODB DEFAULT CHARSET=UTF8;
@@ -27,6 +27,11 @@ SELECT COUNT(stock_code) FROM tab_stock_info;
 /*查看全部股票基本信息数据*/
 SELECT * FROM tab_stock_info;
 
+SELECT * FROM tab_stock_info WHERE stock_id = '3394';
+
+
+/*删除表*/
+DROP TABLE tab_stock_info;
 
 
 
@@ -182,7 +187,6 @@ SELECT COUNT(*) FROM tab_stock_price_shenzheng_0001;
 
 /*查看部分股票价格信息表部分数据*/
 SELECT * FROM tab_stock_price_shenzheng_0001 LIMIT 10;
-
 
 /*删除全部数据*/
 DELETE FROM tab_stock_price_shenzheng_0001;
@@ -379,8 +383,10 @@ DELETE FROM tab_algorithm_result_003;
 /*删除当前表*/
 DROP TABLE tab_algorithm_result_003;
 /* ------------------------------------------------------------------ */
-
-
+/*初始化信息*/
+INSERT INTO tab_algorithm_info (algorithm_name , algorithm_class_name , algorithm_day_count , algorithm_comment)
+VALUES
+('圆弧底算法' , 'com.hanslv.stock.selector.algorithm.Algorithm0001' , '5' , '通过抛物线函数方程计算符合要求的股票信息');
 
 
 

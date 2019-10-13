@@ -14,7 +14,7 @@ import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
  * 
  * --------------------------------------
  * 1、获取全部算法信息List													public List<TabAlgorithmInfo> getAllAlgorithmInfo()
- * 2、更新当前算法的最后更新时间												public void updateAlgorithmInfoUpdateDate(@Param("algorithmInfoParam")TabAlgorithmInfo algorithmInfoParam , @Param("currentLastRunDate")String currentLastRunDate);
+ * 2、更新当前算法的最后更新时间												public void updateAlgorithmInfoUpdateDate(@Param("currentAlgorithmName")String currentAlgorithmName , @Param("currentLastRunDate")String currentLastRunDate)
  * --------------------------------------
  * @author hanslv
  *
@@ -35,6 +35,6 @@ public interface TabAlgorithmInfoRepository {
 	 * @param algorithmInfoParam
 	 * @param currentLastRunDate
 	 */
-	@Update("UPDATE tab_algorithm_info SET update_date = #{currentLastRunDate} WHERE algorithm_id = #{algorithmInfoParam.algorithmId}")
-	public void updateAlgorithmInfoUpdateDate(@Param("algorithmInfoParam")TabAlgorithmInfo algorithmInfoParam , @Param("currentLastRunDate")String currentLastRunDate);
+	@Update("UPDATE tab_algorithm_info SET update_date = #{currentLastRunDate} WHERE algorithm_class_name = #{currentAlgorithmClassName}")
+	public void updateAlgorithmInfoUpdateDate(@Param("currentAlgorithmClassName")String currentAlgorithmClassName , @Param("currentLastRunDate")String currentLastRunDate);
 }

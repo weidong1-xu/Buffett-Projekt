@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
@@ -29,16 +29,16 @@ import com.hanslv.stock.selector.crawler.util.CrawlerMessageTransUtil;
  */
 @Component
 public class StockPriceCrawler{
-	static Logger logger = Logger.getLogger(StockPriceCrawler.class);
+	Logger logger = Logger.getLogger(StockPriceCrawler.class);
 	/*
 	 * 全部股票基本信息List
 	 */
-	private static List<TabStockInfo> stockInfoList;
+	private List<TabStockInfo> stockInfoList;
 	
 	/*
 	 * 原子计数器，每个线程通过这个数字判断从stockInfoList获取下一个股票基本信息的index
 	 */
-	private static AtomicInteger listIndexCounter;
+	private AtomicInteger listIndexCounter;
 	
 	/*
 	 * 爬虫数据传输类
@@ -47,31 +47,8 @@ public class StockPriceCrawler{
 	private CrawlerMessageTransUtil messageTransUtil;
 	
 	
-	static {
-		listIndexCounter = new AtomicInteger();
-		
-		/*
-		 * 初始化全部股票基本信息List
-		 */
-		try {
-			stockInfoList = Collections.synchronizedList(
-					MyBatisUtil
-					.getInstance()
-					.getConnection()
-					.getMapper(TabStockInfoRepository.class)
-					.selectAll());
-			logger.info("共获取到了：" + stockInfoList.size() + "条股票基本信息");
-			/*
-			 * 当获取到的股票基本信息数量为0时，考虑是否没有初始化股票基本信息表
-			 */
-			if(stockInfoList.size() == 0)
-				throw  new Exception("股票基本信息获取失败");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}finally {
-			MyBatisUtil.getInstance().closeConnection();
-		}
-	}
+	@Autowired
+	private TabStockInfoRepository stockInfoMapper;
 	
 	
 	/**
@@ -79,6 +56,12 @@ public class StockPriceCrawler{
 	 * 执行爬取逻辑并向消息队列中写入一个包含当前股票N天(在Properties文件中指定)价格信息的List
 	 */
 	public void runCrawler() {
+		/*
+		 * 初始化
+		 */
+		init();
+		
+		
 		/*
 		 * 从股票信息List中获取记录，
 		 * 当前下标小于List集合长度时继续执行
@@ -114,12 +97,7 @@ public class StockPriceCrawler{
 	
 	
 	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	
@@ -159,6 +137,27 @@ public class StockPriceCrawler{
 	
 	
 	/**
+	 * 初始化操作
+	 */
+	private void init() {
+		listIndexCounter = new AtomicInteger();
+		/*
+		 * 初始化全部股票基本信息List
+		 */
+		try {
+			stockInfoList = Collections.synchronizedList(stockInfoMapper.selectAll());
+			logger.info("共获取到了：" + stockInfoList.size() + "条股票基本信息");
+			/*
+			 * 当获取到的股票基本信息数量为0时，考虑是否没有初始化股票基本信息表
+			 */
+			if(stockInfoList.size() == 0)
+				throw  new Exception("股票基本信息获取失败");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * 通过股票信息爬取到对应的价格信息并转换成JSONObject
 	 * @return
 	 */
@@ -168,12 +167,17 @@ public class StockPriceCrawler{
 		/*
 		 * 初始化爬取地址
 		 */
-		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix + stockInfo.getStockCode();
-		if(stockInfo.getStockCode().indexOf("6") != 0) 
-			targetUrl += CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;
-		else
-			targetUrl += CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;
+		String targetUrl = CrawlerConstants.stockPriceTargetUrlPrefix;
+		String stockCode = stockInfo.getStockCode();
 		
+		/*
+		 * 首先判断是否为指数
+		 */
+		if(CommonsOtherConstants.SHANGZHENG_ZHISHU_STOCK_CODE.equals(stockCode)) targetUrl += stockCode.replaceAll("\\.", "") + CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;//上证指数
+		else if(CommonsOtherConstants.SHENZHENG_ZHISHU_STOCK_CODE.equals(stockCode)) targetUrl += stockCode.replaceAll("\\.", "") + CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;//深证指数
+		else if(CommonsOtherConstants.CHUANGYEBAN_ZHISHU_STOCK_CODE.equals(stockCode)) targetUrl += stockCode.replaceAll("\\.", "") + CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;//创业板指数
+		else if(stockCode.indexOf("6") != 0) targetUrl += stockCode + CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;//深证股票
+		else targetUrl += stockCode + CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;//上证股票
 		
 		/*
 		 * 获取返回结果的字符串

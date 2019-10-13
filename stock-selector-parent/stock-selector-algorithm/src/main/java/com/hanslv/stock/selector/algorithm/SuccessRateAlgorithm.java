@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.AbstractResultAlgorithm;
@@ -12,7 +13,6 @@ import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
  * 算法成功率计算模块
@@ -27,9 +27,16 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	/*
 	 * 每个算法都包含一个用于存放计算结果的消息队列
 	 */
-	private static BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
+	private BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
 	
-	static {
+	@Autowired
+	private TabAlgorithmResultRepository algorithmResultMapper;
+	
+	@Autowired
+	private IsSuccessAlgorithm isSuccessAlgorithm;
+	
+	
+	public SuccessRateAlgorithm() {
 		/*
 		 * 实例化内置消息队列
 		 */
@@ -39,17 +46,10 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	
 	@Override
 	void algorithmLogic() {
-		try {
-			/*
-			 * 执行比较逻辑
-			 */
-			successRateLogic();
-		}finally {
-			/*
-			 * 关闭全部数据库资源
-			 */
-			MyBatisUtil.getInstance().closeConnection();
-		}
+		/*
+		 * 执行比较逻辑
+		 */
+		successRateLogic();
 	}
 	
 	
@@ -58,7 +58,7 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	 * 从内置消息队列中获取一个结果
 	 * @return
 	 */
-	public static TabAlgorithmResult getResultFromInnerBlockingQueue() {
+	public TabAlgorithmResult getResultFromInnerBlockingQueue() {
 		TabAlgorithmResult result = null;
 		try {
 			result = resultBlockingQueue.take();
@@ -85,12 +85,11 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	 * @return
 	 */
 	private void successRateLogic() {
-		TabAlgorithmResultRepository algorithmResultMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
 		while(true) {
 			/*
 			 * 从IsSuccessAlgorithm中取出一个加工好的TabAlgorithmInfo对象
 			 */
-			TabAlgorithmResult currentAlgorithmResult = IsSuccessAlgorithm.getResultFromInnerBlockingQueue();
+			TabAlgorithmResult currentAlgorithmResult = isSuccessAlgorithm.getResultFromInnerBlockingQueue();
 			
 			/*
 			 * 获取全部run_date<当前run_date并且==algorithm_id，全部不为UNKNOWN的数据

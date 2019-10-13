@@ -1,6 +1,8 @@
 package com.hanslv.stock.selector.algorithm.repository;
 
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -35,4 +37,12 @@ public interface TabStockInfoRepository {
 	 */
 	@Select("SELECT stock_id , stock_code , stock_name FROM tab_stock_info WHERE stock_code=#{stockCode}")
 	public TabStockInfo getStockInfoByCode(@Param("stockCode")String stockCode);
+	
+	
+	/**
+	 * 3、获取全部股票基本信息
+	 * @return
+	 */
+	@Select("SELECT stock_id , stock_code , stock_name FROM tab_stock_info")
+	public List<TabStockInfo> getAllStockInfo();
 }

@@ -1,7 +1,5 @@
 package com.hanslv.stock.selector.algorithm.test;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.hanslv.stock.selector.algorithm.starter.AlgorithmServiceStarter;
 import com.hanslv.stock.selector.algorithm.util.AlgorithmMessageTransUtil;
+import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 
 /**
  * 测试从Kafka中接收股票价格信息
@@ -28,12 +27,14 @@ public class TestReceivePriceInfoMessageFromTopic {
 	 */
 	@Test
 	public void receiveMessage() {
-		messageTransUtil.getPriceInfoFromKafka();
-		
-		try {
-			TimeUnit.SECONDS.sleep(10 * 60 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		/*
+		 * 向线程池提交多个任务
+		 */
+		for(int i = 0 ; i < CommonsOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) {
+			messageTransUtil.getPriceInfoFromKafka();
 		}
+		
+		
+		while(true) {}
 	}
 }

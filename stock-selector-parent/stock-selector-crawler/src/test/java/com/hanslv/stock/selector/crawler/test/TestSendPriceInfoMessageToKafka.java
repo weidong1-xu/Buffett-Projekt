@@ -1,7 +1,5 @@
 package com.hanslv.stock.selector.crawler.test;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +27,6 @@ public class TestSendPriceInfoMessageToKafka {
 	public void sendMessage() {
 		priceCrawler.runCrawler();
 		
-		
-		try {
-			TimeUnit.SECONDS.sleep(20);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		while(true) {}
 	}
 }

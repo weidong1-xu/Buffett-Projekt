@@ -10,11 +10,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.crawler.starter.CrawlerServiceStarter;
@@ -24,6 +24,9 @@ import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
 @SpringBootTest(classes=CrawlerServiceStarter.class)
 public class TestGetStockInfo {
 	Logger logger = Logger.getLogger(TestGetStockInfo.class);
+	
+	@Autowired
+	private TabStockInfoRepository stockInfoMapper;
 	
 	/**
 	 * 获取上证股票信息
@@ -37,16 +40,9 @@ public class TestGetStockInfo {
 		List<TabStockInfo> stockInfoList = new LinkedList<>();
 		
 		/**
-		 * 获取Mapper
-		 */
-		TabStockInfoRepository stockInfoMapper = 
-				MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
-		
-		/**
 		 * 清空历史数据
 		 */
 		stockInfoMapper.deleteAll();
-		MyBatisUtil.getInstance().commitConnection();
 		logger.info("清空历史数据完成........");
 		
 		/**
@@ -86,8 +82,6 @@ public class TestGetStockInfo {
 		 * 执行落库
 		 */
 		stockInfoMapper.insertList(stockInfoList);
-		MyBatisUtil.getInstance().commitConnection();
 		logger.info("插入完成！共插入：" + stockInfoList.size() + "只股票");
-		MyBatisUtil.getInstance().closeConnection();
 	}
 }

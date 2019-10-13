@@ -1,11 +1,12 @@
 package com.hanslv.stock.selector.algorithm.util;
 
+import org.springframework.stereotype.Component;
+
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
  * 数据库分表逻辑，
@@ -39,6 +40,7 @@ import com.hanslv.stock.selector.commons.util.MyBatisUtil;
  * @author hanslv
  *
  */
+@Component
 public class DbTabSelectLogicUtil {
 	
 	/**
@@ -47,7 +49,7 @@ public class DbTabSelectLogicUtil {
 	 * @param currentPriceInfo
 	 * @return
 	 */
-	public static String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper) {
+	public String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper) {
 		String tableName = "";
 		
 		/*
@@ -64,7 +66,6 @@ public class DbTabSelectLogicUtil {
 		 * 获取当前股票基本信息
 		 */
 		TabStockInfo currentStockInfo = null;
-		stockInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
 		currentStockInfo = stockInfoMapper.getStockInfoById(currentPriceInfo.getStockId());
 		
 		/*
@@ -85,7 +86,7 @@ public class DbTabSelectLogicUtil {
 	 * @param currentAlgorithmResult
 	 * @return
 	 */
-	public static String tableSelector4AlgorithmResult(TabAlgorithmResult currentAlgorithmResult) {
+	public String tableSelector4AlgorithmResult(TabAlgorithmResult currentAlgorithmResult) {
 		/*
 		 * 获取当前价格日期
 		 */

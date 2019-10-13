@@ -7,6 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.AbstractResultAlgorithm;
@@ -17,7 +18,6 @@ import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 
 /**
  * 算法结果计算模块
@@ -34,76 +34,65 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 	/*
 	 * 每个算法都包含一个用于存放计算结果的消息队列
 	 */
-	private static BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
+	private BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
 	
 	/*
 	 * 状态为UNKNOWN的算法结果List
 	 */
-	private static List<TabAlgorithmResult> unknownResultList;
+	private List<TabAlgorithmResult> unknownResultList;
 	
 	/*
 	 * 下标计数器
 	 */
-	private static AtomicInteger indexCounter;
+	private AtomicInteger indexCounter;
 	
-	static {
-		/*
-		 * 获取全部状态为UNKNOWN的算法结果
-		 */
-		TabAlgorithmResultRepository algorithmResultMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
-		try {
-			unknownResultList = Collections.synchronizedList(algorithmResultMapper.getAllDataByIsSuccess(AlgorithmDbConstants.ALGORITHM_RESULT_TYPE_UNKNOWN));
-			logger.info("获取到了UNKNOKN信息：" + unknownResultList.size() + "条");
-		}finally {
-			MyBatisUtil.getInstance().closeConnection();
-		}
-		
-		indexCounter = new AtomicInteger();
-		
-		/*
-		 * 实例化内置消息队列
-		 */
-		resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
-	}
+	/*
+	 * Mappers
+	 */
+	@Autowired
+	private TabAlgorithmResultRepository algorithmResultMapper;
+	@Autowired
+	private TabStockPriceInfoRepository priceInfoMapper;
+	
+	@Autowired
+	private DbTabSelectLogicUtil tabSelectLogic;
 	
 	
 	@Override
 	void algorithmLogic() {
 		/*
+		 * 初始化
+		 */
+		init();
+		
+		/*
 		 * 当前unKnownResultList下标
 		 */
 		int currentIndex = 0;
-		try {
+		/*
+		 * 循环直到unKnownResultList最后一个元素
+		 */
+		while((currentIndex = indexCounter.getAndIncrement()) < unknownResultList.size()) {
 			/*
-			 * 循环直到unKnownResultList最后一个元素
+			 * 状态为unknown的算法结果
 			 */
-			while((currentIndex = indexCounter.getAndIncrement()) < unknownResultList.size()) {
-				/*
-				 * 状态为unknown的算法结果
-				 */
-				TabAlgorithmResult currentUnknownResult = unknownResultList.get(currentIndex);
+			TabAlgorithmResult currentUnknownResult = unknownResultList.get(currentIndex);
 				
-				/*
-				 * 查询回的股票价格信息
-				 */
-				List<TabStockPriceInfo> priceInfoList = getStockPriceInfoByCurrentUnknownResult(currentUnknownResult);
-				
-				/*
-				 * 获取结果
-				 */
-				compareLogic(priceInfoList , currentUnknownResult);
-				
-				
-				/*
-				 * 将结果放入到消息队列
-				 */
-				writeToResultBlockingQueue(currentUnknownResult);
-			}
-		}finally {
 			/*
-			 * 关闭数据库连接
+			 * 查询回的股票价格信息
 			 */
-			MyBatisUtil.getInstance().closeConnection();
+			List<TabStockPriceInfo> priceInfoList = getStockPriceInfoByCurrentUnknownResult(currentUnknownResult);
+				
+			/*
+			 * 获取结果
+			 */
+			compareLogic(priceInfoList , currentUnknownResult);
+				
+				
+			/*
+			 * 将结果放入到消息队列
+			 */
+			writeToResultBlockingQueue(currentUnknownResult);
 		}
 	}
 	
@@ -113,7 +102,7 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 	 * 从内置消息队列中获取一个结果
 	 * @return
 	 */
-	public static TabAlgorithmResult getResultFromInnerBlockingQueue() {
+	public TabAlgorithmResult getResultFromInnerBlockingQueue() {
 		TabAlgorithmResult result = null;
 		try {
 			result = resultBlockingQueue.take();
@@ -144,11 +133,25 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 	
 	
 	
-	
-	
 
 	
-	
+	/**
+	 * 初始化
+	 */
+	private void init() {
+		/*
+		 * 获取全部状态为UNKNOWN的算法结果
+		 */
+		unknownResultList = Collections.synchronizedList(algorithmResultMapper.getAllDataByIsSuccess(AlgorithmDbConstants.ALGORITHM_RESULT_TYPE_UNKNOWN));
+		logger.info("获取到了UNKNOKN信息：" + unknownResultList.size() + "条");
+		
+		indexCounter = new AtomicInteger();
+		
+		/*
+		 * 实例化内置消息队列
+		 */
+		resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
+	}
 	
 	
 	
@@ -160,7 +163,6 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 	 * @return
 	 */
 	private List<TabStockPriceInfo> getStockPriceInfoByCurrentUnknownResult(TabAlgorithmResult currentUnknownResult){
-		TabStockPriceInfoRepository priceInfoMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockPriceInfoRepository.class);
 		/*
 		 * 查询样本信息
 		 */
@@ -202,11 +204,9 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 		/*
 		 * 更新该条记录
 		 */
-		TabAlgorithmResultRepository algorithmResultMapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
 		algorithmResultMapper.updateIsSuccess(
-				DbTabSelectLogicUtil.tableSelector4AlgorithmResult(currentUnknownResult) , 
+				tabSelectLogic.tableSelector4AlgorithmResult(currentUnknownResult) , 
 				currentUnknownResult);
-		MyBatisUtil.getInstance().commitConnection();
 	}
 	
 	

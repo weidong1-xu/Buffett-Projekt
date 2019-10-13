@@ -3,10 +3,10 @@ package com.hanslv.stock.selector.crawler.services;
 import java.util.List;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
 import com.hanslv.stock.selector.crawler.StockInfoCrawler;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 
@@ -23,6 +23,8 @@ import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 public class CrawlerService {
 	Logger logger = Logger.getLogger(CrawlerService.class);
 	
+	@Autowired
+	private TabStockInfoRepository stockInfoMapper;
 	
 	/**
 	 * 1、初始化股票基本信息表，
@@ -44,28 +46,16 @@ public class CrawlerService {
 		}
 		
 		/*
-		 * 将全部股票信息存入数据库
+		 * 首先清空原有数据
 		 */
-		try {
-			TabStockInfoRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
-
-			/*
-			 * 首先清空原有数据
-			 */
-			mapper.deleteAll();
-			MyBatisUtil.getInstance().commitConnection();
-			
-			/*
-			 * 插入新数据
-			 */
-			mapper.insertList(stockInfoList);
-			logger.info("初始化数据库基本信息完毕！");
-		}finally {
-			/*
-			 * 提交数据并关闭资源
-			 */
-			MyBatisUtil.getInstance().commitConnection();
-			MyBatisUtil.getInstance().closeConnection();
-		}
+		stockInfoMapper.deleteAll();			
+		/*
+		 * 插入新数据
+		 */
+		stockInfoMapper.insertList(stockInfoList);
+		/*
+		 * 提交数据
+		 */
+		logger.info("初始化数据库基本信息完毕！");
 	}
 }

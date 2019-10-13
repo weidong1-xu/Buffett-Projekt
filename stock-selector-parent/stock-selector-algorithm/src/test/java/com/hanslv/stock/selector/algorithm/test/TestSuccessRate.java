@@ -55,6 +55,6 @@ public class TestSuccessRate {
 		 * 获取结果
 		 */
 		while(true) 
-			logger.info(SuccessRateAlgorithm.getResultFromInnerBlockingQueue());
+			logger.info(successRate.getResultFromInnerBlockingQueue());
 	}
 }
