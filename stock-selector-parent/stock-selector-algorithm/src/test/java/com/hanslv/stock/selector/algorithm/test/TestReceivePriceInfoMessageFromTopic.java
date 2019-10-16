@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.hanslv.stock.selector.algorithm.priceInfo.consumer.PriceInfoConsumer;
 import com.hanslv.stock.selector.algorithm.starter.AlgorithmServiceStarter;
-import com.hanslv.stock.selector.algorithm.util.AlgorithmMessageTransUtil;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 
 /**
@@ -19,7 +19,7 @@ import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 @SpringBootTest(classes=AlgorithmServiceStarter.class)
 public class TestReceivePriceInfoMessageFromTopic {
 	@Autowired
-	private AlgorithmMessageTransUtil messageTransUtil;
+	private PriceInfoConsumer messageTransUtil;
 	
 	
 	/**

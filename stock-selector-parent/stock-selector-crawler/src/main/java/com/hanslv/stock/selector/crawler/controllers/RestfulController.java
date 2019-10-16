@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hanslv.stock.selector.crawler.services.CrawlerService;
 
 @RestController
-@RequestMapping("/crawler")
+@RequestMapping("/crawler-service")
 public class RestfulController {
 	Logger logger = Logger.getLogger(RestfulController.class);
 	
@@ -20,8 +20,13 @@ public class RestfulController {
 	private CrawlerService crawlerService;
 	
 	
-	@GetMapping("/initStockInfo")
-	public void initStockInfo() {
-		crawlerService.initStockInfo();
+	@GetMapping("/stock-info")
+	public void getStockInfo() {
+		crawlerService.runStockInfoCrawler();
+	}
+	
+	@GetMapping("/stock-price")
+	public void getStockPrice() {
+		crawlerService.runStockPriceCrawler();
 	}
 }

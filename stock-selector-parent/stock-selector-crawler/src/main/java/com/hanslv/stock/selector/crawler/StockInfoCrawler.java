@@ -8,10 +8,13 @@ import org.jboss.logging.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
+import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
 
 /**
@@ -19,11 +22,16 @@ import com.hanslv.stock.selector.crawler.util.CrawlerUtil;
  * @author harrylu
  *
  */
+@Component
 public class StockInfoCrawler{
 	Logger logger = Logger.getLogger(StockInfoCrawler.class);
 	
+	@Autowired
+	private TabStockInfoRepository stockInfoMapper;
+	
 	/**
 	 * 执行爬虫操作
+	 * 会将获取到的全部股票信息List与当前存在的股票信息取差集
 	 */
 	public List<TabStockInfo> runCrawler() {
 		/**
@@ -64,6 +72,17 @@ public class StockInfoCrawler{
 		stockInfoList.add(shangzhengStockInfo);
 		stockInfoList.add(shenzhengStockInfo);
 		stockInfoList.add(chuangyeStockInfo);
+		
+		/*
+		 * 首先获取当前存在的股票信息
+		 */
+		List<TabStockInfo> existStockInfoList = stockInfoMapper.selectAll();
+		for(TabStockInfo existStockInfo : existStockInfoList) existStockInfo.setStockId(null);
+		
+		/*
+		 * 当前存在股票信息List和获取到的全部股票信息List取差集
+		 */
+		stockInfoList.removeAll(existStockInfoList);
 		
 		logger.info("------------------------共获取到：" + stockInfoList.size() + "只股票基本信息------------------------");
 		return stockInfoList;

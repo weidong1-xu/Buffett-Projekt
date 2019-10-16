@@ -1,4 +1,4 @@
-package com.hanslv.stock.selector.algorithm.util;
+package com.hanslv.stock.selector.algorithm.priceInfo.consumer;
 
 import com.hanslv.stock.selector.commons.util.KafkaUtil;
 
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
+import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
 import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
@@ -28,9 +29,9 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  *
  */
 @Component
-public class AlgorithmMessageTransUtil {
+public class PriceInfoConsumer {
 	
-	Logger logger = Logger.getLogger(AlgorithmMessageTransUtil.class);
+	Logger logger = Logger.getLogger(PriceInfoConsumer.class);
 	
 	@Autowired
 	private KafkaUtil<String , TabStockPriceInfo> kafkaUtil;
