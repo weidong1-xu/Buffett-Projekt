@@ -24,6 +24,7 @@ import com.hanslv.stock.selector.commons.constants.MyBatisConfigConstants;
  * @author harrylu
  *
  */
+@Deprecated
 public class MyBatisUtil {
 	private static class Singleton{
 		private static final MyBatisUtil INSTANCE = new MyBatisUtil();

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.jboss.logging.Logger;
 
-import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 
 /**
@@ -18,10 +17,6 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  *
  */
 public class Algorithm0001 extends AlgorithmLogic{
-	private static final String CURRENT_ALGORITHM_CLASS_NAME = "com.hanslv.stock.selector.algorithm.Algorithm0001";
-	private static final int CURRENT_ALGORITHM_ID = 1;
-	
-	
 	Logger logger = Logger.getLogger(Algorithm0001.class);
 	
 	public static final int DAYCOUNT = 5;
@@ -38,59 +33,13 @@ public class Algorithm0001 extends AlgorithmLogic{
 	private BigDecimal param4;
 	private BigDecimal param5;
 	
-	@Override
-	public String algorithmLogic(String lastRunDate) {
-		logger.info("-----------------------正在执行" + CURRENT_ALGORITHM_CLASS_NAME + "-----------------------");
-		/*
-		 * 获取全部股票信息
-		 */
-		List<TabStockInfo> stockInfoList = getAllStockInfo();
-		
-		String currentLastRunDate = lastRunDate;
-		
-		/*
-		 * 执行计算
-		 */
-		for(TabStockInfo stockInfo : stockInfoList) {
-			/*
-			 * 获取每只股票指定天数的信息
-			 */
-			List<TabStockPriceInfo> priceInfoList = getPriceInfos(String.valueOf(stockInfo.getStockId()) , lastRunDate , String.valueOf(DAYCOUNT));
-			
-			/*
-			 * 排除退市的股票
-			 */
-			if(priceInfoList.size() == 0) continue;
-			
-			/*
-			 * 计算结果
-			 */
-			if(check(priceInfoList , DAYCOUNT)) {
-				/*
-				 * 符合则插入到算法结果信息表
-				 */
-				insertAlgorithmResult(CURRENT_ALGORITHM_ID , priceInfoList , stockInfo.getStockId());
-				logger.info("-----------------------" + CURRENT_ALGORITHM_CLASS_NAME + "找到了符合股票：" + stockInfo.getStockId() + "-----------------------");
-			}else {
-				logger.info(CURRENT_ALGORITHM_CLASS_NAME + "：" + stockInfo.getStockId() + "不符合要求");
-			}
-			
-			/*
-			 * 更新当前算法最后执行时间
-			 */
-			currentLastRunDate = updateAlgorithmUpdateDate(CURRENT_ALGORITHM_CLASS_NAME , priceInfoList);
-		}
-		
-		return currentLastRunDate;
-	}
-	
-	
 	/**
 	 * 判断当前股票的价格List是否符合当前的抛物线算法
 	 * @param priceList
 	 * @return
 	 */
-	private boolean check(List<TabStockPriceInfo> priceList , int size) {
+	@Override
+	public boolean logicCore(List<TabStockPriceInfo> priceList) {
 		if(!checkFirstPrice(priceList.get(0))) {return false;}//判断第一天价格
 		List<BigDecimal> medianPriceList = getAllMedian(priceList);//获取价格的中位数
 		if(!checkFirstPriceAndLastPrice(medianPriceList)) {return false;}//判断第一天价格与最后一天价格的关系是否满足要求

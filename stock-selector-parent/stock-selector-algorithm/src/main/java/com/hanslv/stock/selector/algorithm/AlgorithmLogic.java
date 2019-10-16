@@ -3,10 +3,12 @@ package com.hanslv.stock.selector.algorithm;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
@@ -20,11 +22,12 @@ import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
+import com.hanslv.stock.selector.commons.constants.CommonsRedisConstants;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmInfo;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
-import com.hanslv.stock.selector.commons.util.MyBatisUtil;
+import com.hanslv.stock.selector.commons.util.RedisUtil;
 
 /**
  * 算法模板
@@ -63,12 +66,6 @@ public class AlgorithmLogic {
 	static Logger logger = Logger.getLogger(AlgorithmLogic.class);
 	
 	/*
-	 * Redis操作Util
-	 */
-	@Autowired
-//	private RedisUtil redisUtil;
-	
-	/*
 	 * 公用线程池，调用runAlgorithm()方法向该线程池提交一个算法逻辑并运算
 	 */
 	private static ExecutorService publicThreadPool;
@@ -93,14 +90,19 @@ public class AlgorithmLogic {
 	 * Mappers
 	 */
 	@Autowired
-	TabAlgorithmInfoRepository algorithmInfoMapper;
+	private TabAlgorithmInfoRepository algorithmInfoMapper;
 	@Autowired
-	TabStockPriceInfoRepository priceInfoMapper;
+	private TabStockPriceInfoRepository priceInfoMapper;
 	@Autowired
-	TabStockInfoRepository stockInfoMapper;
+	private TabStockInfoRepository stockInfoMapper;
 	@Autowired
-	TabAlgorithmResultRepository algorithmResultMapper;
+	private TabAlgorithmResultRepository algorithmResultMapper;
 	
+	@Autowired
+	private DbTabSelectLogicUtil tabSelector;
+	
+	@Autowired
+	private RedisUtil redisUtil;
 	
 	/**
 	 * 运行全部算法
@@ -130,7 +132,6 @@ public class AlgorithmLogic {
 				 */
 				while(getCounter() > 0) {
 					TabAlgorithmInfo currentAlgorithmInfo = takeFromIncomplateBlockingQueue();
-					
 					/*
 					 * 数据库中比当前日期currentLastRunDate大的上证指数信息数量是否大于等于时间区间
 					 */
@@ -140,8 +141,8 @@ public class AlgorithmLogic {
 						 */
 						try {
 							AlgorithmLogic currentAlgorithm = (AlgorithmLogic) Class.forName(currentAlgorithmInfo.getAlgorithmClassName()).newInstance();
-							String currentLastRunDate = currentAlgorithm.algorithmLogic(currentAlgorithmInfo.getUpdateDate());
-							
+							String currentLastRunDate = algorithmLogic(currentAlgorithmInfo , currentAlgorithm);
+								
 							/*
 							 * 设置当前对象的最后执行时间
 							 */
@@ -167,9 +168,8 @@ public class AlgorithmLogic {
 						if(getCounter() == 0) shutdownThreadPool();
 						
 						logger.info(Thread.currentThread() + " -------------------------算法 " + currentAlgorithmInfo.getAlgorithmName() + "的计算完成-------------------------");
-						}
 					}
-				MyBatisUtil.getInstance().closeConnection();
+				}
 			});
 		}
 	}
@@ -182,38 +182,175 @@ public class AlgorithmLogic {
 	
 	
 	
-	
-	
-	
-	
-	
-	
 	/**
 	 * 需要子类实现的算法逻辑
-	 * 获取股票价格信息数据可以通过getPriceInfos()方法获取
-	 * 因为使用反射调用，因此子类获取的实例不可以交由Spring管理
-	 * 执行后需要调用updateAlgorithmUpdateDate()方法更新当前算法的最后执行时间TabAlgorithmInfo.updateDate
+	 * @param priceInfoList
+	 * @return
 	 */
-	String algorithmLogic(String lastRunDate) {return null;}
+	boolean logicCore(List<TabStockPriceInfo> priceInfoList) {return false;}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	/**
-	 * 更新当前算法的最后执行日期
+	 * 算法执行逻辑
+	 * 需要完成：
+	 * 1、获取全部股票信息
+	 * 2、遍历全部股票信息并获取对应股票指定天数的价格信息
+	 * 3、排除退市或者不符合要求的股票
+	 * 4、根据每只股票的价格信息List执行当前算法的逻辑
+	 * 5、将符合要求的股票插入算法结果表
+	 * 6、跟新当前股票价格List中最大日期为当前算法的下一个执行日期
+	 * 7、循环结束返回算法的最后执行日期
+	 */
+	private String algorithmLogic(TabAlgorithmInfo currentAlgorithmInfo , AlgorithmLogic currentLogic) {
+		String algorithmClassName = currentAlgorithmInfo.getAlgorithmClassName();
+		Integer algorithmId = currentAlgorithmInfo.getAlgorithmId();
+		String algorithmUpdateDate = currentAlgorithmInfo.getUpdateDate();
+		String algorithmDayCount = currentAlgorithmInfo.getAlgorithmDayCount();
+		
+		logger.info("-----------------------正在执行" + algorithmClassName + "-----------------------");
+		
+		/*
+		 * 获取全部股票信息
+		 */
+		List<TabStockInfo> stockInfoList = stockInfoMapper.getAllStockInfo();
+		
+		String currentLastRunDate = algorithmUpdateDate;
+		
+		/*
+		 * 执行计算
+		 */
+		for(TabStockInfo stockInfo : stockInfoList) {
+			/*
+			 * 获取每只股票指定天数的信息
+			 */
+			List<TabStockPriceInfo> priceInfoList = getPriceInfos(String.valueOf(stockInfo.getStockId()) , algorithmUpdateDate , algorithmDayCount);
+			
+			/*
+			 * 排除退市的股票
+			 */
+			if(priceInfoList.size() == 0) continue;
+			
+			/*
+			 * 计算结果
+			 */
+			if(currentLogic.logicCore(priceInfoList)) {
+				/*
+				 * 符合则插入到算法结果信息表
+				 */
+				insertAlgorithmResult(algorithmId , priceInfoList , stockInfo.getStockId());
+				logger.info("-----------------------" + algorithmClassName + "找到了符合股票：" + stockInfo.getStockId() + "-----------------------");
+			}else logger.info(algorithmClassName + "：" + stockInfo.getStockId() + "不符合要求");
+			
+			/*
+			 * 更新当前算法的下一个执行日期
+			 */
+			currentLastRunDate = updateAlgorithmUpdateDate(algorithmClassName , priceInfoList);
+		}
+		
+		return currentLastRunDate;
+	}
+	
+	
+	/**
+	 * 更新当前算法的下一个执行日期
 	 * @param currentAlgorithmClassName
 	 * @param currentPriceInfoList 当前用于算法计算的股票价格信息List，用于计算当前算法的最后更新日期
 	 */
-	String updateAlgorithmUpdateDate(String currentAlgorithmClassName , List<TabStockPriceInfo> currentPriceInfoList) {
-		TabAlgorithmInfoRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmInfoRepository.class);
+	private String updateAlgorithmUpdateDate(String currentAlgorithmClassName , List<TabStockPriceInfo> currentPriceInfoList) {
 		/*
-		 * 将最大值加1
+		 * 将currentPriceInfoList中最大日期值加1
 		 */
 		LocalDate currentLastRunDate = LocalDate.parse(getMaxStockPriceInfoDateFromList(currentPriceInfoList)).plusDays(1);
 		
 		/*
 		 * 更新当前算法的最后执行日期
 		 */
-		mapper.updateAlgorithmInfoUpdateDate(currentAlgorithmClassName , currentLastRunDate.toString());
-		MyBatisUtil.getInstance().getConnection().commit();
+		algorithmInfoMapper.updateAlgorithmInfoUpdateDate(currentAlgorithmClassName , currentLastRunDate.toString());
 		return currentLastRunDate.toString();
 	}
 	
@@ -224,36 +361,35 @@ public class AlgorithmLogic {
 	 * @param count
 	 * @return
 	 */
-	List<TabStockPriceInfo> getPriceInfos(String stockId , String lastRunDate , String count){
+	private List<TabStockPriceInfo> getPriceInfos(String stockId , String lastRunDate , String count){
 		List<TabStockPriceInfo> resultPriceInfoList = new ArrayList<>();
-		TabStockPriceInfoRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockPriceInfoRepository.class);
 		
 		/*
 		 * 当获取到的lastRunDate为null
 		 */
-		if(lastRunDate == null) return mapper.selectPriceInfoByStockIdAndLimit(stockId , count);
+		if(lastRunDate == null) return priceInfoMapper.selectPriceInfoByStockIdAndLimit(stockId , count);
 		
 		/*
 		 * 尝试从缓存中获取
 		 */
-//		boolean notFoundInRedis = false;
-//		for(int i = 0 ; i <= Integer.parseInt(count) ; i++) {
-//			LocalDate currentPriceDate = LocalDate.parse(lastRunDate).plusDays(i);
-//			String key = stockId + "," + currentPriceDate.toString();
-//			TabStockPriceInfo priceInfoFromRedis = (TabStockPriceInfo) redisUtil.get(key);
-//			if(priceInfoFromRedis == null) {
-//				logger.info("没有在Redis中找到数据");
-//				resultPriceInfoList = null;
-//				notFoundInRedis = true;
-//			}
-//			else resultPriceInfoList.add(priceInfoFromRedis);
-//		}
+		boolean notFoundInRedis = false;
+		for(int i = 0 ; i <= Integer.parseInt(count) ; i++) {
+			LocalDate currentPriceDate = LocalDate.parse(lastRunDate).plusDays(i);
+			String key = stockId + "," + currentPriceDate.toString();
+			TabStockPriceInfo priceInfoFromRedis = (TabStockPriceInfo) redisUtil.get(key);
+			if(priceInfoFromRedis == null) {
+				logger.info("没有在Redis中找到数据");
+				resultPriceInfoList = null;
+				notFoundInRedis = true;
+			}
+			else resultPriceInfoList.add(priceInfoFromRedis);
+		}
 		
 		
 		/*
 		 * 当有数据没有从Redis中获取到
 		 */
-//		if(notFoundInRedis) {
+		if(notFoundInRedis) {
 			/*
 			 * 从数据库中查询比最后运行日期大的股票价格信息
 			 */
@@ -261,22 +397,22 @@ public class AlgorithmLogic {
 			queryParam.setStockId(Integer.parseInt(stockId));
 			queryParam.setStockPriceDate(lastRunDate);
 			
-			resultPriceInfoList = mapper.selectByStockIdAndAfterDateLimit(queryParam , Integer.parseInt(count) + 1 + "");
+			resultPriceInfoList = priceInfoMapper.selectByStockIdAndAfterDateLimit(queryParam , count);
 			
 			
 			/*
 			 * 将从数据库获取到的股票价格信息放入Redis中
 			 */
-//			for(TabStockPriceInfo priceInfo : resultPriceInfoList) {
-//				String key = priceInfo.getStockId() + "," + priceInfo.getStockPriceDate();
-//				/*
-//				 * 设置超时时间并设置随机值
-//				 */
-//				Random random = new Random();
-//				int randomExpire = random.ints(CommonsRedisConstants.PRICE_INFO_EXPIRE_RANDOM_START , CommonsRedisConstants.PRICE_INFO_EXPIRE_RANDOM_END).findFirst().getAsInt();
-//				redisUtil.setWithExpire(key, priceInfo, CommonsRedisConstants.PRICE_INFO_EXPIRE + randomExpire, TimeUnit.SECONDS);
-//			}
-//		}
+			for(TabStockPriceInfo priceInfo : resultPriceInfoList) {
+				String key = priceInfo.getStockId() + "," + priceInfo.getStockPriceDate();
+				/*
+				 * 设置超时时间并设置随机值
+				 */
+				Random random = new Random();
+				int randomExpire = random.ints(CommonsRedisConstants.PRICE_INFO_EXPIRE_RANDOM_START , CommonsRedisConstants.PRICE_INFO_EXPIRE_RANDOM_END).findFirst().getAsInt();
+				redisUtil.setWithExpire(key, priceInfo, CommonsRedisConstants.PRICE_INFO_EXPIRE + randomExpire, TimeUnit.SECONDS);
+			}
+		}
 		return resultPriceInfoList;
 	}
 	
@@ -285,7 +421,7 @@ public class AlgorithmLogic {
 	 * @param priceInfoList
 	 * @return
 	 */
-	String getMaxStockPriceInfoDateFromList(List<TabStockPriceInfo> priceInfoList) {
+	private String getMaxStockPriceInfoDateFromList(List<TabStockPriceInfo> priceInfoList) {
 		String maxPriceDate = priceInfoList.get(0).getStockPriceDate();
 		String maxPriceDateWithOutSperator = priceInfoList.get(0).getStockPriceDate().replaceAll("-", "");
 		for(TabStockPriceInfo stockPriceInfo : priceInfoList) {
@@ -303,75 +439,13 @@ public class AlgorithmLogic {
 	 * @param runDate
 	 * @param stockId
 	 */
-	void insertAlgorithmResult(Integer algorithmId , List<TabStockPriceInfo> priceInfoList , Integer stockId) {
-		TabAlgorithmResultRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabAlgorithmResultRepository.class);
-		DbTabSelectLogicUtil tableSelector = new DbTabSelectLogicUtil();
+	private void insertAlgorithmResult(Integer algorithmId , List<TabStockPriceInfo> priceInfoList , Integer stockId) {
 		TabAlgorithmResult result = new TabAlgorithmResult();
 		result.setRunDate(getMaxStockPriceInfoDateFromList(priceInfoList));
 		result.setStockId(stockId);
 		result.setAlgorithmId(algorithmId);
-		mapper.insertResult(tableSelector.tableSelector4AlgorithmResult(result) , result);
-		MyBatisUtil.getInstance().commitConnection();
+		algorithmResultMapper.insertResult(tabSelector.tableSelector4AlgorithmResult(result) , result);
 	}
-	
-	/**
-	 * 获取全部股票信息
-	 * @return
-	 */
-	List<TabStockInfo> getAllStockInfo(){
-		TabStockInfoRepository mapper = MyBatisUtil.getInstance().getConnection().getMapper(TabStockInfoRepository.class);
-		return mapper.getAllStockInfo();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

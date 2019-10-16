@@ -1,3 +1,6 @@
+/*删除当前库*/
+DROP DATABASE stock_selector;
+
 /*创建数据库*/
 CREATE DATABASE stock_selector;
 
