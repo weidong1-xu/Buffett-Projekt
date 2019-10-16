@@ -11,7 +11,7 @@ import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
  * 算法结果模块Service
  * 
  * --------------------------------------------------------
- * 
+ * 1、执行算法结果更新													public void upDateAlgorithmResult()
  * --------------------------------------------------------
  * @author admin
  *
@@ -26,14 +26,15 @@ public class AlgorithmResultService {
 	private SuccessRateAlgorithm successRate;
 	
 	/**
-	 * 执行算法结果更新
+	 * 1、执行算法结果更新
 	 */
-	public void upDateAlgorithmResult() {
+	public void updateAlgorithmResult() {
 		/*
 		 * isSuccess
 		 */
 		new Thread(() -> {
 			for(int i = 0 ; i < CommonsOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) isSuccess.runAlgorithm();
+			isSuccess.shutdownInnerThreadPool();
 		}).start();
 		
 		
@@ -42,14 +43,7 @@ public class AlgorithmResultService {
 		 */
 		new Thread(() -> {
 			for(int i = 0 ; i < CommonsOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) successRate.runAlgorithm();
-		}).start();
-		
-		
-		/*
-		 * 更新结果
-		 */
-		new Thread(() -> {
-			
+			successRate.shutdownInnerThreadPool();
 		}).start();
 	}
 }

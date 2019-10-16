@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD 3.0 mapper//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+ * 算法信息表						tab_algorithm_info
+ * 算法ID							algorithm_id									BIGINT								PRIMARY KEY											AUTO_INCREMENT
+ * 算法名称							algorithm_name									VARCHAR(50)
+ * 算法类全名						algorithm_class_name							VARCHAR(255)
+ * 算法时间区间						algorithm_day_count								VARCHAR(4)
+ * 算法介绍							algorithm_comment								VARCHAR(255)
+ * 更新日期							update_date										VARCHAR(10) -->
+<mapper namespace="com.hanslv.stock.selector.algorithm.repository.TabAlgorithmInfoRepository">
+
+</mapper>

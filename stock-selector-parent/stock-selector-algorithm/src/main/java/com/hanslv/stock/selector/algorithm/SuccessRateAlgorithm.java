@@ -2,8 +2,6 @@ package com.hanslv.stock.selector.algorithm;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.hanslv.stock.selector.algorithm.AbstractResultAlgorithm;
 import com.hanslv.stock.selector.algorithm.constants.AlgorithmDbConstants;
 import com.hanslv.stock.selector.algorithm.repository.TabAlgorithmResultRepository;
-import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
+import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 
 /**
@@ -24,24 +22,14 @@ import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
 @Component
 public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	
-	/*
-	 * 每个算法都包含一个用于存放计算结果的消息队列
-	 */
-	private BlockingQueue<TabAlgorithmResult> resultBlockingQueue;
-	
 	@Autowired
 	private TabAlgorithmResultRepository algorithmResultMapper;
 	
 	@Autowired
 	private IsSuccessAlgorithm isSuccessAlgorithm;
 	
-	
-	public SuccessRateAlgorithm() {
-		/*
-		 * 实例化内置消息队列
-		 */
-		resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
-	}
+	@Autowired
+	private DbTabSelectLogicUtil tabSelectLogic;
 	
 	
 	@Override
@@ -51,23 +39,6 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 		 */
 		successRateLogic();
 	}
-	
-	
-	
-	/**
-	 * 从内置消息队列中获取一个结果
-	 * @return
-	 */
-	public TabAlgorithmResult getResultFromInnerBlockingQueue() {
-		TabAlgorithmResult result = null;
-		try {
-			result = resultBlockingQueue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-	
 	
 	
 	
@@ -102,9 +73,9 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 			currentAlgorithmResult.setSuccessRate(getCurrnetRateLogic(algorithmResultList));
 		
 			/*
-			 * 放入消息队列
+			 * 更新该条记录
 			 */
-			writeToResultBlockingQueue(currentAlgorithmResult);
+			algorithmResultMapper.updateSuccessRate(tabSelectLogic.tableSelector4AlgorithmResult(currentAlgorithmResult) , currentAlgorithmResult);
 		}
 	}
 	
@@ -138,16 +109,4 @@ public class SuccessRateAlgorithm extends AbstractResultAlgorithm{
 	}
 	
 	
-	/**
-	 * 向消息队列中写入一条消息
-	 * @param result
-	 */
-	private void writeToResultBlockingQueue(TabAlgorithmResult result) {
-		try {
-			resultBlockingQueue.put(result);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
 }

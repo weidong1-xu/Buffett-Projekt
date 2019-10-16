@@ -142,15 +142,17 @@ public class IsSuccessAlgorithm extends AbstractResultAlgorithm{
 		/*
 		 * 获取全部状态为UNKNOWN的算法结果
 		 */
-		unknownResultList = Collections.synchronizedList(algorithmResultMapper.getAllDataByIsSuccess(AlgorithmDbConstants.ALGORITHM_RESULT_TYPE_UNKNOWN));
-		logger.info("获取到了UNKNOKN信息：" + unknownResultList.size() + "条");
-		
-		indexCounter = new AtomicInteger();
-		
-		/*
-		 * 实例化内置消息队列
-		 */
-		resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
+		if(unknownResultList == null) {
+			unknownResultList = Collections.synchronizedList(algorithmResultMapper.getAllDataByIsSuccess(AlgorithmDbConstants.ALGORITHM_RESULT_TYPE_UNKNOWN));
+			logger.info("获取到了UNKNOKN信息：" + unknownResultList.size() + "条");
+			
+			indexCounter = new AtomicInteger();
+			
+			/*
+			 * 实例化内置消息队列
+			 */
+			resultBlockingQueue = new ArrayBlockingQueue<>(CommonsOtherConstants.BASIC_BLOCKING_QUEUE_SIZE);
+		}
 	}
 	
 	
