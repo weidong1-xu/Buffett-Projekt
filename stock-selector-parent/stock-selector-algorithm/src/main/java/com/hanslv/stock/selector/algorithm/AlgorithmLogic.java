@@ -323,8 +323,8 @@ public class AlgorithmLogic {
 				 * 符合则插入到算法结果信息表
 				 */
 				insertAlgorithmResult(algorithmId , priceInfoList , stockInfo.getStockId());
-				logger.info("-----------------------" + algorithmClassName + "找到了符合股票：" + stockInfo.getStockId() + "-----------------------");
-			}else logger.info(algorithmClassName + "：" + stockInfo.getStockId() + "不符合要求");
+				logger.info("-----------------------" + algorithmClassName + "找到了符合股票：" + stockInfo.getStockCode() + "-----------------------");
+			}
 			
 			/*
 			 * 更新当前算法的下一个执行日期

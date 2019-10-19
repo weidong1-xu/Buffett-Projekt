@@ -30,7 +30,7 @@ SELECT COUNT(stock_code) FROM tab_stock_info;
 /*查看全部股票基本信息数据*/
 SELECT * FROM tab_stock_info;
 
-SELECT * FROM tab_stock_info WHERE stock_id = '3394';
+SELECT * FROM tab_stock_info WHERE stock_id = '84';
 
 
 /*删除表*/
@@ -390,6 +390,8 @@ DROP TABLE tab_algorithm_result_003;
 INSERT INTO tab_algorithm_info (algorithm_name , algorithm_class_name , algorithm_day_count , algorithm_comment)
 VALUES
 ('圆弧底算法' , 'com.hanslv.stock.selector.algorithm.Algorithm0001' , '5' , '通过抛物线函数方程计算符合要求的股票信息');
+UPDATE tab_algorithm_info SET update_date = null WHERE algorithm_id = 1;
+SELECT * FROM tab_algorithm_info;
 
 
 
