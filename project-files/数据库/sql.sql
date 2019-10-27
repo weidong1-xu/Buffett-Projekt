@@ -429,23 +429,23 @@ VALUES
 
 SELECT * FROM tab_algorithm_result_001;
 
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '1'
 UNION
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '1'
 UNION
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '1'
 UNION
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '1'
 UNION
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '1'
 UNION
-SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
-FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1434' AND stock_price_date >= '2018-04-04'
+SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1'
 ORDER BY stock_price_date ASC;
 
 
