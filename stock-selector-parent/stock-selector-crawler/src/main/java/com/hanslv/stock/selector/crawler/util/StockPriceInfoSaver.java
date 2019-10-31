@@ -81,8 +81,16 @@ public class StockPriceInfoSaver {
 				if(currentPriceInfoList.size() != 0) {
 					for(TabStockPriceInfo currentPriceInfo : currentPriceInfoList) {
 						String tableName = dbTabSelector.tableSelector4PriceInfo(currentPriceInfo, stockInfoMapper);
-						stockPriceInfoMapper.insertOne(tableName , currentPriceInfo);
-						logger.info("插入了一条信息：" + currentPriceInfo);
+						/*
+						 * 判断当前信息是否存在（已爬取过）
+						 */
+						if(stockPriceInfoMapper.selectOne(tableName, currentPriceInfo) == null) {
+							/*
+							 * 将价格信息落库
+							 */
+							stockPriceInfoMapper.insertOne(tableName, currentPriceInfo);
+							logger.info("插入了一条数据：" + currentPriceInfo);
+						}else logger.error("当前数据存在，已经跳过：" + currentPriceInfo);
 					}
 				}else {
 					/*

@@ -72,7 +72,9 @@ public class CrawlerService {
 	 * 2、执行股票价格信息爬虫
 	 */
 	public void runStockPriceCrawler() {
-		stockPriceCrawler.runCrawler();
+		new Thread(() -> {
+			stockPriceCrawler.runCrawler();
+		}).start();
 		
 		/*
 		 * 将股票价格信息存入数据库
