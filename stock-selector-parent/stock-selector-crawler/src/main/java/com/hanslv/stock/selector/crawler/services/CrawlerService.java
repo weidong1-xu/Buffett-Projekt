@@ -68,12 +68,15 @@ public class CrawlerService {
 	
 	
 	
+
 	/**
 	 * 2、执行股票价格信息爬虫
+	 * @param stockId
 	 */
-	public void runStockPriceCrawler() {
+	public void runStockPriceCrawler(int stockId) {
 		new Thread(() -> {
-			stockPriceCrawler.runCrawler();
+			if(stockId == 0) stockPriceCrawler.runCrawler();
+			else stockPriceCrawler.runCrawler(stockId);
 		}).start();
 		
 		/*
@@ -83,5 +86,4 @@ public class CrawlerService {
 			priceInfoSaver.savePriceInfoToDB();
 		}
 	}
-	
 }

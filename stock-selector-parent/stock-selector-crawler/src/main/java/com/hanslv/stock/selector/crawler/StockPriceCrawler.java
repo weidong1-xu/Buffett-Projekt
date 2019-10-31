@@ -102,6 +102,23 @@ public class StockPriceCrawler{
 	
 	
 	
+	/**
+	 * 爬取指定股票ID的股票信息
+	 * @param stockIndex
+	 */
+	public void runCrawler(int stockCode) {
+		init();
+		TabStockInfo stockInfo = stockInfoList.get(stockCode - 1);
+		JSONObject bodyTextJsonObject = stockPriceCrawlerLogic(stockInfo);
+		if(bodyTextJsonObject != null) {
+			messageTransUtil
+				.writePriceInfoToQueue(
+						parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
+		}
+		messageTransUtil.writePriceInfoToQueue(new ArrayList<>());
+	}
+	
+	
 	
 
 	
