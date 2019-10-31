@@ -16,6 +16,7 @@ import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
  *
  */
 @Service
+@Deprecated
 public class PriceInfoConsumerService {
 	@Autowired
 	private PriceInfoConsumer priceInfoConsumer;

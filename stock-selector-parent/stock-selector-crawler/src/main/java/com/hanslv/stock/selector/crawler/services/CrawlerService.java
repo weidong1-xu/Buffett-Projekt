@@ -6,10 +6,12 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.crawler.StockInfoCrawler;
 import com.hanslv.stock.selector.crawler.StockPriceCrawler;
 import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
+import com.hanslv.stock.selector.crawler.util.StockPriceInfoSaver;
 
 /**
  * 爬虫模块Service
@@ -30,6 +32,8 @@ public class CrawlerService {
 	
 	@Autowired
 	private StockInfoCrawler stockInfoCrawler;
+	@Autowired
+	private StockPriceInfoSaver priceInfoSaver;
 	
 	@Autowired
 	private StockPriceCrawler stockPriceCrawler;
@@ -69,6 +73,13 @@ public class CrawlerService {
 	 */
 	public void runStockPriceCrawler() {
 		stockPriceCrawler.runCrawler();
+		
+		/*
+		 * 将股票价格信息存入数据库
+		 */
+		for(int i = 0 ; i < CommonsOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) {
+			priceInfoSaver.savePriceInfoToDB();
+		}
 	}
 	
 }

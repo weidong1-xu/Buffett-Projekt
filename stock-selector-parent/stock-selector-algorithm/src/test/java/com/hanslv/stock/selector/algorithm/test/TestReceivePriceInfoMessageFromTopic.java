@@ -17,6 +17,7 @@ import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=AlgorithmServiceStarter.class)
+@Deprecated
 public class TestReceivePriceInfoMessageFromTopic {
 	@Autowired
 	private PriceInfoConsumer messageTransUtil;

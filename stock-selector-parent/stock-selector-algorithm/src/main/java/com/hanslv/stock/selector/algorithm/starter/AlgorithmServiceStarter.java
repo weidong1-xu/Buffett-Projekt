@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan({"com.hanslv.stock.selector"})
 @MapperScan("com.hanslv.stock.selector")
+@Deprecated
 public class AlgorithmServiceStarter {
 	public static void main(String[] args) {
 		new SpringApplication(AlgorithmServiceStarter.class).run(args);

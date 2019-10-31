@@ -9,6 +9,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.hanslv.stock.selector.algorithm.AlgorithmLogic;
 import com.hanslv.stock.selector.algorithm.starter.AlgorithmServiceStarter;
 
+@Deprecated
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=AlgorithmServiceStarter.class)
 public class TestAlgorithms {

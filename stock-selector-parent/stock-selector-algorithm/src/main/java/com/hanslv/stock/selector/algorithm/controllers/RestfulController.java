@@ -18,6 +18,7 @@ import com.hanslv.stock.selector.algorithm.services.PriceInfoConsumerService;
  *
  */
 @Controller
+@Deprecated
 @RequestMapping("/algorithm-service")
 public class RestfulController {
 	@Autowired
@@ -34,6 +35,7 @@ public class RestfulController {
 	 * 1、从Kafka接收接收PriceInfo消息
 	 */
 	@GetMapping("/stock-price-consumer")
+	@Deprecated
 	public void runPriceInfoConsumer() {
 		priceInfoService.runConsumer();
 	}

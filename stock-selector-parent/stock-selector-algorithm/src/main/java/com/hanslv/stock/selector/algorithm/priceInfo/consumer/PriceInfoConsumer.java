@@ -8,13 +8,11 @@ import java.util.concurrent.Executors;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.algorithm.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.algorithm.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.selector.algorithm.util.DbTabSelectLogicUtil;
-import com.hanslv.stock.selector.commons.constants.CommonsKafkaConstants;
 import com.hanslv.stock.selector.commons.constants.CommonsOtherConstants;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 
@@ -29,6 +27,7 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  *
  */
 @Component
+@Deprecated
 public class PriceInfoConsumer {
 	
 	Logger logger = Logger.getLogger(PriceInfoConsumer.class);
@@ -133,7 +132,7 @@ public class PriceInfoConsumer {
 	 * @param timeout
 	 * @return
 	 */
-	@KafkaListener(topics = CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , containerFactory = "stockPriceInfoKafkaListenerContainerFactory")
+//	@KafkaListener(topics = CommonsKafkaConstants.PRICE_INFO_TOPCI_NAME , containerFactory = "stockPriceInfoKafkaListenerContainerFactory")
 	public void pollMessageFromPriceInfoTopic(ConsumerRecord<String , TabStockPriceInfo> priceInfoMessage) {
 		kafkaUtil.writeToConsumerBlockingQueue(priceInfoMessage.value());
 	}	

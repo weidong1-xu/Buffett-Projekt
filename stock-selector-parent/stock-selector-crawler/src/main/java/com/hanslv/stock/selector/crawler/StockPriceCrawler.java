@@ -1,6 +1,7 @@
 package com.hanslv.stock.selector.crawler;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -83,15 +84,20 @@ public class StockPriceCrawler{
 				 * 将爬取回的JSONObject转换为List后，向KafkaUtil的消息队列中写入一个List<TabStockPriceInfo>
 				 */
 				messageTransUtil
-					.writePriceInfoListToKafkaByThreadPool(
+					.writePriceInfoToQueue(
 							parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
 			}
 		}
 		
 		/*
+		 * 放入消息结尾
+		 */
+		messageTransUtil.writePriceInfoToQueue(new ArrayList<>());
+		
+		/*
 		 * 关闭MessageTransUtil中的线程池
 		 */
-		messageTransUtil.shudDownThreadPool();
+//		messageTransUtil.shudDownThreadPool();
 	}
 	
 	
@@ -171,7 +177,7 @@ public class StockPriceCrawler{
 		String stockCode = stockInfo.getStockCode();
 		
 		/*
-		 * 首先判断是否为指数
+		 * 首先判断是否为指数，之后拼接爬取地址
 		 */
 		if(CommonsOtherConstants.SHANGZHENG_ZHISHU_STOCK_CODE.equals(stockCode)) targetUrl += stockCode.replaceAll("\\.", "") + CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;//上证指数
 		else if(CommonsOtherConstants.SHENZHENG_ZHISHU_STOCK_CODE.equals(stockCode)) targetUrl += stockCode.replaceAll("\\.", "") + CrawlerConstants.stockPriceTargetShenzhengUrlSuffix;//深证指数
@@ -200,8 +206,7 @@ public class StockPriceCrawler{
 			int subIndex = contextStringBuffer.indexOf("name") - 2;
 			String finalContextStringBuffer = contextStringBuffer.substring(subIndex , contextStringBuffer.length()-1);
 			return JSONObject.parseObject(finalContextStringBuffer);
-		}else 
-			return null;
+		}else return null;
 	}
 	
 	

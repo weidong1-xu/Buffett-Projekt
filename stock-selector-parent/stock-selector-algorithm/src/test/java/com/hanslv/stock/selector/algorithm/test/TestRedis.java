@@ -17,6 +17,7 @@ import com.hanslv.stock.selector.commons.util.RedisUtil;
  * @author hanslv
  *
  */
+@Deprecated
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=AlgorithmServiceStarter.class)
 public class TestRedis {
