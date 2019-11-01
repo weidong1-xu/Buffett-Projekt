@@ -30,7 +30,7 @@ SELECT COUNT(stock_code) FROM tab_stock_info;
 /*查看全部股票基本信息数据*/
 SELECT * FROM tab_stock_info;
 
-SELECT * FROM tab_stock_info WHERE stock_id = '84';
+SELECT * FROM tab_stock_info WHERE stock_id = '8';
 
 
 /*删除表*/
@@ -447,6 +447,46 @@ UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
 FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1'
 ORDER BY stock_price_date ASC;
+
+
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1' AND stock_price_date >= '2018-04-09'
+ORDER BY stock_price_date ASC LIMIT 370;
+
+
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+UNION
+SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
+FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '7' AND stock_price_date <='2019-10-15'
+ORDER BY stock_price_date DESC LIMIT 40;
 
 
 
