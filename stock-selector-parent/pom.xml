@@ -89,5 +89,6 @@
   	<module>stock-selector-commons</module>
   	<module>stock-selector-web</module>
   	<module>stock-selector-algorithm</module>
+  	<module>stock-machine-learning</module>
   </modules>
 </project>
