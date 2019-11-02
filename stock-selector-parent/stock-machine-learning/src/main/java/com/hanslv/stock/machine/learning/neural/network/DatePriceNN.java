@@ -5,6 +5,7 @@ import org.encog.ml.data.MLDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.lma.LevenbergMarquardtTraining;
+import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.machine.learning.constants.NeuralNetWorkConstants;
 
@@ -14,6 +15,7 @@ import com.hanslv.stock.machine.learning.constants.NeuralNetWorkConstants;
  * @author hanslv
  *
  */
+@Component
 public class DatePriceNN {
 	
 	/**
@@ -22,7 +24,7 @@ public class DatePriceNN {
 	 * @param errorLimit 误差上限
 	 * @return
 	 */
-	public static BasicNetwork train(MLDataSet trainData , double errorLimit) {
+	public BasicNetwork train(MLDataSet trainData , double errorLimit) {
 		/*
 		 * 实例化神经网络对象
 		 */

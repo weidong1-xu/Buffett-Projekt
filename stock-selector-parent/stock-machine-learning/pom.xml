@@ -9,6 +9,13 @@
   <name>stock-machine-learning</name>
   
   <dependencies>
+  	<!-- stock-selector-commons -->
+  	<dependency>
+	    <groupId>com.hanslv</groupId>
+	    <artifactId>stock-selector-commons</artifactId>
+	    <version>${project.version}</version>
+  	</dependency>
+  
   	<!-- https://mvnrepository.com/artifact/org.encog/encog-core -->
 	<dependency>
 	    <groupId>org.encog</groupId>
