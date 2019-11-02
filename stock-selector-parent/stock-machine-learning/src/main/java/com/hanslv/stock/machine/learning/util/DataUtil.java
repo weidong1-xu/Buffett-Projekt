@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +23,15 @@ import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.arrayutil.NormalizedField;
 import org.encog.util.csv.CSVFormat;
+
+import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 /**
  * 数据处理类
  * -----------------------------------------------
  * 1、获取标准化的数据						public static MLDataSet dataAnalyze(List<String> objectStringList , String[] fieldNames , int targetColumnLength , double normalizedH , double normalizedL)
  * 2、将算法保存到文件						public static void saveAlgorithm(String filePath , BasicNetwork trainedNetwork)
  * 3、从文件加载算法							public static BasicNetwork loadAlgorithm(String filePath)
+ * 4、将股票价格信息List转换为字符串List		public static List<String> transPriceInfoToString(List<TabStockPriceInfo> priceInfoList)
  * -----------------------------------------------
  * @author hanslv
  *
@@ -42,7 +46,7 @@ public class DataUtil {
 	 * @param targetColumnLength idealOutput字段数量
 	 * @return
 	 */
-	public static Map<Map<String , NormalizedField> , MLDataSet> dataAnalyze(List<String> objectStringList , String[] fieldNames , int targetColumnLength , double normalizedH , double normalizedL) {
+	public static MLDataSet dataAnalyze(List<String> objectStringList , String[] fieldNames , int targetColumnLength , double normalizedH , double normalizedL) {
 		/*
 		 * 标准化后的输入样本数组和预测输出样本数组
 		 */
@@ -102,8 +106,11 @@ public class DataUtil {
 				/*
 				 * 判断当前数据是输入还是预测输出
 				 * 本条数据列下标小于全部数据列数量-输出数据列数量
+				 * 
+				 * 2019-11-03更改，不标准化输入数据
 				 */
-				if(j < (fieldNames.length - targetColumnLength)) currentInputDataArray[j] = currentNormalizedField.normalize(new Double(objectStringArray[j].trim()));
+//				if(j < (fieldNames.length - targetColumnLength)) currentInputDataArray[j] = currentNormalizedField.normalize(new Double(objectStringArray[j].trim()));
+				if(j < (fieldNames.length - targetColumnLength)) currentInputDataArray[j] = new Double(objectStringArray[j].trim());
 				else currentIdealOutputArray[j - fieldNames.length + targetColumnLength] = currentNormalizedField.normalize(new Double(objectStringArray[j].trim()));
 				
 			}
@@ -115,10 +122,14 @@ public class DataUtil {
 			idealOutputArray[i] = currentIdealOutputArray;
 		}
 		
-		Map<Map<String , NormalizedField> , MLDataSet> resultMap = new HashMap<>();
-		resultMap.put(normalizedFieldMap , new BasicMLDataSet(inputArray , idealOutputArray));
 		
-		return resultMap;
+		/*
+		 * 2019-11-03更改，不标准化输入数据，因此只输出标准化后的数据源即可
+		 */
+//		Map<Map<String , NormalizedField> , MLDataSet> resultMap = new HashMap<>();
+//		resultMap.put(normalizedFieldMap , new BasicMLDataSet(inputArray , idealOutputArray));
+		
+		return new BasicMLDataSet(inputArray , idealOutputArray);
 	}
 	
 	
@@ -149,6 +160,21 @@ public class DataUtil {
 	 */
 	public static BasicNetwork loadAlgorithm(String filePath) {
 		return (BasicNetwork) EncogDirectoryPersistence.loadObject(new File(filePath));
+	}
+	
+	/**
+	 * 4、将股票价格信息List转换为字符串List
+	 * @param priceInfoList
+	 * @return
+	 */
+	public static List<String> transPriceInfoToString(List<TabStockPriceInfo> priceInfoList){
+		List<String> resultList = new ArrayList<>();
+		for(TabStockPriceInfo priceInfo : priceInfoList) {
+			String[] priceDateArray = priceInfo.getStockPriceDate().split("-");
+			String result = priceDateArray[1] + "," + priceDateArray[2] + "," + priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();
+			resultList.add(result);
+		}
+		return resultList;
 	}
 	
 	
@@ -240,13 +266,6 @@ public class DataUtil {
 		return false;
 	}
 	
-	
-	
-	
-	
-	
-	
-
 	/**
 	 *
 	 * @param filePath 标准化文件路径，会同时生成raw文件，在使用前需要先创建MLConstants.RAW_DATA_FILE_PATH对应文件夹

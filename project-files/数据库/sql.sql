@@ -385,6 +385,41 @@ DELETE FROM tab_algorithm_result_003;
 
 /*删除当前表*/
 DROP TABLE tab_algorithm_result_003;
+
+
+/* ------------------------------------------------------------------ */
+/*价格-日期ML预测结果表5日*/
+CREATE TABLE tab_price_date_ml_result_five_days
+(
+	stock_id BIGINT,
+	run_date VARCHAR(10),
+	end_price_a VARCHAR(50),
+	end_price_b VARCHAR(50),
+	end_price_c VARCHAR(50),
+	end_price_d VARCHAR(50),
+	end_price_e VARCHAR(50),
+	PRIMARY KEY (stock_id , run_date),
+	CONSTRAINT fk_ml_stock_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看算法信息表表结构*/
+DESC tab_price_date_ml_result_five_days;
+
+/*查看算法信息表数据量*/
+SELECT COUNT(*) FROM tab_price_date_ml_result_five_days;
+
+/*查看算法信息表全部数据*/
+SELECT * FROM tab_price_date_ml_result_five_days;
+
+/*删除算法信息表全部数据*/
+DELETE FROM tab_price_date_ml_result_five_days;
+
+/*删除当前表*/
+DROP TABLE tab_price_date_ml_result_five_days;
+
+
+
 /* ------------------------------------------------------------------ */
 /*初始化信息*/
 INSERT INTO tab_algorithm_info (algorithm_name , algorithm_class_name , algorithm_day_count , algorithm_comment)
@@ -430,22 +465,22 @@ VALUES
 SELECT * FROM tab_algorithm_result_001;
 
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '1'
+FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '100'
 UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '1'
+FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '100'
 UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '1'
+FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '100'
 UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '1'
+FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '100'
 UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '1'
+FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '100'
 UNION
 SELECT stock_id , stock_price_date , /*stock_price_start_price , stock_price_end_price , *//*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '1'
+FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '100'
 ORDER BY stock_price_date ASC;
 
 
@@ -470,22 +505,22 @@ ORDER BY stock_price_date ASC LIMIT 370;
 
 
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+FROM tab_stock_price_shangzheng_0001 WHERE stock_id = '7' AND stock_price_date <= NOW()
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+FROM tab_stock_price_shangzheng_0002 WHERE stock_id = '7' AND stock_price_date <= NOW()
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+FROM tab_stock_price_shangzheng_0003 WHERE stock_id = '7' AND stock_price_date <= NOW()
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+FROM tab_stock_price_shenzheng_0001 WHERE stock_id = '7' AND stock_price_date <= NOW()
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '7' AND stock_price_date <= '2019-10-15'
+FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '7' AND stock_price_date <= NOW()
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
-FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '7' AND stock_price_date <='2019-10-15'
+FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '7' AND stock_price_date <= NOW()
 ORDER BY stock_price_date DESC LIMIT 40;
 
 

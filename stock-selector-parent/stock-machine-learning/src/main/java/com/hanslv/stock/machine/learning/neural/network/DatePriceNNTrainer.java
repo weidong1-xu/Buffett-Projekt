@@ -1,17 +1,16 @@
 package com.hanslv.stock.machine.learning.neural.network;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.encog.Encog;
 import org.encog.ml.data.MLDataSet;
 import org.encog.neural.networks.BasicNetwork;
-import org.encog.util.arrayutil.NormalizedField;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.hanslv.stock.machine.learning.constants.NeuralNetWorkConstants;
+import com.hanslv.stock.machine.learning.constants.NeuralNetworkConstants;
+import com.hanslv.stock.machine.learning.repository.TabStockPriceInfoRepository;
 import com.hanslv.stock.machine.learning.util.DataUtil;
 
 /**
@@ -21,6 +20,7 @@ import com.hanslv.stock.machine.learning.util.DataUtil;
  */
 @Component
 public class DatePriceNNTrainer {
+	Logger logger = Logger.getLogger(DatePriceNNTrainer.class);
 	
 	/*
 	 * 时间-价格神经网络模型
@@ -28,37 +28,42 @@ public class DatePriceNNTrainer {
 	@Autowired
 	private DatePriceNN datePriceNN;
 	
+	@Autowired
+	private TabStockPriceInfoRepository stockPriceInfoMapper;
+	
 	/**
 	 * 训练模型
 	 * 
 	 * @param stockId 股票ID
-	 * @param startDate 起始时间
 	 * @param limit 精度
 	 * @return
 	 */
-	public void trainNN(String stockId , String startDate , double limit , String titles) {
-		String algorithmFilePath = NeuralNetWorkConstants.ALGORITHM_BASE_DIR + stockId + "_" + NeuralNetWorkConstants.ALGORITHM_FILENAME_SUFFIX;
+	public void trainNN(Integer stockId , double limit) {
+		String algorithmFilePath = NeuralNetworkConstants.ALGORITHM_BASE_DIR + stockId + "_" + NeuralNetworkConstants.ALGORITHM_FILENAME_SUFFIX;
 		
 		/*
 		 * 获取股票数据
 		 */
-//		List<String> mainDataList = DbUtil.getDataAndVolumeMap(stockId, startDate, trainDataSize + checkDataSize);
-		List<String> mainDataList = null;
+		List<String> mainDataList = DataUtil.transPriceInfoToString(stockPriceInfoMapper.getTrainData(stockId , NeuralNetworkConstants.TRAIN_SIZE));
 			
 		/*
 		 * 数据已经全部用完，没有找到合适模型
 		 */
-		if(mainDataList.size() < NeuralNetWorkConstants.TRAIN_SIZE) {
-			System.err.println("数据样本集小于预期");
+		if(mainDataList.size() < NeuralNetworkConstants.TRAIN_SIZE) {
+			logger.error("数据样本集小于预期：stockId = " + stockId);
 			return;
 		}
 	
 		/*
 		 * 算法训练数据
+		 * 
+		 * 2019-11-03更改，只标准化输出数据
 		 */
-		Map<Map<String , NormalizedField> , MLDataSet> analyzedResult = DataUtil.dataAnalyze(mainDataList , titles.split(",") , 2 , 1 , 0);
-		Entry<Map<String , NormalizedField> , MLDataSet> analyzedResultEntry = analyzedResult.entrySet().iterator().next();
-		MLDataSet trainDataSet = analyzedResultEntry.getValue();
+//		Map<Map<String , NormalizedField> , MLDataSet> analyzedResult = DataUtil.dataAnalyze(mainDataList , NeuralNetworkConstants.TRAIN_DATA_TITLE.split(",") , 2 , 1 , 0);
+//		Entry<Map<String , NormalizedField> , MLDataSet> analyzedResultEntry = analyzedResult.entrySet().iterator().next();
+//		MLDataSet trainDataSet = analyzedResultEntry.getValue();
+		
+		MLDataSet trainDataSet = DataUtil.dataAnalyze(mainDataList , NeuralNetworkConstants.TRAIN_DATA_TITLE.split(",") , 2 , 1 , 0);
 		
 		/*
 		 * 训练算法
@@ -70,10 +75,11 @@ public class DatePriceNNTrainer {
 		 */
 		if(algorithmModel == null) {
 			Encog.getInstance().shutdown();
+			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId);
 			/*
 			 * 重新执行
 			 */
-			trainNN(stockId , startDate , limit , titles);
+			trainNN(stockId , limit);
 			return;
 		}
 			
@@ -81,7 +87,7 @@ public class DatePriceNNTrainer {
 		 * 预测成功保存算法到文件
 		 */
 		DataUtil.saveAlgorithm(algorithmFilePath , algorithmModel);
-		System.out.println("预测完成！" + stockId);
+		logger.info("预测完成：stockId = " + stockId);
 		Encog.getInstance().shutdown();
 	}
 }

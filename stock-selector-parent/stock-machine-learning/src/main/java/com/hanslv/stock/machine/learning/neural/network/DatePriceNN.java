@@ -7,7 +7,7 @@ import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.lma.LevenbergMarquardtTraining;
 import org.springframework.stereotype.Component;
 
-import com.hanslv.stock.machine.learning.constants.NeuralNetWorkConstants;
+import com.hanslv.stock.machine.learning.constants.NeuralNetworkConstants;
 
 /**
  * 时间-收盘价神经网络模型
@@ -75,7 +75,7 @@ public class DatePriceNN {
 			/*
 			 * 当训练次数大于最大迭代纪元时终止训练
 			 */
-			if(epoch >= NeuralNetWorkConstants.MAX_EPOCH) {
+			if(epoch >= NeuralNetworkConstants.MAX_EPOCH) {
 				trainAlgorithm.finishTraining();
 				return null;
 			}

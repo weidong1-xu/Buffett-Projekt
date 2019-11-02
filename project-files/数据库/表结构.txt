@@ -34,7 +34,14 @@
 是否成功						is_success										VARCHAR(10)							DEFAULT 'UNKNOWN'  									SUCCESS FAIL UNKNOWN
 成功率							success_rate									VARCHAR(10)
 -----------------------------------------------------------------------------------------------
-
+价格-日期ML预测结果表5日		tab_price_date_ml_result_five_days
+股票ID							stock_id										BIGINT								FOREIGN KEY (fk_ml_stock_info)						PRIMARY KEY
+运行日期						run_date										VARCHAR(10)																				PRIMARY KEY
+第一天收盘价					end_price_a										VARCHAR(50)
+第二天收盘价					end_price_b										VARCHAR(50)
+第三天收盘价					end_price_c										VARCHAR(50)
+第四天收盘价					end_price_d										VARCHAR(50)
+第五天收盘价					end_price_e										VARCHAR(50)
 
 -----------------------------------------------------------------------------------------------
 
