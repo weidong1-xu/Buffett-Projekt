@@ -20,9 +20,10 @@ import java.io.File;
 public abstract class NeuralNetworkConstants {
 	
 	public static String ALGORITHM_FILENAME_SUFFIX = "date_price.eg";//算法文件名称后缀
-	public static String ALGORITHM_BASE_DIR = "D:" + File.separator + "data" + File.separator + "mine" + File.separator + "test-dateVolumeNN" + File.separator;//算法文件文件夹位置
+//	public static String ALGORITHM_BASE_DIR = "D:" + File.separator + "data" + File.separator + "mine" + File.separator + "test-dateVolumeNN" + File.separator;//算法文件文件夹位置
+	public static String ALGORITHM_BASE_DIR = "E:" + File.separator + "Java" + File.separator + "eclipse" + File.separator + "stock-selector" + File.separator + "algorithm" + File.separator;
 	
-	public static final int MAX_EPOCH = 1000 * 6;//训练最大迭代纪元
+	public static final int MAX_EPOCH = 1000 * 8;//训练最大迭代纪元
 	public static final double TRAIN_ERROR_LIMIT = 0.000005;//模型训练精度
 	public static final int TRAIN_SIZE = 70;//训练数据长度
 	public static final int RESULT_SIZE = 5;//预测天数

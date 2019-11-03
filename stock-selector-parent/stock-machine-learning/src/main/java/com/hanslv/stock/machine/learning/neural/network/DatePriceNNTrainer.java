@@ -1,6 +1,7 @@
 package com.hanslv.stock.machine.learning.neural.network;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.encog.Encog;
 import org.encog.ml.data.MLDataSet;
@@ -41,11 +42,14 @@ public class DatePriceNNTrainer {
 	public void trainNN(Integer stockId , double limit) {
 		String algorithmFilePath = NeuralNetworkConstants.ALGORITHM_BASE_DIR + stockId + "_" + NeuralNetworkConstants.ALGORITHM_FILENAME_SUFFIX;
 		
+		logger.info("正在计算：stockId = " + stockId);
+		
 		/*
 		 * 获取股票数据
 		 */
 		List<String> mainDataList = DataUtil.transPriceInfoToString(stockPriceInfoMapper.getTrainData(stockId , NeuralNetworkConstants.TRAIN_SIZE));
-			
+		
+		
 		/*
 		 * 数据已经全部用完，没有找到合适模型
 		 */
@@ -76,6 +80,15 @@ public class DatePriceNNTrainer {
 		if(algorithmModel == null) {
 			Encog.getInstance().shutdown();
 			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId);
+			
+			/*
+			 * 休眠1分钟，避免机器过热
+			 */
+			try {
+				logger.info("稍等，我降降温");
+				TimeUnit.SECONDS.sleep(5);
+			} catch (InterruptedException e) {}
+			
 			/*
 			 * 重新执行
 			 */
@@ -89,5 +102,14 @@ public class DatePriceNNTrainer {
 		DataUtil.saveAlgorithm(algorithmFilePath , algorithmModel);
 		logger.info("预测完成：stockId = " + stockId);
 		Encog.getInstance().shutdown();
+		
+		
+		/*
+		 * 休眠1分钟，避免机器过热
+		 */
+		try {
+			logger.info("稍等，我降降温");
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {}
 	}
 }

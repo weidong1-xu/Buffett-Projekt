@@ -5,6 +5,7 @@ import org.encog.ml.data.MLDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.lma.LevenbergMarquardtTraining;
+import org.jboss.logging.Logger;
 import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.machine.learning.constants.NeuralNetworkConstants;
@@ -17,6 +18,7 @@ import com.hanslv.stock.machine.learning.constants.NeuralNetworkConstants;
  */
 @Component
 public class DatePriceNN {
+	Logger logger = Logger.getLogger(DatePriceNN.class);
 	
 	/**
 	 * 执行训练
@@ -80,7 +82,7 @@ public class DatePriceNN {
 				return null;
 			}
 			trainAlgorithm.iteration();
-//			System.out.println("当前纪元：" + epoch + "误差为：" + trainAlgorithm.getError());
+//			logger.info("当前纪元：" + epoch + "误差为：" + trainAlgorithm.getError());
 			epoch++;
 		}while(trainAlgorithm.getError() > errorLimit);
 		

@@ -521,7 +521,7 @@ FROM tab_stock_price_shenzheng_0002 WHERE stock_id = '7' AND stock_price_date <=
 UNION
 SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , /*stock_price_highest_price , stock_price_lowest_price , */stock_price_volume /*, stock_price_turnover , *//*stock_price_amplitude*//* , stock_price_turnover_rate*/ 
 FROM tab_stock_price_shenzheng_0003 WHERE stock_id = '7' AND stock_price_date <= NOW()
-ORDER BY stock_price_date DESC LIMIT 40;
+ORDER BY stock_price_date DESC LIMIT 70;
 
 
 

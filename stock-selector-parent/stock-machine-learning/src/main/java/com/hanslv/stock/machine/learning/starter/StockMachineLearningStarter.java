@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({"com.hanslv.stock.selector"})
-@MapperScan("com.hanslv.stock.selector")
+@ComponentScan({"com.hanslv.stock"})
+@MapperScan("com.hanslv.stock")
 public class StockMachineLearningStarter {
 	public static void main(String[] args) {
 		new SpringApplication(StockMachineLearningStarter.class).run(args);

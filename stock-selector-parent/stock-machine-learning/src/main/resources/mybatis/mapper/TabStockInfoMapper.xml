@@ -16,22 +16,22 @@
 	<!-- 获取指定股票的训练数据 -->
 	<select id="getTrainData" resultType="com.hanslv.stock.selector.commons.dto.TabStockPriceInfo">	
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		UNION
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		UNION
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		UNION
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		UNION
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		UNION
 		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price 
-		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date <= NOW()
+		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		ORDER BY stock_price_date DESC LIMIT ${trainDataSize};
 	</select>
 </mapper>
