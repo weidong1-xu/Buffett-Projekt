@@ -393,6 +393,7 @@ CREATE TABLE tab_price_date_ml_result_five_days
 (
 	stock_id BIGINT,
 	run_date VARCHAR(10),
+	end_price_current VARCHAR(50),
 	end_price_a VARCHAR(50),
 	end_price_b VARCHAR(50),
 	end_price_c VARCHAR(50),

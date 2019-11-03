@@ -1,0 +1,192 @@
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=5, runDate=2019-11-03, endPriceCurrent=0.0030211293347034173, endPriceA=0.0036434534211897264, endPriceB=0.007801326528071415, endPriceC=0.11693846321457221, endPriceD=0.8678933552587962, endPriceE=0.9326130420666346)------------------------
+股票信息：TabStockInfo(stockId=5, stockCode=600004, stockName=白云机场)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=15, runDate=2019-11-03, endPriceCurrent=0.13085614926446873, endPriceA=0.13515990489321922, endPriceB=0.14648917608269782, endPriceC=0.18890253871093884, endPriceD=0.405921855842396, endPriceE=0.9734761052187584)------------------------
+股票信息：TabStockInfo(stockId=15, stockCode=600016, stockName=民生银行)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=26, runDate=2019-11-03, endPriceCurrent=0.7044408134593443, endPriceA=0.9504528818879695, endPriceB=0.8677817072826097, endPriceC=0.22255438720256562, endPriceD=0.25668412349338837, endPriceE=0.27732121317626723)------------------------
+股票信息：TabStockInfo(stockId=26, stockCode=600028, stockName=中国石化)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=27, runDate=2019-11-03, endPriceCurrent=0.17422578466695973, endPriceA=0.1940220514229475, endPriceB=0.9999777131391742, endPriceC=0.9998163114671366, endPriceD=0.9998038361872715, endPriceE=0.9972292424409904)------------------------
+股票信息：TabStockInfo(stockId=27, stockCode=600029, stockName=南方航空)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=29, runDate=2019-11-03, endPriceCurrent=0.3118760711815366, endPriceA=0.47338321294918473, endPriceB=0.9696705135111718, endPriceC=0.9994607726240613, endPriceD=0.9999748658139843, endPriceE=0.9999934850298426)------------------------
+股票信息：TabStockInfo(stockId=29, stockCode=600031, stockName=三一重工)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=36, runDate=2019-11-03, endPriceCurrent=2.494751412655838E-4, endPriceA=1.749599404383503E-4, endPriceB=0.999996638542314, endPriceC=0.9187988097378168, endPriceD=0.8987827372391768, endPriceE=0.9319909071371086)------------------------
+股票信息：TabStockInfo(stockId=36, stockCode=600048, stockName=保利地产)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=39, runDate=2019-11-03, endPriceCurrent=3.2506481207475247E-7, endPriceA=6.975681063952461E-7, endPriceB=0.07014818310446025, endPriceC=0.04633564917040965, endPriceD=0.24292002999579976, endPriceE=0.9093372063312967)------------------------
+股票信息：TabStockInfo(stockId=39, stockCode=600052, stockName=浙江广厦)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=44, runDate=2019-11-03, endPriceCurrent=0.621171789581016, endPriceA=0.7925511406730232, endPriceB=0.9479143553317675, endPriceC=0.9441686099614697, endPriceD=0.9291642159952858, endPriceE=0.9068565519190078)------------------------
+股票信息：TabStockInfo(stockId=44, stockCode=600057, stockName=象屿股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=48, runDate=2019-11-03, endPriceCurrent=0.8707180462707229, endPriceA=0.8655411408249768, endPriceB=0.8526950367632652, endPriceC=0.8295676970710163, endPriceD=0.8185464612347455, endPriceE=0.9268540757218008)------------------------
+股票信息：TabStockInfo(stockId=48, stockCode=600061, stockName=国投安信)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=109, runDate=2019-11-03, endPriceCurrent=0.2877280852163538, endPriceA=0.8093598656778187, endPriceB=0.9998651969593783, endPriceC=0.9999995005788743, endPriceD=0.9999999400421005, endPriceE=5.593017745460875E-4)------------------------
+股票信息：TabStockInfo(stockId=109, stockCode=600122, stockName=宏图高科)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=115, runDate=2019-11-03, endPriceCurrent=1.4421964412700464E-5, endPriceA=9.920926252349944E-6, endPriceB=0.9997099439855551, endPriceC=0.4510688461198823, endPriceD=0.44819668171831784, endPriceE=0.47194878150008857)------------------------
+股票信息：TabStockInfo(stockId=115, stockCode=600129, stockName=太极集团)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=121, runDate=2019-11-03, endPriceCurrent=6.362025664812298E-4, endPriceA=0.014698303244693137, endPriceB=0.19557708760695916, endPriceC=0.6841373240919959, endPriceD=0.9981331512909889, endPriceE=0.82694788434788)------------------------
+股票信息：TabStockInfo(stockId=121, stockCode=600136, stockName=当代明诚)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=141, runDate=2019-11-03, endPriceCurrent=0.007194335749442513, endPriceA=0.9999999070609005, endPriceB=0.9999912009071354, endPriceC=0.9995977616341267, endPriceD=0.7101334103345909, endPriceE=0.9647982031470275)------------------------
+股票信息：TabStockInfo(stockId=141, stockCode=600161, stockName=天坛生物)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=149, runDate=2019-11-03, endPriceCurrent=2.1372357749218248E-5, endPriceA=3.819808201105937E-4, endPriceB=0.06640317692345071, endPriceC=0.2816882451534926, endPriceD=0.9438265231234481, endPriceE=0.6622431513114142)------------------------
+股票信息：TabStockInfo(stockId=149, stockCode=600170, stockName=上海建工)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=157, runDate=2019-11-03, endPriceCurrent=0.004188806840533687, endPriceA=0.13976961855462333, endPriceB=0.9958796081210144, endPriceC=2.055075066449894E-5, endPriceD=2.1082632607184392E-5, endPriceE=2.2680888515151017E-5)------------------------
+股票信息：TabStockInfo(stockId=157, stockCode=600179, stockName=安通控股)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=160, runDate=2019-11-03, endPriceCurrent=0.3457966751572941, endPriceA=0.984183091497939, endPriceB=0.9987884198493399, endPriceC=0.9995157669530397, endPriceD=0.99962541661667, endPriceE=0.9996016192902648)------------------------
+股票信息：TabStockInfo(stockId=160, stockCode=600182, stockName=S佳通)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=163, runDate=2019-11-03, endPriceCurrent=0.7233327899581964, endPriceA=0.9996603179479361, endPriceB=0.4237124150732096, endPriceC=0.4608035436859657, endPriceD=0.5067169417316609, endPriceE=0.7431802196113422)------------------------
+股票信息：TabStockInfo(stockId=163, stockCode=600185, stockName=格力地产)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=164, runDate=2019-11-03, endPriceCurrent=0.6608754300161779, endPriceA=0.8726900585374147, endPriceB=0.9853409039059148, endPriceC=0.9999275632495244, endPriceD=0.999999997523664, endPriceE=0.9999999977958569)------------------------
+股票信息：TabStockInfo(stockId=164, stockCode=600186, stockName=莲花健康)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=179, runDate=2019-11-03, endPriceCurrent=0.3893268540917575, endPriceA=0.9539201525558196, endPriceB=0.835981961661374, endPriceC=0.6110607762055792, endPriceD=0.734678689748204, endPriceE=0.0062771436520758705)------------------------
+股票信息：TabStockInfo(stockId=179, stockCode=600202, stockName=哈空调)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=183, runDate=2019-11-03, endPriceCurrent=0.05866712010799096, endPriceA=0.9169601998904604, endPriceB=0.9828117905769456, endPriceC=0.996881858809383, endPriceD=0.998091613511369, endPriceE=0.9974710601378488)------------------------
+股票信息：TabStockInfo(stockId=183, stockCode=600207, stockName=安彩高科)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=184, runDate=2019-11-03, endPriceCurrent=0.23461235231994249, endPriceA=0.21890013849579942, endPriceB=0.477371761507392, endPriceC=0.9928465480289675, endPriceD=0.9935789415467711, endPriceE=0.9864729691757862)------------------------
+股票信息：TabStockInfo(stockId=184, stockCode=600208, stockName=新湖中宝)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=187, runDate=2019-11-03, endPriceCurrent=0.17055944453448238, endPriceA=0.19278523428340683, endPriceB=0.9999999999999993, endPriceC=0.9999999999999902, endPriceD=0.9999999999999829, endPriceE=0.9999999886795644)------------------------
+股票信息：TabStockInfo(stockId=187, stockCode=600211, stockName=西藏药业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=195, runDate=2019-11-03, endPriceCurrent=0.11685120710160667, endPriceA=0.5095917671419121, endPriceB=0.90513282767376, endPriceC=0.6515154867605218, endPriceD=0.9815423451461703, endPriceE=0.9980578216937273)------------------------
+股票信息：TabStockInfo(stockId=195, stockCode=600220, stockName=江苏阳光)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=202, runDate=2019-11-03, endPriceCurrent=0.45618208406159366, endPriceA=0.6268839328915542, endPriceB=0.6394255434739599, endPriceC=0.636247418397301, endPriceD=0.9198526441227703, endPriceE=0.8601060794458971)------------------------
+股票信息：TabStockInfo(stockId=202, stockCode=600228, stockName=*ST昌九)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=208, runDate=2019-11-03, endPriceCurrent=0.500638854950656, endPriceA=0.3936514457989609, endPriceB=0.3042162120806649, endPriceC=0.4581526672237396, endPriceD=0.9680194180798704, endPriceE=0.7114950421549194)------------------------
+股票信息：TabStockInfo(stockId=208, stockCode=600234, stockName=ST山水)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=210, runDate=2019-11-03, endPriceCurrent=0.7570587314423587, endPriceA=0.9998658965180962, endPriceB=0.999752190083753, endPriceC=0.9996677802858219, endPriceD=0.9996632187399777, endPriceE=0.999669728064288)------------------------
+股票信息：TabStockInfo(stockId=210, stockCode=600236, stockName=桂冠电力)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=214, runDate=2019-11-03, endPriceCurrent=0.88763246895238, endPriceA=0.9204835541840156, endPriceB=0.9452034964178129, endPriceC=0.9998808004754979, endPriceD=0.6727019252615551, endPriceE=0.8964674376764584)------------------------
+股票信息：TabStockInfo(stockId=214, stockCode=600240, stockName=华业资本)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=217, runDate=2019-11-03, endPriceCurrent=0.42161800817318773, endPriceA=0.9505791887072277, endPriceB=0.3992999858076347, endPriceC=0.3296879227415509, endPriceD=0.3218377760341072, endPriceE=0.3205997873004288)------------------------
+股票信息：TabStockInfo(stockId=217, stockCode=600243, stockName=青海华鼎)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=235, runDate=2019-11-03, endPriceCurrent=0.8570873412514022, endPriceA=0.9999208568312511, endPriceB=0.39811527312422956, endPriceC=0.14050207853964405, endPriceD=0.04790043729070094, endPriceE=0.06716659396955471)------------------------
+股票信息：TabStockInfo(stockId=235, stockCode=600265, stockName=ST景谷)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=237, runDate=2019-11-03, endPriceCurrent=0.7086719059463567, endPriceA=0.9941143425262016, endPriceB=0.8775038639892462, endPriceC=0.16600084521568614, endPriceD=0.12857066266895092, endPriceE=0.062170540812913726)------------------------
+股票信息：TabStockInfo(stockId=237, stockCode=600267, stockName=海正药业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=242, runDate=2019-11-03, endPriceCurrent=3.693770249597732E-4, endPriceA=0.6304007437056347, endPriceB=0.8640909267666725, endPriceC=0.9106542071252501, endPriceD=0.8797602634401194, endPriceE=0.8779329739950026)------------------------
+股票信息：TabStockInfo(stockId=242, stockCode=600272, stockName=开开实业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=243, runDate=2019-11-03, endPriceCurrent=0.536451299527838, endPriceA=0.9929031867176925, endPriceB=0.6288983289652397, endPriceC=0.258983013536837, endPriceD=0.3462707018860736, endPriceE=0.29148340849953613)------------------------
+股票信息：TabStockInfo(stockId=243, stockCode=600273, stockName=嘉化能源)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=248, runDate=2019-11-03, endPriceCurrent=0.024003140892685515, endPriceA=0.013121140558891981, endPriceB=0.9708874109904636, endPriceC=0.9998572091940962, endPriceD=0.9998472406036579, endPriceE=0.9998271778986433)------------------------
+股票信息：TabStockInfo(stockId=248, stockCode=600279, stockName=重庆港九)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=249, runDate=2019-11-03, endPriceCurrent=0.10372504345294116, endPriceA=0.10513120568666239, endPriceB=0.10874953194107863, endPriceC=0.1336829327367894, endPriceD=0.9865097190716696, endPriceE=0.9983604340757504)------------------------
+股票信息：TabStockInfo(stockId=249, stockCode=600280, stockName=中央商场)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=254, runDate=2019-11-03, endPriceCurrent=0.7212373232913398, endPriceA=0.7485926852497121, endPriceB=0.8113228914904889, endPriceC=0.9308063668916517, endPriceD=0.9908963230813506, endPriceE=0.9955603538561094)------------------------
+股票信息：TabStockInfo(stockId=254, stockCode=600285, stockName=羚锐制药)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=256, runDate=2019-11-03, endPriceCurrent=0.028854219194955594, endPriceA=0.9894800720266397, endPriceB=0.4970073836696613, endPriceC=7.269181796134918E-4, endPriceD=1.126652459510183E-4, endPriceE=9.12154519791815E-5)------------------------
+股票信息：TabStockInfo(stockId=256, stockCode=600287, stockName=江苏舜天)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=281, runDate=2019-11-03, endPriceCurrent=0.010133642335850247, endPriceA=0.750262425857085, endPriceB=0.9962979127930721, endPriceC=0.8613795209601585, endPriceD=0.5474827217437035, endPriceE=0.3394720138292555)------------------------
+股票信息：TabStockInfo(stockId=281, stockCode=600315, stockName=上海家化)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=282, runDate=2019-11-03, endPriceCurrent=9.442283542879958E-4, endPriceA=0.004093514072561041, endPriceB=0.9721905140414736, endPriceC=0.9942222569533369, endPriceD=0.9952779068599955, endPriceE=0.9971401511269089)------------------------
+股票信息：TabStockInfo(stockId=282, stockCode=600316, stockName=洪都航空)
+------------------------这只重点���注！TabPriceDateMLResultFiveDays(stockId=283, runDate=2019-11-03, endPriceCurrent=0.41234676940726717, endPriceA=0.5831406182972937, endPriceB=0.20885787995204108, endPriceC=0.9998321173733133, endPriceD=0.9999991906120683, endPriceE=0.9998193118557095)------------------------
+股票信息：TabStockInfo(stockId=283, stockCode=600317, stockName=营口港)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=288, runDate=2019-11-03, endPriceCurrent=0.016251404544633415, endPriceA=0.06693004476784303, endPriceB=0.9825616526212839, endPriceC=0.6675976829101701, endPriceD=0.34156486758708127, endPriceE=0.9474874386303339)------------------------
+股票信息：TabStockInfo(stockId=288, stockCode=600322, stockName=天房发展)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=290, runDate=2019-11-03, endPriceCurrent=0.6213709226559415, endPriceA=0.6660419661250114, endPriceB=0.9702373079497062, endPriceC=0.9859655860350426, endPriceD=0.9859691404576104, endPriceE=0.9859702588973348)------------------------
+股票信息：TabStockInfo(stockId=290, stockCode=600325, stockName=华发股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=297, runDate=2019-11-03, endPriceCurrent=0.15546537976317354, endPriceA=0.6137989848104625, endPriceB=0.5996538989284829, endPriceC=0.6512162748817323, endPriceD=0.9492276960768922, endPriceE=0.37045658076778626)------------------------
+股票信息：TabStockInfo(stockId=297, stockCode=600332, stockName=白云山)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=303, runDate=2019-11-03, endPriceCurrent=0.3745400728014852, endPriceA=0.32508067107989724, endPriceB=0.8875037997825265, endPriceC=0.9947920679326938, endPriceD=0.09212528260183923, endPriceE=0.9264190311471798)------------------------
+股票信息：TabStockInfo(stockId=303, stockCode=600339, stockName=中油工程)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=308, runDate=2019-11-03, endPriceCurrent=0.5209514088117001, endPriceA=0.3358822735406336, endPriceB=0.43230979348937787, endPriceC=0.3747183774935429, endPriceD=0.9910698611790063, endPriceE=0.9708050308430448)------------------------
+股票信息：TabStockInfo(stockId=308, stockCode=600348, stockName=阳泉煤业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=314, runDate=2019-11-03, endPriceCurrent=0.676494702231154, endPriceA=0.6791508810421173, endPriceB=0.07233423367604166, endPriceC=0.4853853706165375, endPriceD=0.9025782179114261, endPriceE=0.9767543647124443)------------------------
+股票信息：TabStockInfo(stockId=314, stockCode=600355, stockName=精伦电子)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=317, runDate=2019-11-03, endPriceCurrent=0.164171857770566, endPriceA=0.03093745116669374, endPriceB=0.9967675463291833, endPriceC=0.018651427286517443, endPriceD=0.022049299141447078, endPriceE=0.025908081587725396)------------------------
+股票信息：TabStockInfo(stockId=317, stockCode=600358, stockName=国旅联合)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=329, runDate=2019-11-03, endPriceCurrent=0.07334921428201757, endPriceA=0.09355915307234873, endPriceB=0.12129559372833926, endPriceC=0.15725799718504388, endPriceD=0.1382874355740462, endPriceE=0.9983549871040124)------------------------
+股票信息：TabStockInfo(stockId=329, stockCode=600371, stockName=万向德农)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=334, runDate=2019-11-03, endPriceCurrent=0.8946853731190734, endPriceA=0.9999948644841056, endPriceB=0.9998953970311918, endPriceC=0.9673104982476419, endPriceD=0.8104120086031971, endPriceE=0.7287855320377741)------------------------
+股票信息：TabStockInfo(stockId=334, stockCode=600377, stockName=宁沪高速)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=337, runDate=2019-11-03, endPriceCurrent=0.15853638530301697, endPriceA=0.1791079243912439, endPriceB=0.18018166655394469, endPriceC=0.1799088724736796, endPriceD=0.16668932390696972, endPriceE=0.9391274510945526)------------------------
+股票信息：TabStockInfo(stockId=337, stockCode=600380, stockName=健康元)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=343, runDate=2019-11-03, endPriceCurrent=0.49720763832609943, endPriceA=0.005823324398957976, endPriceB=9.670177482757918E-4, endPriceC=7.03638396682235E-4, endPriceD=0.7865383587013758, endPriceE=0.9620397710110938)------------------------
+股票信息：TabStockInfo(stockId=343, stockCode=600387, stockName=海越股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=353, runDate=2019-11-03, endPriceCurrent=0.0013315420184923914, endPriceA=0.003884526260991328, endPriceB=0.8004177122539801, endPriceC=0.958094392310591, endPriceD=0.9591488509215317, endPriceE=0.9562616709837892)------------------------
+股票信息：TabStockInfo(stockId=353, stockCode=600398, stockName=海澜之家)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=370, runDate=2019-11-03, endPriceCurrent=0.8982301075893588, endPriceA=0.9335597683415356, endPriceB=0.9300317971013671, endPriceC=0.9335576994788662, endPriceD=0.7533311592022478, endPriceE=0.9920622759133891)------------------------
+股票信息：TabStockInfo(stockId=370, stockCode=600423, stockName=*ST柳化)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=371, runDate=2019-11-03, endPriceCurrent=0.03501465709507314, endPriceA=0.039049600069077095, endPriceB=0.7246271310302485, endPriceC=0.9989281942153064, endPriceD=0.6087009074367242, endPriceE=2.7438892607335914E-4)------------------------
+股票信息：TabStockInfo(stockId=371, stockCode=600425, stockName=*ST青松)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=383, runDate=2019-11-03, endPriceCurrent=0.0026856248221286015, endPriceA=0.6528684334542765, endPriceB=0.8415499689562503, endPriceC=0.9200358202852719, endPriceD=0.9990947405080864, endPriceE=0.9998044184054449)------------------------
+股票信息：TabStockInfo(stockId=383, stockCode=600448, stockName=华纺股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=386, runDate=2019-11-03, endPriceCurrent=0.6355238196750446, endPriceA=0.8706603805011967, endPriceB=0.9990291595764457, endPriceC=0.9999979311707669, endPriceD=0.9997948928049267, endPriceE=0.4709509638888629)------------------------
+股票信息：TabStockInfo(stockId=386, stockCode=600455, stockName=博通股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=392, runDate=2019-11-03, endPriceCurrent=7.893022246329815E-5, endPriceA=7.880061637494493E-5, endPriceB=7.953766735724672E-5, endPriceC=0.999964711361878, endPriceD=0.046147958521574946, endPriceE=0.004610998083740429)------------------------
+股票信息：TabStockInfo(stockId=392, stockCode=600462, stockName=九有股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=397, runDate=2019-11-03, endPriceCurrent=7.242261851505613E-4, endPriceA=0.9508007886783831, endPriceB=0.08684670360052578, endPriceC=0.09093778573956411, endPriceD=0.032440184916960886, endPriceE=0.11458540215878997)------------------------
+股票信息：TabStockInfo(stockId=397, stockCode=600469, stockName=风神股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=408, runDate=2019-11-03, endPriceCurrent=0.8811647165226523, endPriceA=0.9239423624703879, endPriceB=0.9425418452041586, endPriceC=0.9516634085365577, endPriceD=0.9567237124834655, endPriceE=0.9602705975258334)------------------------
+股票信息：TabStockInfo(stockId=408, stockCode=600483, stockName=福能股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=413, runDate=2019-11-03, endPriceCurrent=0.43389102243158756, endPriceA=0.9991888953207142, endPriceB=0.13305549515258053, endPriceC=0.11169532172906442, endPriceD=0.11092466244992578, endPriceE=0.07898777410349407)------------------------
+股票信息：TabStockInfo(stockId=413, stockCode=600489, stockName=中金黄金)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=415, runDate=2019-11-03, endPriceCurrent=0.04805467799193998, endPriceA=0.8943100621891801, endPriceB=0.847758180332686, endPriceC=0.7278835125218701, endPriceD=0.9998225120258677, endPriceE=0.964850615034799)------------------------
+股票信息：TabStockInfo(stockId=415, stockCode=600491, stockName=龙元建设)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=424, runDate=2019-11-03, endPriceCurrent=5.2261433538607175E-6, endPriceA=5.3760444229370804E-6, endPriceB=5.7428392710583175E-6, endPriceC=0.9928861848634506, endPriceD=0.9957106072645486, endPriceE=0.9992242073598688)------------------------
+股票信息：TabStockInfo(stockId=424, stockCode=600502, stockName=安徽水利)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=443, runDate=2019-11-03, endPriceCurrent=0.03177425609798678, endPriceA=0.023506142607110172, endPriceB=0.018072700512147447, endPriceC=0.014343786562253857, endPriceD=0.011150420160899588, endPriceE=0.9496335397551604)------------------------
+股票信息：TabStockInfo(stockId=443, stockCode=600523, stockName=贵航股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=444, runDate=2019-11-03, endPriceCurrent=0.09212231998841536, endPriceA=0.11185891592186509, endPriceB=0.07091023244125814, endPriceC=0.02513847439366293, endPriceD=0.0064932990243623, endPriceE=0.9998889053559246)------------------------
+股票信息：TabStockInfo(stockId=444, stockCode=600525, stockName=长园集团)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=446, runDate=2019-11-03, endPriceCurrent=0.49029672549389264, endPriceA=0.947599052917385, endPriceB=0.9958294771829382, endPriceC=0.9871539891727891, endPriceD=0.9557091603075655, endPriceE=0.9495437807985976)------------------------
+股票信息：TabStockInfo(stockId=446, stockCode=600527, stockName=江南高纤)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=451, runDate=2019-11-03, endPriceCurrent=0.27520568876892226, endPriceA=0.8447375975966954, endPriceB=0.9869004581827131, endPriceC=0.9959000733204769, endPriceD=0.997332063777242, endPriceE=0.9967925003327361)------------------------
+股票信息：TabStockInfo(stockId=451, stockCode=600532, stockName=宏达矿业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=460, runDate=2019-11-03, endPriceCurrent=0.3694789951836174, endPriceA=0.9908828598944551, endPriceB=0.9926021546987209, endPriceC=0.9946600063039732, endPriceD=0.9969089659278718, endPriceE=0.9974348004872925)------------------------
+股票信息：TabStockInfo(stockId=460, stockCode=600545, stockName=卓郎智能)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=479, runDate=2019-11-03, endPriceCurrent=0.0016154039698628418, endPriceA=0.0011198671499520376, endPriceB=0.0015927906213575298, endPriceC=0.9439031708154598, endPriceD=0.9550810939814909, endPriceE=0.9517341270840901)------------------------
+股票信息：TabStockInfo(stockId=479, stockCode=600566, stockName=济川药业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=500, runDate=2019-11-03, endPriceCurrent=0.01666229245895977, endPriceA=0.01763144791197522, endPriceB=0.02725810699397474, endPriceC=0.11688780514903277, endPriceD=0.8099847039454577, endPriceE=0.9840833354686558)------------------------
+股票信息：TabStockInfo(stockId=500, stockCode=600588, stockName=用友网络)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=512, runDate=2019-11-03, endPriceCurrent=0.7728836571498398, endPriceA=0.3713167532005936, endPriceB=0.8042831660334027, endPriceC=0.9845108403418215, endPriceD=0.989869124345793, endPriceE=0.040734906547291005)------------------------
+股票信息：TabStockInfo(stockId=512, stockCode=600600, stockName=青岛啤酒)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=553, runDate=2019-11-03, endPriceCurrent=0.692519970753284, endPriceA=0.6503568348922331, endPriceB=0.9973791183778925, endPriceC=0.09833408408817472, endPriceD=0.12114148373757902, endPriceE=0.11197580858413518)------------------------
+股票信息：TabStockInfo(stockId=553, stockCode=600641, stockName=万业企业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=560, runDate=2019-11-03, endPriceCurrent=4.463007050601025E-4, endPriceA=0.8550356369302206, endPriceB=0.9997455776913313, endPriceC=0.999961093365958, endPriceD=0.9999903982843652, endPriceE=0.9999956095316146)------------------------
+股票信息：TabStockInfo(stockId=560, stockCode=600648, stockName=外高桥)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=570, runDate=2019-11-03, endPriceCurrent=0.06245001116550341, endPriceA=0.9996199856378877, endPriceB=0.9992374791240988, endPriceC=0.46140228666765826, endPriceD=0.17366636682388853, endPriceE=0.165713662142659)------------------------
+股票信息：TabStockInfo(stockId=570, stockCode=600658, stockName=电子城)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=579, runDate=2019-11-03, endPriceCurrent=0.06898674440842496, endPriceA=0.11487793592124743, endPriceB=0.1467186025135838, endPriceC=0.1696951213832658, endPriceD=0.18748719525470792, endPriceE=0.9999773288788517)------------------------
+股票信息：TabStockInfo(stockId=579, stockCode=600667, stockName=太极实业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=585, runDate=2019-11-03, endPriceCurrent=0.005975853806796059, endPriceA=0.020178738433066157, endPriceB=0.9961399910470755, endPriceC=0.9987515365743858, endPriceD=0.8205860773515994, endPriceE=0.5566801862456863)------------------------
+股票信息：TabStockInfo(stockId=585, stockCode=600673, stockName=东阳光科)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=596, runDate=2019-11-03, endPriceCurrent=0.7587604711511352, endPriceA=0.3068485457825857, endPriceB=0.8152574082171316, endPriceC=0.9280148580673309, endPriceD=0.9085378213228529, endPriceE=0.8672276263891471)------------------------
+股票信息：TabStockInfo(stockId=596, stockCode=600684, stockName=珠江实业)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=597, runDate=2019-11-03, endPriceCurrent=0.3151600056002988, endPriceA=0.22223634687311083, endPriceB=0.16051035660253896, endPriceC=0.9972724057230422, endPriceD=0.9999483879520582, endPriceE=0.9993818341774899)------------------------
+股票信息：TabStockInfo(stockId=597, stockCode=600685, stockName=中船防务)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=610, runDate=2019-11-03, endPriceCurrent=6.00666716812757E-6, endPriceA=0.9982908161708843, endPriceB=0.026247650726750123, endPriceC=0.02610062968133294, endPriceD=0.028501006018487395, endPriceE=0.036874466314911834)------------------------
+股票信息：TabStockInfo(stockId=610, stockCode=600698, stockName=湖南天雁)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=614, runDate=2019-11-03, endPriceCurrent=0.009476354722119187, endPriceA=0.006494970579269222, endPriceB=0.0053888373167650635, endPriceC=0.9998161497439079, endPriceD=0.9997822789983088, endPriceE=0.9997058362398107)------------------------
+股票信息：TabStockInfo(stockId=614, stockCode=600702, stockName=沱牌舍得)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=629, runDate=2019-11-03, endPriceCurrent=7.337570765826422E-11, endPriceA=0.9999957969762624, endPriceB=0.9999649030129829, endPriceC=7.957225077327792E-6, endPriceD=3.5306328041545625E-5, endPriceE=0.006170555269277966)------------------------
+股票信息：TabStockInfo(stockId=629, stockCode=600717, stockName=天津港)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=632, runDate=2019-11-03, endPriceCurrent=0.7550325041881133, endPriceA=0.9601634896529734, endPriceB=0.7552224956187692, endPriceC=0.8075755524959652, endPriceD=0.8917734309912185, endPriceE=0.9313180341541148)------------------------
+股票信息：TabStockInfo(stockId=632, stockCode=600720, stockName=祁连山)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=636, runDate=2019-11-03, endPriceCurrent=0.1270127636365802, endPriceA=0.05054045184447246, endPriceB=0.9021399918948786, endPriceC=0.9076826642877187, endPriceD=0.8754300322067361, endPriceE=0.8618990314165685)------------------------
+股票信息：TabStockInfo(stockId=636, stockCode=600724, stockName=宁波富达)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=638, runDate=2019-11-03, endPriceCurrent=0.11584148459728201, endPriceA=0.113133109431761, endPriceB=0.9999786244992002, endPriceC=0.9999698927242104, endPriceD=0.460730946431341, endPriceE=0.45997431352735985)------------------------
+股票信息：TabStockInfo(stockId=638, stockCode=600726, stockName=华电能源)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=640, runDate=2019-11-03, endPriceCurrent=0.8987393503383957, endPriceA=0.9604796352344269, endPriceB=0.8025494599928642, endPriceC=0.2864292381977472, endPriceD=0.2472882360486997, endPriceE=0.23647872672796155)------------------------
+股票信息：TabStockInfo(stockId=640, stockCode=600728, stockName=佳都科技)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=643, runDate=2019-11-03, endPriceCurrent=0.6345997471814115, endPriceA=0.5916807449953818, endPriceB=0.9984863900981177, endPriceC=0.9983022301600862, endPriceD=0.9964455276809602, endPriceE=0.9755246003097972)------------------------
+股票信息：TabStockInfo(stockId=643, stockCode=600731, stockName=湖南海利)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=650, runDate=2019-11-03, endPriceCurrent=0.006097390920687386, endPriceA=0.006835680453585424, endPriceB=0.009807988221080977, endPriceC=0.0712143601649403, endPriceD=0.9549210751052881, endPriceE=0.9999746291195019)------------------------
+股票信息：TabStockInfo(stockId=650, stockCode=600738, stockName=兰州民百)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=672, runDate=2019-11-03, endPriceCurrent=0.21597240445726978, endPriceA=0.9529148119876821, endPriceB=0.9346278674139462, endPriceC=0.8629933722350099, endPriceD=0.9996383408197946, endPriceE=0.9990603763395897)------------------------
+股票信息：TabStockInfo(stockId=672, stockCode=600760, stockName=中航黑豹)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=675, runDate=2019-11-03, endPriceCurrent=0.8497795213832859, endPriceA=0.8441143250828518, endPriceB=0.8452557395504828, endPriceC=0.698712187060911, endPriceD=0.9110558701626305, endPriceE=0.9017432761094466)------------------------
+股票信息：TabStockInfo(stockId=675, stockCode=600763, stockName=通策医疗)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=683, runDate=2019-11-03, endPriceCurrent=0.1220579284585602, endPriceA=0.2359388521912526, endPriceB=0.7767519400384114, endPriceC=0.9841423931193112, endPriceD=0.11491162012537563, endPriceE=0.14068607341108033)------------------------
+股票信息：TabStockInfo(stockId=683, stockCode=600771, stockName=广誉远)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=690, runDate=2019-11-03, endPriceCurrent=0.6471913976028851, endPriceA=0.872781080522052, endPriceB=0.9725336461869788, endPriceC=0.9951381447685388, endPriceD=0.9582910363110209, endPriceE=0.03079986890463155)------------------------
+股票信息：TabStockInfo(stockId=690, stockCode=600778, stockName=友好集团)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=707, runDate=2019-11-03, endPriceCurrent=0.08407560500806344, endPriceA=0.5777055384063723, endPriceB=0.9168918795113923, endPriceC=0.9032191703713531, endPriceD=0.5242484917734442, endPriceE=0.022250825475665793)------------------------
+股票信息：TabStockInfo(stockId=707, stockCode=600795, stockName=国电电力)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=710, runDate=2019-11-03, endPriceCurrent=0.4504591338220664, endPriceA=0.9873897409467729, endPriceB=0.15534545061294203, endPriceC=8.704883385423163E-5, endPriceD=2.1898814589056703E-5, endPriceE=1.1580238598353568E-5)------------------------
+股票信息：TabStockInfo(stockId=710, stockCode=600798, stockName=宁波海运)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=715, runDate=2019-11-03, endPriceCurrent=0.647538252524916, endPriceA=0.7506968685140477, endPriceB=0.884152523742895, endPriceC=0.9719328284989932, endPriceD=0.33540501052160254, endPriceE=0.6850854386965946)------------------------
+股票信息：TabStockInfo(stockId=715, stockCode=600803, stockName=新奥股份)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=717, runDate=2019-11-03, endPriceCurrent=0.8255131547971745, endPriceA=0.8272384048388288, endPriceB=0.8443387374610745, endPriceC=0.9186074735034192, endPriceD=0.7774644127418985, endPriceE=0.38795194940694944)------------------------
+股票信息：TabStockInfo(stockId=717, stockCode=600805, stockName=悦达投资)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=755, runDate=2019-11-03, endPriceCurrent=0.585929168623622, endPriceA=0.4737298490440876, endPriceB=0.8029362786299634, endPriceC=0.7711585117778955, endPriceD=0.94283470242856, endPriceE=0.9949403710295229)------------------------
+股票信息：TabStockInfo(stockId=755, stockCode=600843, stockName=上工申贝)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=760, runDate=2019-11-03, endPriceCurrent=5.61116973107888E-4, endPriceA=0.9994908662196601, endPriceB=0.9988841106081425, endPriceC=0.9987229959037119, endPriceD=0.9989871999692911, endPriceE=0.9995609742885051)------------------------
+股票信息：TabStockInfo(stockId=760, stockCode=600848, stockName=上海临港)
+------------------------这只重点关注！TabPriceDateMLResultFiveDays(stockId=764, runDate=2019-11-03, endPriceCurrent=0.25746557383736013, endPriceA=0.025825500831576195, endPriceB=0.1828162302036133, endPriceC=0.8426156637943217, endPriceD=0.9119708192906536, endPriceE=0.9412130483915679)------------------------
+股票信息：TabStockInfo(stockId=764, stockCode=600853, stockName=龙建股份)

@@ -40,6 +40,8 @@ public class DatePriceNNTrainer {
 	 * @return
 	 */
 	public void trainNN(Integer stockId , double limit) {
+		long start = System.currentTimeMillis();
+		
 		String algorithmFilePath = NeuralNetworkConstants.ALGORITHM_BASE_DIR + stockId + "_" + NeuralNetworkConstants.ALGORITHM_FILENAME_SUFFIX;
 		
 		logger.info("正在计算：stockId = " + stockId);
@@ -73,13 +75,15 @@ public class DatePriceNNTrainer {
 		 * 训练算法
 		 */
 		BasicNetwork algorithmModel = datePriceNN.train(trainDataSet , limit);
-			
+		
+		long end = System.currentTimeMillis();
+		
 		/*
 		 * 收敛失败
 		 */
 		if(algorithmModel == null) {
 			Encog.getInstance().shutdown();
-			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId);
+			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId + ",耗时：" + (end - start)/1000 + "秒");
 			
 			/*
 			 * 休眠1分钟，避免机器过热
@@ -100,7 +104,7 @@ public class DatePriceNNTrainer {
 		 * 预测成功保存算法到文件
 		 */
 		DataUtil.saveAlgorithm(algorithmFilePath , algorithmModel);
-		logger.info("预测完成：stockId = " + stockId);
+		logger.info("预测完成：stockId = " + stockId + ",耗时：" + (end - start)/1000 + "秒");
 		Encog.getInstance().shutdown();
 		
 		

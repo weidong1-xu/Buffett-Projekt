@@ -1,5 +1,6 @@
 package com.hanslv.stock.machine.learning.neural.network;
 
+import java.io.File;
 import java.time.LocalDate;
 
 import org.encog.ml.data.MLData;
@@ -39,6 +40,11 @@ public class DatePriceProphet {
 		String algorithmFilePath =  NeuralNetworkConstants.ALGORITHM_BASE_DIR + stockId + "_" + NeuralNetworkConstants.ALGORITHM_FILENAME_SUFFIX;
 		
 		/*
+		 * 判断算法是否存在
+		 */
+		if(!new File(algorithmFilePath).exists()) return null;
+		
+		/*
 		 * 读取当前算法
 		 */
 		BasicNetwork algorithm = DataUtil.loadAlgorithm(algorithmFilePath);
@@ -51,7 +57,7 @@ public class DatePriceProphet {
 		/*
 		 * 根据结果天数设定执行计算
 		 */
-		for(long i = 0 ; i < NeuralNetworkConstants.RESULT_SIZE ; i++) {
+		for(long i = 0 ; i <= NeuralNetworkConstants.RESULT_SIZE ; i++) {
 			String[] currentDateArray = currentLocalDate.plusDays(i).toString().split("-");
 			double[] inputData = {new Double(currentDateArray[1]) , new Double(currentDateArray[2])};
 			
@@ -63,9 +69,10 @@ public class DatePriceProphet {
 			/*
 			 * 结果中的收盘价
 			 */
-			double currentResult = currentResultMLData.getData()[0];
+			double currentResult = currentResultMLData.getData()[1];
 			
-			if(result.getEndPriceA() == null) result.setEndPriceA(String.valueOf(currentResult));
+			if(result.getEndPriceCurrent() == null) result.setEndPriceCurrent(String.valueOf(currentResult));
+			else if(result.getEndPriceA() == null) result.setEndPriceA(String.valueOf(currentResult));
 			else if(result.getEndPriceB() == null) result.setEndPriceB(String.valueOf(currentResult));
 			else if(result.getEndPriceC() == null) result.setEndPriceC(String.valueOf(currentResult));
 			else if(result.getEndPriceD() == null) result.setEndPriceD(String.valueOf(currentResult));

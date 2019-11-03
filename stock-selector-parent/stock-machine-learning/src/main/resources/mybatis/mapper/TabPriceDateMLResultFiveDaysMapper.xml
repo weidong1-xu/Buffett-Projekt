@@ -4,6 +4,7 @@
  * 价格-日期ML预测结果表5日		tab_price_date_ml_result_five_days
  * 股票ID						stock_id										BIGINT								FOREIGN KEY (fk_ml_stock_info)						PRIMARY KEY
  * 运行日期						run_date										VARCHAR(10)																				PRIMARY KEY
+ * 当前收盘价					end_price_current								VARCHAR(50)
  * 第一天收盘价					end_price_a										VARCHAR(50)
  * 第二天收盘价					end_price_b										VARCHAR(50)
  * 第三天收盘价					end_price_c										VARCHAR(50)
@@ -15,7 +16,12 @@
 		INSERT INTO tab_price_date_ml_result_five_days 
 		VALUES
 		<foreach collection="mlResultList" item="mlResult" separator=",">
-			(#{mlResult.stockId} , #{mlResult.runDate} , #{mlResult.endPriceA} , #{mlResult.endPriceB} , #{mlResult.endPriceC} , #{mlResult.endPriceD} , #{mlResult.endPriceE})
+			(#{mlResult.stockId} , #{mlResult.runDate} , #{mlResult.endPriceCurrent} , #{mlResult.endPriceA} , #{mlResult.endPriceB} , #{mlResult.endPriceC} , #{mlResult.endPriceD} , #{mlResult.endPriceE})
 		</foreach>
 	</insert>
+	
+	<!-- 获取最新的算法结果List -->
+	<select id="selectCurrentList" resultType="com.hanslv.stock.selector.commons.dto.TabPriceDateMLResultFiveDays">
+		SELECT stock_id , run_date , end_price_current , end_price_a , end_price_b , end_price_c , end_price_d , end_price_e FROM tab_price_date_ml_result_five_days WHERE run_date = (SELECT MAX(run_date) FROM tab_price_date_ml_result_five_days)
+	</select>
  </mapper>

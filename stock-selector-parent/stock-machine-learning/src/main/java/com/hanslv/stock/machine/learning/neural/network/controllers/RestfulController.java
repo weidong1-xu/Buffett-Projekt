@@ -12,10 +12,11 @@ import com.hanslv.stock.machine.learning.neural.network.services.NeuralNetworkSe
  * Controller
  * 
  * -----------------------------------------
- * 1、训练全部股票							public void train()
- * 2、训练指定股票							public void train(@PathVariable("stockId")Integer stockId)
+ * 1、训练全部股票							public void train(Integer stockId)
+ * 2、训练指定股票							public void trainAStock(@PathVariable("stockId")Integer stockId)
  * 3、预测全部股票并存入数据库				public void calculateStock()
  * 4、预测指定股票并将结果输出到控制台		public void calculateStock(@PathVariable("stockId")Integer stockId)
+ * 5、获取结果并输出到控制台					public void getResult()
  * -----------------------------------------
  * @author hanslv
  *
@@ -29,9 +30,9 @@ public class RestfulController {
 	/**
 	 * 1、训练全部股票
 	 */
-	@GetMapping("/train-all")
-	public void train() {
-		nnService.trainStockNN();
+	@GetMapping("/train-all/{stockId}")
+	public void train(@PathVariable("stockId")Integer stockId) {
+		nnService.trainStockNN(stockId);
 	}
 	
 	/**
@@ -39,8 +40,8 @@ public class RestfulController {
 	 * @param stockId
 	 */
 	@GetMapping("/train/{stockId}")
-	public void train(@PathVariable("stockId")Integer stockId) {
-		nnService.trainStockNN(stockId);
+	public void trainAStock(@PathVariable("stockId")Integer stockId) {
+		nnService.trainAStockNN(stockId);
 	}
 	
 	/**
@@ -58,5 +59,13 @@ public class RestfulController {
 	@GetMapping("/calculate/{stockId}")
 	public void calculateStock(@PathVariable("stockId")Integer stockId) {
 		nnService.calculateStock(stockId);
+	}
+	
+	/**
+	 * 5、获取结果并输出到控制台
+	 */
+	@GetMapping("/result")
+	public void getResult() {
+		nnService.getResult();
 	}
 }

@@ -12,6 +12,7 @@ import com.hanslv.stock.selector.commons.dto.TabPriceDateMLResultFiveDays;
  * 
  * ----------------------------------------------
  * 1、插入List									public void insertList(@Param("mlResultList")List<TabPriceDateMLResultFiveDays> mlResultList)
+ * 2、获取最新的算法结果List						public List<TabPriceDateMLResultFiveDays> selectCurrentList()
  * ----------------------------------------------
  * @author hanslv
  *
@@ -23,4 +24,10 @@ public interface TabPriceDateMLResultFiveDaysRepository {
 	 * @param mlResultList
 	 */
 	public void insertList(@Param("mlResultList")List<TabPriceDateMLResultFiveDays> mlResultList);
+	
+	/**
+	 * 2、获取最新的算法结果List
+	 * @return
+	 */
+	public List<TabPriceDateMLResultFiveDays> selectCurrentList();
 }
