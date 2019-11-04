@@ -153,19 +153,25 @@ public class NeuralNetworkService {
 		for(TabPriceDateMLResultFiveDays currentAlgorithmResult : currentAlgorithmResultList) {
 //			int flag = 0;
 			double currentPirce = new Double(currentAlgorithmResult.getEndPriceCurrent());
-			double priceA = new Double(currentAlgorithmResult.getEndPriceA());
-			double priceB = new Double(currentAlgorithmResult.getEndPriceB());
-			double priceC = new Double(currentAlgorithmResult.getEndPriceC());
-			double priceD = new Double(currentAlgorithmResult.getEndPriceD());
+//			double priceA = new Double(currentAlgorithmResult.getEndPriceA());
+//			double priceB = new Double(currentAlgorithmResult.getEndPriceB());
+//			double priceC = new Double(currentAlgorithmResult.getEndPriceC());
+//			double priceD = new Double(currentAlgorithmResult.getEndPriceD());
 			double priceE = new Double(currentAlgorithmResult.getEndPriceE());
 			
 			/*
 			 * 重点关注股票
 			 */
-			if(currentPirce < 0.9 && (priceA > 0.9 || priceB > 0.9 || priceC > 0.9 || priceD > 0.9 || priceE > 0.9)) {
-				logger.info("------------------------这只重点关注！" + currentAlgorithmResult + "------------------------");
+			if(currentPirce < 0.9 && priceE >= 0.95) {
 				TabStockInfo currentStockInfo = tabStockInfoMapper.selectById(currentAlgorithmResult.getStockId());
+				logger.info(currentAlgorithmResult.getEndPriceCurrent());
+				logger.info(currentAlgorithmResult.getEndPriceA());
+				logger.info(currentAlgorithmResult.getEndPriceB());
+				logger.info(currentAlgorithmResult.getEndPriceC());
+				logger.info(currentAlgorithmResult.getEndPriceD());
+				logger.info(currentAlgorithmResult.getEndPriceE());
 				logger.info("股票信息：" + currentStockInfo);
+				logger.info("--------------------");
 				continue;
 			}
 			
