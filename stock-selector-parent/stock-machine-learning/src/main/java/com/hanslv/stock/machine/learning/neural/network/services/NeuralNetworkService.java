@@ -151,18 +151,25 @@ public class NeuralNetworkService {
 		 * 判断是否预测上涨
 		 */
 		for(TabPriceDateMLResultFiveDays currentAlgorithmResult : currentAlgorithmResultList) {
-//			int flag = 0;
+			int flag = 0;
 			double currentPirce = new Double(currentAlgorithmResult.getEndPriceCurrent());
-//			double priceA = new Double(currentAlgorithmResult.getEndPriceA());
-//			double priceB = new Double(currentAlgorithmResult.getEndPriceB());
-//			double priceC = new Double(currentAlgorithmResult.getEndPriceC());
-//			double priceD = new Double(currentAlgorithmResult.getEndPriceD());
+			double priceA = new Double(currentAlgorithmResult.getEndPriceA());
+			double priceB = new Double(currentAlgorithmResult.getEndPriceB());
+			double priceC = new Double(currentAlgorithmResult.getEndPriceC());
+			double priceD = new Double(currentAlgorithmResult.getEndPriceD());
 			double priceE = new Double(currentAlgorithmResult.getEndPriceE());
+			
+			if(priceA > 0.95) flag++;
+			if(priceB > 0.95) flag++;
+			if(priceC > 0.95) flag++;
+			if(priceD > 0.95) flag++;
+			if(priceE > 0.95) flag++;
+			
 			
 			/*
 			 * 重点关注股票
 			 */
-			if(currentPirce < 0.9 && priceE >= 0.95) {
+			if(currentPirce < 0.9 && priceE >= 0.95 && flag >= 3) {
 				TabStockInfo currentStockInfo = tabStockInfoMapper.selectById(currentAlgorithmResult.getStockId());
 				logger.info(currentAlgorithmResult.getEndPriceCurrent());
 				logger.info(currentAlgorithmResult.getEndPriceA());
@@ -174,14 +181,6 @@ public class NeuralNetworkService {
 				logger.info("--------------------");
 				continue;
 			}
-			
-//			if(currentPirce < priceA) flag++;
-//			if(currentPirce < priceB) flag++;
-//			if(currentPirce < priceC) flag++;
-//			if(currentPirce < priceD) flag++;
-//			if(currentPirce < priceE) flag++;
-			
-//			if(flag >= NeuralNetworkConstants.ALGROITHM_RESULT_TRUE_FLAG) logger.info("可以看看这只股票：" + currentAlgorithmResult);
 		}
 	}
 }
