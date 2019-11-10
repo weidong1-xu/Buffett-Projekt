@@ -110,4 +110,26 @@
 		ORDER BY stock_price_date ASC
 		LIMIT ${limit}
 	</select>
+	
+	<!-- 获取指定股票在指定日期前（包括）的全部价格信息 -->
+	<select id="selectPriceInfoByStockIdAndBeforeDate" resultType="com.hanslv.stock.selector.commons.dto.TabStockPriceInfo">
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		UNION
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		UNION
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		UNION
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		UNION
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		UNION
+		SELECT stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate 
+		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= #{date} 
+		ORDER BY stock_price_date ASC
+	</select>
 </mapper>

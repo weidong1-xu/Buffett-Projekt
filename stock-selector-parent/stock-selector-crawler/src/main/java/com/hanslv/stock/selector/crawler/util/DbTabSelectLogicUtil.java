@@ -1,8 +1,10 @@
 package com.hanslv.stock.selector.crawler.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.hanslv.stock.selector.commons.dto.TabAlgorithmResult;
+import com.hanslv.stock.selector.commons.dto.TabStockIndexMacd;
 import com.hanslv.stock.selector.commons.dto.TabStockInfo;
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 import com.hanslv.stock.selector.crawler.constants.CrawlerConstants;
@@ -36,12 +38,16 @@ import com.hanslv.stock.selector.crawler.repository.TabStockInfoRepository;
  * ---------------------------------------------------
  * 1、返回当前价格信息应该插入的表名称														public static String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper)
  * 2、返回当前算法结果应该插入的表名称														public static String tableSelector4AlgorithmResult(TabAlgorithmResult currentAlgorithmResult)
+ * 3、股票MACD指标分表																		public String tableSelector4IndexMacd(TabStockIndexMacd macdInfo)
  * ---------------------------------------------------
  * @author hanslv
  *
  */
 @Component
 public class DbTabSelectLogicUtil {
+	@Autowired
+	private TabStockInfoRepository infoMapper;
+	
 	
 	/**
 	 * 1、返回当前价格信息应该插入的表名称
@@ -101,6 +107,43 @@ public class DbTabSelectLogicUtil {
 	}
 	
 	
+	/**
+	 * 3、股票MACD指标分表
+	 * @param macdInfo
+	 * @return
+	 */
+	public String tableSelector4IndexMacd(TabStockIndexMacd macdInfo) {
+		String tableName = "";
+		
+		/*
+		 * 获取当前价格日期
+		 */
+		Integer currentPriceInfoDay = getCurrentPriceInfoDay4MacdIndex(macdInfo);
+		
+		/*
+		 * 表后缀
+		 */
+		int tabSuffix = currentPriceInfoDay % 3 + 1;
+		
+		
+		/*
+		 * 获取当前股票基本信息
+		 */
+		TabStockInfo currentStockInfo = null;
+		currentStockInfo = infoMapper.getStockInfoById(macdInfo.getStockId());
+		
+		/*
+		 * 判断是否为上证股票
+		 */
+		if(currentStockInfo.getStockCode().indexOf("6") != 0) 
+			tableName = "tab_stock_index_macd_shenzheng00" + tabSuffix;
+		else
+			tableName = "tab_stock_index_macd_shangzheng00" + tabSuffix;
+		
+		return tableName;
+	}
+	
+	
 	
 	
 	
@@ -133,5 +176,14 @@ public class DbTabSelectLogicUtil {
 	 */
 	private static Integer getCurrentPriceInfoDay4AlgorithmResult(TabAlgorithmResult currentAlgorithmResult) {
 		return new Integer(currentAlgorithmResult.getRunDate().split("-")[2]);
+	}
+	
+	/**
+	 * MACD指标对象中日期
+	 * @param currentPriceInfo
+	 * @return
+	 */
+	private static Integer getCurrentPriceInfoDay4MacdIndex(TabStockIndexMacd currentMacdInfo) {
+		return new Integer(currentMacdInfo.getDate().split("-")[2]);
 	}
 }

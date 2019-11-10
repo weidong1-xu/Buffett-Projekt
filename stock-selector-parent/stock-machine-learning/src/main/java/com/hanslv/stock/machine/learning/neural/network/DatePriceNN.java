@@ -44,6 +44,7 @@ public class DatePriceNN {
 		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 7));
 		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 7));
 		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 7));
+		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 7));
 		
 		/*
 		 * 输出层结构

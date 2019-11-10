@@ -18,6 +18,7 @@ import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
  * 4、获取一只股票在指定日期后指定条数的全部信息				public List<TabStockPriceInfo> selectByStockIdAndAfterDateLimit(@Param("priceInfo")TabStockPriceInfo currentPriceInfo , @Param("limit")String limitCount)
  * 5、获取指定日期后的全部指定股票信息数量						public String selectPriceInfoCountByStockIdAndAfterDate(@Param("dayCondition")String day)
  * 6、获取指定日期后的全部指定股票信息						public List<TabStockPriceInfo> selectPriceInfoByStockIdAndLimit(@Param("stockId")String stockId , @Param("limit")String limitCount)
+ * 7、获取指定股票在指定日期前（包括）的全部价格信息			public List<TabStockPriceInfo> selectPriceInfoByStockIdAndBeforeDate(@Param("stockId")Integer stockId , @Param("date")String date)
  * ----------------------------------------------
  * @author harrylu
  *
@@ -83,4 +84,13 @@ public interface TabStockPriceInfoRepository {
 	 * @return
 	 */
 	public List<TabStockPriceInfo> selectPriceInfoByStockIdAndLimit(@Param("stockId")String stockId , @Param("limit")String limitCount);
+	
+	
+	/**
+	 * 7、获取指定股票在指定日期前（包括）的全部价格信息
+	 * @param stockId
+	 * @param date
+	 * @return
+	 */
+	public List<TabStockPriceInfo> selectPriceInfoByStockIdAndBeforeDate(@Param("stockId")Integer stockId , @Param("date")String date);
 }

@@ -43,8 +43,15 @@
 第三天收盘价					end_price_c										VARCHAR(50)
 第四天收盘价					end_price_d										VARCHAR(50)
 第五天收盘价					end_price_e										VARCHAR(50)
-
 -----------------------------------------------------------------------------------------------
+股票指标-MACD（分表）			tab_stock_index_macd
+股票ID							stock_id										BIGINT								FOREIGN KEY (fk_index_macd_stockInfo)				PRIMARY KEY
+日期							date											VARCHAR(10)																				PRIMARY KEY
+DIFF							diff											DECIMAL(2,2)
+DEA								dea												DECIMAL(2,2)
+MACD							macd											DECIMAL(2,2)
+-----------------------------------------------------------------------------------------------
+
 
 
 

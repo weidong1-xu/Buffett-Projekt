@@ -151,36 +151,51 @@ public class NeuralNetworkService {
 		 * 判断是否预测上涨
 		 */
 		for(TabPriceDateMLResultFiveDays currentAlgorithmResult : currentAlgorithmResultList) {
-			int flag = 0;
-			double currentPirce = new Double(currentAlgorithmResult.getEndPriceCurrent());
+			double currentPrice = new Double(currentAlgorithmResult.getEndPriceCurrent());
 			double priceA = new Double(currentAlgorithmResult.getEndPriceA());
 			double priceB = new Double(currentAlgorithmResult.getEndPriceB());
 			double priceC = new Double(currentAlgorithmResult.getEndPriceC());
 			double priceD = new Double(currentAlgorithmResult.getEndPriceD());
 			double priceE = new Double(currentAlgorithmResult.getEndPriceE());
 			
-			if(priceA > 0.95) flag++;
-			if(priceB > 0.95) flag++;
-			if(priceC > 0.95) flag++;
-			if(priceD > 0.95) flag++;
-			if(priceE > 0.95) flag++;
+			/*
+			 * 后一天预测价格大于前一天
+			 */
+			if(!(priceA > currentPrice && priceB > priceA && priceC > priceB && priceD > priceC && priceE > priceD)) 	continue;
 			
+			/*
+			 * 最后一天大于当前
+			 */
+//			if(priceE <= currentPrice) 	continue;
+			
+			/*
+			 * 判断是否失真
+			 */
+			if(!(
+					(priceA - currentPrice)/currentPrice < 0.1 
+					&& 
+					(priceB - priceA)/priceA < 0.1
+					&&
+					(priceC - priceB)/priceB < 0.1
+					&&
+					(priceD - priceC)/priceC < 0.1
+					&&
+					(priceE - priceD)/priceD < 0.1)) 
+			continue;
+				
 			
 			/*
 			 * 重点关注股票
 			 */
-			if(currentPirce < 0.9 && priceE >= 0.95 && flag >= 3) {
-				TabStockInfo currentStockInfo = tabStockInfoMapper.selectById(currentAlgorithmResult.getStockId());
-				logger.info(currentAlgorithmResult.getEndPriceCurrent());
-				logger.info(currentAlgorithmResult.getEndPriceA());
-				logger.info(currentAlgorithmResult.getEndPriceB());
-				logger.info(currentAlgorithmResult.getEndPriceC());
-				logger.info(currentAlgorithmResult.getEndPriceD());
-				logger.info(currentAlgorithmResult.getEndPriceE());
-				logger.info("股票信息：" + currentStockInfo);
-				logger.info("--------------------");
-				continue;
-			}
+			TabStockInfo currentStockInfo = tabStockInfoMapper.selectById(currentAlgorithmResult.getStockId());
+			logger.info(currentAlgorithmResult.getEndPriceCurrent());
+			logger.info(currentAlgorithmResult.getEndPriceA());
+			logger.info(currentAlgorithmResult.getEndPriceB());
+			logger.info(currentAlgorithmResult.getEndPriceC());
+			logger.info(currentAlgorithmResult.getEndPriceD());
+			logger.info(currentAlgorithmResult.getEndPriceE());
+			logger.info(currentStockInfo);
+			logger.info("--------------------");
 		}
 	}
 }

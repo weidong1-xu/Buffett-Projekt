@@ -404,20 +404,193 @@ CREATE TABLE tab_price_date_ml_result_five_days
 )
 ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
-/*查看算法信息表表结构*/
+/*查看表结构*/
 DESC tab_price_date_ml_result_five_days;
 
-/*查看算法信息表数据量*/
+/*查看数据量*/
 SELECT COUNT(*) FROM tab_price_date_ml_result_five_days;
 
-/*查看算法信息表全部数据*/
+/*查看全部数据*/
 SELECT * FROM tab_price_date_ml_result_five_days;
 
-/*删除算法信息表全部数据*/
+/*删除全部数据*/
 DELETE FROM tab_price_date_ml_result_five_days;
 
 /*删除当前表*/
 DROP TABLE tab_price_date_ml_result_five_days;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD上证001表*/
+CREATE TABLE tab_stock_index_macd_shangzheng001
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shangzheng_001 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shangzheng001;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shangzheng001;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shangzheng001;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shangzheng001;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shangzheng001;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD上证002表*/
+CREATE TABLE tab_stock_index_macd_shangzheng002
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shangzheng_002 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shangzheng002;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shangzheng002;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shangzheng002;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shangzheng002;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shangzheng002;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD上证003表*/
+CREATE TABLE tab_stock_index_macd_shangzheng003
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shangzheng_003 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shangzheng003;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shangzheng003;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shangzheng003;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shangzheng003;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shangzheng003;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD深证001表*/
+CREATE TABLE tab_stock_index_macd_shenzheng001
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shenzheng_001 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shenzheng001;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shenzheng001;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shenzheng001;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shenzheng001;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shenzheng001;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD深证001表*/
+CREATE TABLE tab_stock_index_macd_shenzheng002
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shenzheng_002 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shenzheng002;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shenzheng002;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shenzheng002;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shenzheng002;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shenzheng002;
+/* ------------------------------------------------------------------ */
+/*股票指标-MACD深证001表*/
+CREATE TABLE tab_stock_index_macd_shenzheng003
+(
+	stock_id BIGINT,
+	date VARCHAR(10),
+	diff DECIMAL(2,2),
+	dea DECIMAL(2,2),
+	macd DECIMAL(2,2),
+	PRIMARY KEY(stock_id , date),
+	CONSTRAINT fk_index_macd_stockInfo_shenzheng_003 FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
+)
+ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+/*查看表结构*/
+DESC tab_stock_index_macd_shenzheng003;
+
+/*查看数据量*/
+SELECT COUNT(*) FROM tab_stock_index_macd_shenzheng003;
+
+/*查看全部数据*/
+SELECT * FROM tab_stock_index_macd_shenzheng003;
+
+/*删除全部数据*/
+DELETE FROM tab_stock_index_macd_shenzheng003;
+
+/*删除当前表*/
+DROP TABLE tab_stock_index_macd_shenzheng003;
+
+
+
+
+
 
 
 

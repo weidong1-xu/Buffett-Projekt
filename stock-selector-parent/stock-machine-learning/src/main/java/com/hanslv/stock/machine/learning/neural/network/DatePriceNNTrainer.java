@@ -112,7 +112,7 @@ public class DatePriceNNTrainer {
 		 * 休眠1分钟，避免机器过热
 		 */
 		try {
-			logger.info("稍等，我降降温");
+			logger.info("休息一下....");
 			TimeUnit.SECONDS.sleep(5);
 		} catch (InterruptedException e) {}
 	}
