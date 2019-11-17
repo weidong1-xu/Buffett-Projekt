@@ -67,8 +67,8 @@ CREATE TABLE tab_stock_price_shangzheng_0001
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shangzheng_001_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )
@@ -102,8 +102,8 @@ CREATE TABLE tab_stock_price_shangzheng_0002
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shangzheng_002_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )
@@ -139,8 +139,8 @@ CREATE TABLE tab_stock_price_shangzheng_0003
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shangzheng_003_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )
@@ -175,8 +175,8 @@ CREATE TABLE tab_stock_price_shenzheng_0001
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shenzheng_001_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )
@@ -211,8 +211,8 @@ CREATE TABLE tab_stock_price_shenzheng_0002
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shenzheng_002_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )
@@ -247,8 +247,8 @@ CREATE TABLE tab_stock_price_shenzheng_0003
 	stock_price_lowest_price DECIMAL(18,2),
 	stock_price_volume INT(10),
 	stock_price_turnover INT(10),
-	stock_price_amplitude VARCHAR(10),
-	stock_price_turnover_rate DECIMAL(4,1),
+	stock_price_amplitude VARCHAR(40),
+	stock_price_turnover_rate DECIMAL(18,1),
 	PRIMARY KEY (stock_id , stock_price_date),
 	CONSTRAINT fk_stock_shenzheng_003_price_info FOREIGN KEY (stock_id) REFERENCES tab_stock_info (stock_id)
 )

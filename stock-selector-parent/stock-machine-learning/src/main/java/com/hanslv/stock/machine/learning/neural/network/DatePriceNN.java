@@ -49,7 +49,7 @@ public class DatePriceNN {
 		/*
 		 * 输出层结构
 		 */
-		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 2));
+		dataAndVolumeMode.addLayer(new BasicLayer(new ActivationSigmoid() , true , 1));
 		
 		/*
 		 * 结束神经网络构建

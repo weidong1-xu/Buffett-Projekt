@@ -110,11 +110,10 @@ public class StockPriceCrawler{
 		init();
 		TabStockInfo stockInfo = stockInfoList.get(stockCode - 1);
 		JSONObject bodyTextJsonObject = stockPriceCrawlerLogic(stockInfo);
-		if(bodyTextJsonObject != null) {
+		if(bodyTextJsonObject != null) 
 			messageTransUtil
 				.writePriceInfoToQueue(
 						parseJsonObjectToList(bodyTextJsonObject , stockInfo.getStockId()));
-		}
 		messageTransUtil.writePriceInfoToQueue(new ArrayList<>());
 	}
 	

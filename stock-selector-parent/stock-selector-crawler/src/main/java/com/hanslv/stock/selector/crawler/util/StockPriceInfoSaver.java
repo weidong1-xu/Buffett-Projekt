@@ -68,6 +68,7 @@ public class StockPriceInfoSaver {
 			 */
 			while(true) {
 				List<TabStockPriceInfo> currentPriceInfoList = null;
+				
 				try {
 					currentPriceInfoList = priceInfoBlockingQueue.take();
 				} catch (InterruptedException e) {
@@ -79,6 +80,8 @@ public class StockPriceInfoSaver {
 				 * 判断是否为结束标识，结束时会在消息队列中写入一个空List
 				 */
 				if(currentPriceInfoList.size() != 0) {
+					String stockId = currentPriceInfoList.get(0).getStockId().toString();
+					
 					for(TabStockPriceInfo currentPriceInfo : currentPriceInfoList) {
 						String tableName = dbTabSelector.tableSelector4PriceInfo(currentPriceInfo, stockInfoMapper);
 						/*
@@ -89,9 +92,12 @@ public class StockPriceInfoSaver {
 							 * 将价格信息落库
 							 */
 							stockPriceInfoMapper.insertOne(tableName, currentPriceInfo);
-							logger.info("插入了一条数据：" + currentPriceInfo);
-						}else logger.error("当前数据存在，已经跳过：" + currentPriceInfo);
+//							logger.info("插入了一条数据：" + currentPriceInfo);
+						}
+//							else logger.error("当前数据存在，已经跳过：" + currentPriceInfo);
 					}
+					
+					logger.info("股票ID：" + stockId + "插入完毕！");
 				}else {
 					/*
 					 * 中断所有正在等待的线程
@@ -107,6 +113,12 @@ public class StockPriceInfoSaver {
 					
 					break;
 				}
+				
+				/*
+				 * 2019-11-16更改，将List恢复为null避免重复判断上一个取回信息
+				 */
+				currentPriceInfoList = null;
+				System.gc();
 			}
 		});
 	}

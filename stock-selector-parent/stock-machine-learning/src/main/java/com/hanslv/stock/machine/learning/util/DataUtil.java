@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.encog.util.arrayutil.NormalizedField;
 import org.encog.util.csv.CSVFormat;
 
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
+
 /**
  * 数据处理类
  * -----------------------------------------------
@@ -169,11 +171,27 @@ public class DataUtil {
 	 */
 	public static List<String> transPriceInfoToString(List<TabStockPriceInfo> priceInfoList){
 		List<String> resultList = new ArrayList<>();
+		
+		/*
+		 * 2019-11-16日更改，将集合顺序改为ASC
+		 */
+		Collections.reverse(priceInfoList);
+		
 		for(TabStockPriceInfo priceInfo : priceInfoList) {
 			String[] priceDateArray = priceInfo.getStockPriceDate().split("-");
-			String result = priceDateArray[1] + "," + priceDateArray[2] + "," + priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();
+			String result = 
+					priceDateArray[1] + "," + 
+					priceDateArray[2] + "," + 
+					priceInfo.getStockPriceEndPrice();
+				
 			resultList.add(result);
 		}
+		
+		/*
+		 * 2019-11-16日更改，测试训练数据集合是否准确
+		 */
+//		for(String trainData : resultList) System.out.println(trainData);
+		
 		return resultList;
 	}
 	

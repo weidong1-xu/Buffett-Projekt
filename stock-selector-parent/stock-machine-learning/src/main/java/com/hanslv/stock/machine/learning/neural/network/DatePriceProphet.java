@@ -69,7 +69,7 @@ public class DatePriceProphet {
 			/*
 			 * 结果中的收盘价
 			 */
-			double currentResult = currentResultMLData.getData()[1];
+			double currentResult = currentResultMLData.getData()[0];
 			
 			if(result.getEndPriceCurrent() == null) result.setEndPriceCurrent(String.valueOf(currentResult));
 			else if(result.getEndPriceA() == null) result.setEndPriceA(String.valueOf(currentResult));

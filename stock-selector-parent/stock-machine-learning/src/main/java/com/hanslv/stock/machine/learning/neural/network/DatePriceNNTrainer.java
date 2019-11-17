@@ -51,11 +51,10 @@ public class DatePriceNNTrainer {
 		 */
 		List<String> mainDataList = DataUtil.transPriceInfoToString(stockPriceInfoMapper.getTrainData(stockId , NeuralNetworkConstants.TRAIN_SIZE));
 		
-		
 		/*
 		 * 数据已经全部用完，没有找到合适模型
 		 */
-		if(mainDataList.size() < NeuralNetworkConstants.TRAIN_SIZE) {
+		if(mainDataList.size() < NeuralNetworkConstants.TRAIN_SIZE - 1) {
 			logger.error("数据样本集小于预期：stockId = " + stockId);
 			return;
 		}
@@ -69,13 +68,16 @@ public class DatePriceNNTrainer {
 //		Entry<Map<String , NormalizedField> , MLDataSet> analyzedResultEntry = analyzedResult.entrySet().iterator().next();
 //		MLDataSet trainDataSet = analyzedResultEntry.getValue();
 		
-		MLDataSet trainDataSet = DataUtil.dataAnalyze(mainDataList , NeuralNetworkConstants.TRAIN_DATA_TITLE.split(",") , 2 , 1 , 0);
+		MLDataSet trainDataSet = DataUtil.dataAnalyze(mainDataList , NeuralNetworkConstants.TRAIN_DATA_TITLE.split(",") , 1 , 1 , 0);
 		
 		/*
 		 * 训练算法
 		 */
 		BasicNetwork algorithmModel = datePriceNN.train(trainDataSet , limit);
 		
+		/*
+		 * 计时
+		 */
 		long end = System.currentTimeMillis();
 		
 		/*
@@ -83,7 +85,12 @@ public class DatePriceNNTrainer {
 		 */
 		if(algorithmModel == null) {
 			Encog.getInstance().shutdown();
-			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId + ",耗时：" + (end - start)/1000 + "秒");
+			
+			/*
+			 * 2019-11-17日更改，不重复计算收敛失败股票，避免死循环
+			 */
+//			logger.error("！！！！收敛失败，准备重新执行：stockId = " + stockId + ",耗时：" + (end - start)/1000 + "秒");
+			logger.error("！！！！收敛失败，准备跳过执行：stockId = " + stockId + ",耗时：" + (end - start)/1000 + "秒");
 			
 			/*
 			 * 休眠1分钟，避免机器过热
@@ -93,10 +100,7 @@ public class DatePriceNNTrainer {
 				TimeUnit.SECONDS.sleep(5);
 			} catch (InterruptedException e) {}
 			
-			/*
-			 * 重新执行
-			 */
-			trainNN(stockId , limit);
+//			trainNN(stockId , limit);
 			return;
 		}
 			
