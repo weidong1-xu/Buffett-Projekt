@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.hanslv.stock.machine.learning.constants.NeuralNetworkConstants;
 import com.hanslv.stock.machine.learning.neural.network.DatePriceNNTrainer;
 import com.hanslv.stock.machine.learning.neural.network.DatePriceProphet;
+import com.hanslv.stock.machine.learning.neural.network.DeepLearning4jStockNNTrainer;
 import com.hanslv.stock.machine.learning.repository.TabPriceDateMLResultFiveDaysRepository;
 import com.hanslv.stock.machine.learning.repository.TabStockInfoRepository;
 import com.hanslv.stock.selector.commons.dto.TabPriceDateMLResultFiveDays;
@@ -25,6 +26,8 @@ import com.hanslv.stock.selector.commons.dto.TabStockInfo;
  * 3、预测全部股票												public void calculateStock()
  * 4、预测指定股票												public void calculateStock(Integer stockId)
  * 5、获取并将全部预测上涨的股票输出到控制台						public void getResult()
+ * 6、dl4j从指定ID开始训练全部股票日期-价格模型					public void dl4jTrainStockNN(Integer stockId)
+ * 7、dl4j训练指定股票的日期-价格模型								public void dl4jTrainAStockNN(Integer stockId)
  * -----------------------------------------
  * @author hanslv
  *
@@ -38,6 +41,9 @@ public class NeuralNetworkService {
 	 */
 	@Autowired
 	private DatePriceNNTrainer datePriceNNTrainer;
+	
+	@Autowired
+	private DeepLearning4jStockNNTrainer dl4jStockNNTrainer;
 	
 	/*
 	 * 时间-价格预测
@@ -197,5 +203,35 @@ public class NeuralNetworkService {
 			logger.info(currentStockInfo);
 			logger.info("--------------------");
 		}
+	}
+	
+	
+	/**
+	 * 6、dl4j从指定ID开始训练全部股票日期-价格模型
+	 * @param stockId
+	 */
+	public void dl4jTrainStockNN(Integer stockId) {
+		/*
+		 * 获取全部股票基本信息
+		 */
+		List<TabStockInfo> stockInfoList = tabStockInfoMapper.selectAllStockInfo();
+		
+		/*
+		 * 遍历全部股票信息并运行算法，算法将会被储存到NeuralNetworkConstants.ALGORITHM_BASE_DIR文件夹
+		 */
+		for(TabStockInfo stockInfo : stockInfoList) {
+			if(stockInfo.getStockId().compareTo(stockId) < 0) continue;
+			dl4jStockNNTrainer.train(stockInfo.getStockId() + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE, NeuralNetworkConstants.DL4J_TEST_SIZE , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * 7、dl4j训练指定股票的日期-价格模型
+	 */
+	public void dl4jTrainAStockNN(Integer stockId) {
+		dl4jStockNNTrainer.train(stockId + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE, NeuralNetworkConstants.DL4J_TEST_SIZE , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
 	}
 }

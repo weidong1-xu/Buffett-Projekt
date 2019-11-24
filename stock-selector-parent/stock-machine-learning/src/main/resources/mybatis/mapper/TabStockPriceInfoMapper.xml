@@ -34,4 +34,27 @@
 		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
 		ORDER BY stock_price_date DESC LIMIT ${trainDataSize};
 	</select>
+	
+	
+	<!-- 获取DeepLearning4j股票模型的训练数据、评估数据 -->
+	<select id="getTrainAndTestDataDL4j" resultType="com.hanslv.stock.selector.commons.dto.TabStockPriceInfo">	
+		SELECT stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price 
+		FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		UNION
+		SELECT stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price  
+		FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		UNION
+		SELECT  stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price  
+		FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		UNION
+		SELECT  stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price  
+		FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		UNION
+		SELECT stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price  
+		FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		UNION
+		SELECT stock_price_date , stock_price_volume , stock_price_highest_price , stock_price_lowest_price , stock_price_start_price , stock_price_end_price , stock_price_highest_price , stock_price_lowest_price  
+		FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt;= NOW()
+		ORDER BY stock_price_date DESC LIMIT ${trainDataSize};
+	</select>
 </mapper>

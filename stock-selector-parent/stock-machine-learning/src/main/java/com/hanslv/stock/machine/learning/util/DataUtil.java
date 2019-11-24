@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
 import org.encog.app.analyst.AnalystFileFormat;
 import org.encog.app.analyst.EncogAnalyst;
 import org.encog.app.analyst.csv.normalize.AnalystNormalizeCSV;
@@ -24,16 +25,23 @@ import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.arrayutil.NormalizationAction;
 import org.encog.util.arrayutil.NormalizedField;
 import org.encog.util.csv.CSVFormat;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.dataset.DataSet;
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.factory.Nd4j;
 
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
 
 /**
  * 数据处理类
  * -----------------------------------------------
- * 1、获取标准化的数据						public static MLDataSet dataAnalyze(List<String> objectStringList , String[] fieldNames , int targetColumnLength , double normalizedH , double normalizedL)
- * 2、将算法保存到文件						public static void saveAlgorithm(String filePath , BasicNetwork trainedNetwork)
- * 3、从文件加载算法							public static BasicNetwork loadAlgorithm(String filePath)
- * 4、将股票价格信息List转换为字符串List		public static List<String> transPriceInfoToString(List<TabStockPriceInfo> priceInfoList)
+ * 1、获取标准化的数据										public static MLDataSet dataAnalyze(List<String> objectStringList , String[] fieldNames , int targetColumnLength , double normalizedH , double normalizedL)
+ * 2、将算法保存到文件										public static void saveAlgorithm(String filePath , BasicNetwork trainedNetwork)
+ * 3、从文件加载算法											public static BasicNetwork loadAlgorithm(String filePath)
+ * 4、将股票价格信息List转换为字符串List						public static List<String> transPriceInfoToString(List<TabStockPriceInfo> priceInfoList)
+ * 5、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
+ * 6、将数据转换为List<String>								public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList)
  * -----------------------------------------------
  * @author hanslv
  *
@@ -202,6 +210,208 @@ public class DataUtil {
 	
 	
 	
+	/**
+	 * 5、将获取到的数据标准化并转换为DataSetIterator
+	 * @param rawDataList
+	 * @param idealOutputSize
+	 * @return
+	 */
+	public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize){
+		List<DataSetIterator> iteratorList = new ArrayList<>();
+		
+		/*
+		 * 数据标准化器
+		 */
+		NormalizerStandardize normalizer = new NormalizerStandardize();
+		
+		/*
+		 * 实例化数据集合迭代器
+		 */
+		DataSetIterator trainDataIterator = new ListDataSetIterator<>(dl4jDataParser(rawDataList, idealOutputSize) , rawDataList.size());
+		DataSetIterator testDataIterator = new ListDataSetIterator<>(dl4jDataParser(testDataList , idealOutputSize) , testDataList.size());
+		
+		/*
+		 * 初始化数据标准化器
+		 */
+		normalizer.fitLabel(true);//指定是否标准化idealOutput
+		normalizer.fit(trainDataIterator);
+		
+		/*
+		 * 给训练数据集合配置标准化器
+		 */
+		trainDataIterator.setPreProcessor(normalizer);
+		testDataIterator.setPreProcessor(normalizer);
+		
+		iteratorList.add(trainDataIterator);
+		iteratorList.add(testDataIterator);
+		
+		return iteratorList;
+	}
+	
+	/**
+	 * 6、将数据转换为List<String>
+	 * @param priceInfoList
+	 * @return
+	 */
+	public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList){
+//		for(TabStockPriceInfo priceInfo : priceInfoList) System.out.println(priceInfo);//测试
+		
+		/*
+		 * 转换后的数据
+		 */
+		List<String> parsedDataList = new ArrayList<>();
+		
+		/*
+		 * 当前条数据，既是上一条数据的预测结果
+		 */
+		String idealOutput = "";
+		for(TabStockPriceInfo priceInfo : priceInfoList) {
+			String input = 
+//							priceInfo.getStockPriceVolume() + "," + //成交量
+//							priceInfo.getStockPriceHighestPrice() + "," + //最高价
+//							priceInfo.getStockPriceLowestPrice() + "," + //最低价
+							priceInfo.getStockPriceStartPrice() + "," + //开盘价
+							priceInfo.getStockPriceEndPrice();//收盘价
+			if(!"".equals(idealOutput)) parsedDataList.add(input + "," + idealOutput);
+			//开盘价,收盘价
+			idealOutput = priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();//收盘价
+		}
+		
+		/*
+		 * 将数据顺序改为正序
+		 */
+		Collections.reverse(parsedDataList);
+		
+//		for(String priceInfo : parsedDataList) System.out.println(priceInfo);//测试
+		return parsedDataList;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 将List<String>数据转换为List<DataSet>数据
+	 * @param rawDataList
+	 * @param idealOutputSize
+	 * @return
+	 */
+	private static List<DataSet> dl4jDataParser(List<String> rawDataList , int idealOutputSize){
+		/*
+		 * 将数据封装成DataSet集合
+		 */
+		List<DataSet> dataSetList = new ArrayList<>();
+		
+		/*
+		 * 遍历raw数据集
+		 */
+		for(String rawData : rawDataList) {
+			
+			/*
+			 * 未标准化数据字符串数组
+			 */
+			String[] rawDataArray = rawData.split(",");
+			
+			/*
+			 * 输入数据的double数组、期望输出数据数组
+			 */
+			double[] inputDataDoubleArray = new double[rawDataArray.length - idealOutputSize];
+			double[] idealOutputDataDoubleArray = new double[idealOutputSize];
+
+
+			
+			/*
+			 * 根据下标将数据插入到对应的double数组中
+			 */
+			for(int i = 0 ; i < rawDataArray.length ; i++) {
+				if(i < rawDataArray.length - idealOutputSize) inputDataDoubleArray[i] = new Double(rawDataArray[i]);
+				else idealOutputDataDoubleArray[i - rawDataArray.length + idealOutputSize] = new Double(rawDataArray[i]);
+			}
+			
+			/*
+			 * 输入数据向量数组、期望输出数据向量数组
+			 * dimension 0 = number of examples in minibatch(训练批次长度)
+			 * dimension 1 = size of each vector (i.e., number of characters)(训练数据列数)
+			 * dimension 2 = length of each time series/example(训练数据行数)
+			 * Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
+			 */
+			INDArray inputScalerArray = Nd4j.create(inputDataDoubleArray);
+			INDArray idealOutputScalerArray = Nd4j.create(idealOutputDataDoubleArray);
+			
+			/*
+			 * 实例化DataSet对象并存入List
+			 */
+			dataSetList.add(new DataSet(inputScalerArray , idealOutputScalerArray));
+		}
+		return dataSetList;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -298,61 +508,6 @@ public class DataUtil {
 		String dataFilePath = parseRawData(filePath , objectStringList);
 		return new CSVNeuralDataSet(dataFilePath , inputSize , idealOutputSize , headers);
 	}
-	
-	
-	
-	/**
-	 * 将数据实体写入到CSV文件中
-	 * 
-	 * 在调用前需要先在系统中创建MLConstants.RAW_DATA_FILE_PATH对应文件夹
-	 * 
-	 * @param filePath 文件名称，创建后的文件名称会添加4raw后缀
-	 * @param objectStringList 非标准化输入数据List，数据需要符合CSV文件格式(以,分隔每个属性)
-	 * @return 返回创建后的文件全路径
-	 */
-	private static String writeRawToCSV(String filePath , List<String> objectStringList) {
-		/*
-		 * 当前非标准化神经元输入文件全路径
-		 */
-//		String rawDataFilePath = MLConstants.RAW_DATA_FILE_PATH + filePath + MLConstants.RAW_DATA_FILE_NAME_SUFFIX + MLConstants.DATA_FILE_TYPE;
-		String rawDataFilePath = "";
-		
-		/*
-		 * 文件对象
-		 */
-		File rawDataFile = new File(rawDataFilePath);
-		
-		/*
-		 * 创建文件
-		 */
-		if(!rawDataFile.exists()) {
-			try {
-				rawDataFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.err.println("创建新文件失败");
-				return null;
-			}
-		}else {
-			System.err.println("当前文件已存在！");
-			return null;
-		}
-		
-		try(FileOutputStream fileOutputStream = new FileOutputStream(rawDataFilePath);
-				OutputStreamWriter outputStreamRader = new OutputStreamWriter(fileOutputStream , "UTF-8");
-				BufferedWriter bufferedReader = new BufferedWriter(outputStreamRader)){
-			for(String objectString : objectStringList) bufferedReader.write(objectString + System.lineSeparator());
-		}catch(IOException e) {
-			e.printStackTrace();
-			System.err.println("向新文件写入数据失败");
-			return null;
-		}
-		
-		System.out.println("创建了新数据文件：" + rawDataFilePath);
-		return rawDataFilePath;
-	}
-	
-	
 	/**
 	 * 将传入的Java对象数据格式化为(-1,1)区间的数据，并保存在对应的目录中
 	 * 
@@ -361,6 +516,7 @@ public class DataUtil {
 	 * @param filePath 目标文件名称
 	 * @param objectStringList 非标准化数据List，第一列包含表头
 	 */
+	@Deprecated
 	private static String parseRawData(String filePath , List<String> objectStringList) {
 		/*
 		 * 非标准化数据文件
@@ -403,5 +559,56 @@ public class DataUtil {
 		}
 		
 		return dataFilePath;
+	}
+	/**
+	 * 将数据实体写入到CSV文件中
+	 * 
+	 * 在调用前需要先在系统中创建MLConstants.RAW_DATA_FILE_PATH对应文件夹
+	 * 
+	 * @param filePath 文件名称，创建后的文件名称会添加4raw后缀
+	 * @param objectStringList 非标准化输入数据List，数据需要符合CSV文件格式(以,分隔每个属性)
+	 * @return 返回创建后的文件全路径
+	 */
+	@Deprecated
+	private static String writeRawToCSV(String filePath , List<String> objectStringList) {
+		/*
+		 * 当前非标准化神经元输入文件全路径
+		 */
+//		String rawDataFilePath = MLConstants.RAW_DATA_FILE_PATH + filePath + MLConstants.RAW_DATA_FILE_NAME_SUFFIX + MLConstants.DATA_FILE_TYPE;
+		String rawDataFilePath = "";
+		
+		/*
+		 * 文件对象
+		 */
+		File rawDataFile = new File(rawDataFilePath);
+		
+		/*
+		 * 创建文件
+		 */
+		if(!rawDataFile.exists()) {
+			try {
+				rawDataFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.err.println("创建新文件失败");
+				return null;
+			}
+		}else {
+			System.err.println("当前文件已存在！");
+			return null;
+		}
+		
+		try(FileOutputStream fileOutputStream = new FileOutputStream(rawDataFilePath);
+				OutputStreamWriter outputStreamRader = new OutputStreamWriter(fileOutputStream , "UTF-8");
+				BufferedWriter bufferedReader = new BufferedWriter(outputStreamRader)){
+			for(String objectString : objectStringList) bufferedReader.write(objectString + System.lineSeparator());
+		}catch(IOException e) {
+			e.printStackTrace();
+			System.err.println("向新文件写入数据失败");
+			return null;
+		}
+		
+		System.out.println("创建了新数据文件：" + rawDataFilePath);
+		return rawDataFilePath;
 	}
 }

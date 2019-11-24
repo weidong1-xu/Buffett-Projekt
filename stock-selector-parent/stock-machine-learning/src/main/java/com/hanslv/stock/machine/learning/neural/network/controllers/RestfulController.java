@@ -17,6 +17,8 @@ import com.hanslv.stock.machine.learning.neural.network.services.NeuralNetworkSe
  * 3、预测全部股票并存入数据库				public void calculateStock()
  * 4、预测指定股票并将结果输出到控制台		public void calculateStock(@PathVariable("stockId")Integer stockId)
  * 5、获取结果并输出到控制台					public void getResult()
+ * 6、dl4j训练全部股票						public void dl4jTrain(@PathVariable("stockId")Integer stockId)
+ * 7、dl4j训练指定股票						public void dl4jTrainAStock(@PathVariable("stockId")Integer stockId)
  * -----------------------------------------
  * @author hanslv
  *
@@ -67,5 +69,22 @@ public class RestfulController {
 	@GetMapping("/result")
 	public void getResult() {
 		nnService.getResult();
+	}
+	
+	/**
+	 * 6、dl4j训练全部股票
+	 */
+	@GetMapping("/train-all-dl4j/{stockId}")
+	public void dl4jTrain(@PathVariable("stockId")Integer stockId) {
+		nnService.dl4jTrainStockNN(stockId);
+	}
+	
+	/**
+	 * 7、dl4j训练指定股票
+	 * @param stockId
+	 */
+	@GetMapping("/train-dl4j/{stockId}")
+	public void dl4jTrainAStock(@PathVariable("stockId")Integer stockId) {
+		nnService.dl4jTrainAStockNN(stockId);
 	}
 }

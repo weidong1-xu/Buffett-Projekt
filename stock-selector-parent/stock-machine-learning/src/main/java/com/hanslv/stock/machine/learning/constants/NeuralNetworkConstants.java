@@ -14,6 +14,14 @@ import java.io.File;
  * 6、训练模型样本表头								TRAIN_DATA_TITLE
  * 7、预测天数										RESULT_SIZE
  * 8、判断预测是否上涨阈值							ALGROITHM_RESULT_TRUE_FLAG
+ * 9、dl4j训练数据长度								DL4J_TRAIN_SIZE
+ * 10、dl4j验证数据长度								DL4J_TEST_SIZE
+ * 11、dl4j标准化器存储根路径							DL4J_NORMALIZER_SAVE_PATH
+ * 12、dl4j标准化器存储后缀							DL4J_NORMALIZER_SAVE_SUFFIX
+ * 13、dl4j算法存储根路径							DL4J_NN_SAVE_PATH
+ * 14、dl4j算法存储后缀								DL4J_NN_SAVE_SUFFIX
+ * 15、dl4j训练纪元									DL4J_MAX_EPOCH
+ * 16、dl4j精确度下限								DL4J_ACCURACY_LIMIT
  * -------------------------------------------------
  * @author hanslv
  *
@@ -31,4 +39,20 @@ public abstract class NeuralNetworkConstants {
 	public static final String TRAIN_DATA_TITLE = "month,day,stockEndPrice";//训练模型样本表头
 	
 	public static final int ALGROITHM_RESULT_TRUE_FLAG = 3;//判断预测是否上涨阈值
+	
+	
+	public static final int DL4J_TRAIN_SIZE = 89;//dl4j训练数据长度
+	public static final int DL4J_TEST_SIZE = 5;//dl4j验证数据长度
+	public static final int DL4J_MAX_EPOCH = 50;//dl4j训练纪元
+	public static final double DL4J_ACCURACY_LIMIT = 0.8;//dl4j精确度下限
+	public static final String DL4J_NORMALIZER_SAVE_PATH = "E:\\Java\\eclipse\\stock-selector\\algorithm\\dl4j-normalizer";//dl4j标准化器存储根路径
+	public static final String DL4J_NORMALIZER_SAVE_SUFFIX = ".eg";//dl4j标准化器存储后缀
+	public static final String DL4J_NN_SAVE_PATH = "E:\\Java\\eclipse\\stock-selector\\algorithm\\dl4j-nn";//dl4j算法存储根路径
+	public static final String DL4J_NN_SAVE_SUFFIX = ".eg";//dl4j算法存储后缀
+	
+	
+//	public static final String DL4J_NORMALIZER_SAVE_PATH = "";//dl4j标准化器存储根路径
+//	public static final String DL4J_NORMALIZER_SAVE_SUFFIX = "";//dl4j标准化器存储后缀
+//	public static final String DL4J_NN_SAVE_PATH = "";//dl4j算法存储根路径
+//	public static final String DL4J_NN_SAVE_SUFFIX = "";//dl4j算法存储后缀
 }
