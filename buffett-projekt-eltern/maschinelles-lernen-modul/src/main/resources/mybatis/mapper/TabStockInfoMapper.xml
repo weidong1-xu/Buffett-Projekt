@@ -5,6 +5,6 @@
  * 股票ID							stock_id										BIGINT								PRIMARY KEY					AUTO_INCREMENT
  * 股票代码							stock_code										VARCHAR(10)							UNIQUE
  * 股票名称							stock_name										VARCHAR(8) -->
-<mapper namespace="com.hanslv.stock.machine.learning.repository.TabStockInfoRepository">
+<mapper namespace="com.hanslv.maschinelles.lernen.repository.TabStockInfoRepository">
 
 </mapper>

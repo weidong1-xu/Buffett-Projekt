@@ -89,11 +89,17 @@ public class DeepLearning4jStockNNTrainer {
 		 * 获取符合要求的股票
 		 */
 		if(result.getKey()) {
+			double[] resultMaxAndLow = getMaxAndLow(result.getValue());
+			
+			BigDecimal diff = new BigDecimal(resultMaxAndLow[0] - resultMaxAndLow[1]);//最高价最低价差异
+			
+			if(diff.divide(new BigDecimal(resultMaxAndLow[1]) , 2 , BigDecimal.ROUND_HALF_UP).compareTo(new BigDecimal(0.03)) < 0) return;
+			
 			String stockCode = stockInfoMapper.selectById(new Integer(stockId)).getStockCode();
 			logger.info("找到符合要求股票：" + stockCode);
-			logger.info("预计输出价格：");
-			logger.info(result.getValue());
-			logger.info("-----------------------------------");
+			double[] reuslt = getMaxAndLow(result.getValue());
+			logger.info(reuslt[0] + "," + reuslt[1]);
+			logger.info("-----------------------------------------------");
 		}
 	}
 	
@@ -176,8 +182,8 @@ public class DeepLearning4jStockNNTrainer {
 		 * 反标准化结果并判断是否符合标准
 		 */
 		normalizerStandardize.revert(resultDataSet);
-		INDArray unNormalizerOutput = resultDataSet.getLabels();
-		resultMap.put(doCheckData(unNormalizerOutput) , unNormalizerOutput);
+		INDArray resultOutput = resultDataSet.getLabels();
+		resultMap.put(doCheckData(resultOutput) , resultOutput);
 		return resultMap;
 	}
 	/**
@@ -185,96 +191,40 @@ public class DeepLearning4jStockNNTrainer {
 	 * @param unNormalizerOutput
 	 * @return
 	 */
-	private boolean doCheckData(INDArray unNormalizerOutput) {
+	private boolean doCheckData(INDArray resultOutput) {
 		Set<BigDecimal> setA = new HashSet<>();
 		Set<BigDecimal> setB = new HashSet<>();
 		for(int i = 0 ; i < 5 ; i ++) {
 			for(int j = 0 ; j < 2 ; j++) {
-				if(j == 0) setA.add(new BigDecimal(unNormalizerOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
-				else setB.add(new BigDecimal(unNormalizerOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
+				if(j == 0) setA.add(new BigDecimal(resultOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
+				else setB.add(new BigDecimal(resultOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
 			}
 		}
 		return (setA.size() > 1 || setB.size() > 1) ? false : true;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
-	 * 将当前股票信息标准化器序列化
-	 * @param normalizer
-	 * @param currentStockId
+	 * 获取当前INDArray的最大值最小值
+	 * @param output
+	 * @return
 	 */
-//	private void normalizerSerializer(NormalizerMinMaxScaler normalizer , String currentStockId) {
-//		NormalizerSerializer serializer = NormalizerSerializer.getDefault();
-//		File normalizerFile = new File(NeuralNetworkConstants.DL4J_NORMALIZER_SAVE_PATH + File.separator + currentStockId + NeuralNetworkConstants.DL4J_NORMALIZER_SAVE_SUFFIX);
-//		/*
-//		 * 删除历史文件
-//		 */
-//		if(normalizerFile.exists()) normalizerFile.delete();
-//		
-//		try {
-//			/*
-//			 * 将标准化器序列化到文件中
-//			 */
-//			serializer.write(normalizer , normalizerFile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	/*
-//	 * 保存算法模型
-//	 */
-//	Evaluation evaluation = lstmNetwork.evaluate(iteratorList.get(1));
-//	
-//	/*
-//	 * 当精度大于下限时保存算法模型
-//	 */
-//	if(evaluation.accuracy() >= NeuralNetworkConstants.DL4J_ACCURACY_LIMIT) {
-//		File lstmNetworkFile = new File(NeuralNetworkConstants.DL4J_NN_SAVE_PATH + File.separator + stockId + NeuralNetworkConstants.DL4J_NN_SAVE_SUFFIX);
-//		/*
-//		 * 删除历史文件
-//		 */
-//		if(lstmNetworkFile.exists()) lstmNetworkFile.delete();
-//		try {
-//			lstmNetwork.save(lstmNetworkFile);
-//			logger.info("保存了股票：" + stockId + "的算法模型");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	}
+	private double[] getMaxAndLow(INDArray output) {
+		double[] maxAndLow = new double[2];
+		double testMaxBuffer = 0;
+		for(int i = 0 ; i < 5 ; i++) {
+			if(testMaxBuffer != 0) {
+				if(output.getDouble(i , 0) > testMaxBuffer) testMaxBuffer = output.getDouble(i , 0);
+			}else testMaxBuffer = output.getDouble(i , 0);
+		}
+		double testMinBuffer = 0;
+		for(int i = 0 ; i < 5 ; i++) {
+			if(testMinBuffer != 0) {
+				if(output.getDouble(i , 1) < testMinBuffer) testMinBuffer = output.getDouble(i , 1);
+			}else testMinBuffer = output.getDouble(i , 1);
+		}
+		maxAndLow[0] = testMaxBuffer;
+		maxAndLow[1] = testMinBuffer;
+		return maxAndLow;
+	}
+	
 }

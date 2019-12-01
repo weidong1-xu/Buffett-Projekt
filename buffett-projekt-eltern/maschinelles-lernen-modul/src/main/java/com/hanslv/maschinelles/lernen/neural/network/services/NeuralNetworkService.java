@@ -1,9 +1,14 @@
 package com.hanslv.maschinelles.lernen.neural.network.services;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,16 +47,32 @@ public class NeuralNetworkService {
 		List<TabStockInfo> stockInfoList = tabStockInfoMapper.selectAllStockInfo();
 		
 		/*
-		 * 遍历全部股票信息并运行算法
+		 * 初始化结果集文件
 		 */
-		for(TabStockInfo stockInfo : stockInfoList) {
-			if(stockInfo.getStockId().compareTo(stockId) < 0) continue;
-			dl4jStockNNTrainer.train(stockInfo.getStockId() + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE , 3 , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
-			try {
-				TimeUnit.SECONDS.sleep(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		LocalDate localDate = LocalDate.now();
+		File resultFile = new File(NeuralNetworkConstants.RESULT_FILE_PATH_PREFIX + "\\" + localDate + ".txt");
+		if(resultFile.exists()) resultFile.delete();
+		try {
+			resultFile.createNewFile();
+		} catch (IOException e1) {e1.printStackTrace();}
+		
+		
+		try(FileOutputStream fileOutputStream = new FileOutputStream(resultFile)){
+			System.setOut(new PrintStream(fileOutputStream , true));
+			/*
+			 * 遍历全部股票信息并运行算法
+			 */
+			for(TabStockInfo stockInfo : stockInfoList) {
+				if(stockInfo.getStockId().compareTo(stockId) < 0) continue;
+				dl4jStockNNTrainer.train(stockInfo.getStockId() + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE , 3 , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
+				try {
+					TimeUnit.SECONDS.sleep(2);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+		}catch(IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
