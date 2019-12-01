@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import org.encog.util.csv.CSVFormat;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 
 import com.hanslv.stock.selector.commons.dto.TabStockPriceInfo;
@@ -222,7 +223,7 @@ public class DataUtil {
 		/*
 		 * 数据标准化器
 		 */
-		NormalizerStandardize normalizer = new NormalizerStandardize();
+		NormalizerMinMaxScaler normalizer = new NormalizerMinMaxScaler(-1 , 1);
 		
 		/*
 		 * 实例化数据集合迭代器
@@ -253,37 +254,81 @@ public class DataUtil {
 	 * @param priceInfoList
 	 * @return
 	 */
-	public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList){
-//		for(TabStockPriceInfo priceInfo : priceInfoList) System.out.println(priceInfo);//测试
+	public static List<String> dl4jDataFormatterNew(List<TabStockPriceInfo> priceInfoList){
+		/*
+		 * 结果集合
+		 */
+		List<String> resultList = new ArrayList<>();
 		
 		/*
-		 * 转换后的数据
+		 * 获取将5天内的最高价和最低价
 		 */
-		List<String> parsedDataList = new ArrayList<>();
+		int counter = 0;
+		BigDecimal highestBuffer = null;
+		BigDecimal lowestBuffer = null;
 		
 		/*
-		 * 当前条数据，既是上一条数据的预测结果
+		 * 记录每5天的最高价和最低价
 		 */
-		String idealOutput = "";
+		List<String> highAndLowList = new ArrayList<>();
+		
 		for(TabStockPriceInfo priceInfo : priceInfoList) {
-			String input = 
-//							priceInfo.getStockPriceVolume() + "," + //成交量
-//							priceInfo.getStockPriceHighestPrice() + "," + //最高价
-//							priceInfo.getStockPriceLowestPrice() + "," + //最低价
-							priceInfo.getStockPriceStartPrice() + "," + //开盘价
-							priceInfo.getStockPriceEndPrice();//收盘价
-			if(!"".equals(idealOutput)) parsedDataList.add(input + "," + idealOutput);
-			//开盘价,收盘价
-			idealOutput = priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();//收盘价
+			/*
+			 * 当前最高价
+			 */
+			BigDecimal currentHighest = priceInfo.getStockPriceHighestPrice();
+			
+			/*
+			 * 当前最低价
+			 */
+			BigDecimal currentLowest = priceInfo.getStockPriceLowestPrice();
+			
+			/*
+			 * 初始化或比对5天内最高价
+			 */
+			if(highestBuffer == null) highestBuffer = currentHighest;
+			else if(highestBuffer.compareTo(currentHighest) < 0) highestBuffer = currentHighest;
+			/*
+			 * 初始化或比对5天内最低价
+			 */
+			if(lowestBuffer == null) lowestBuffer = currentLowest;
+			else if(lowestBuffer.compareTo(currentLowest) > 0) lowestBuffer = currentLowest;
+			
+			
+			/*
+			 * 为5天则添加到resultList中
+			 */
+			if(++counter == 5) {
+				String result = highestBuffer + "," + lowestBuffer;
+				highAndLowList.add(result);
+				
+				/*
+				 * 复原Buffers
+				 */
+				highestBuffer = null;
+				lowestBuffer = null;
+				counter = 0;
+			}
 		}
 		
 		/*
-		 * 将数据顺序改为正序
+		 * 匹配5日内的信息和后5日的最高价、最低价
 		 */
-		Collections.reverse(parsedDataList);
+		for(int i = 0 ; i < priceInfoList.size() ; i++) {
+			TabStockPriceInfo priceInfo = priceInfoList.get(i);
+			String inputData = priceInfo.getStockPriceVolume() + "," + priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();
+			String idealOutput = highAndLowList.get(i / 5);
+			String result = inputData + "," + idealOutput;
+			resultList.add(result);
+		}
 		
-//		for(String priceInfo : parsedDataList) System.out.println(priceInfo);//测试
-		return parsedDataList;
+		
+		/*
+		 * 将排序改为正序
+		 */
+		Collections.reverse(resultList);
+		
+		return resultList;
 	}
 	
 	
@@ -610,5 +655,38 @@ public class DataUtil {
 		
 		System.out.println("创建了新数据文件：" + rawDataFilePath);
 		return rawDataFilePath;
+	}
+	@Deprecated
+	public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList){
+//		for(TabStockPriceInfo priceInfo : priceInfoList) System.out.println(priceInfo);//测试
+		
+		/*
+		 * 转换后的数据
+		 */
+		List<String> parsedDataList = new ArrayList<>();
+		
+		/*
+		 * 当前条数据，既是上一条数据的预测结果
+		 */
+		String idealOutput = "";
+		for(TabStockPriceInfo priceInfo : priceInfoList) {
+			String input = 
+//							priceInfo.getStockPriceVolume() + "," + //成交量
+//							priceInfo.getStockPriceHighestPrice() + "," + //最高价
+//							priceInfo.getStockPriceLowestPrice() + "," + //最低价
+							priceInfo.getStockPriceStartPrice() + "," + //开盘价
+							priceInfo.getStockPriceEndPrice();//收盘价
+			if(!"".equals(idealOutput)) parsedDataList.add(input + "," + idealOutput);
+			//开盘价,收盘价
+			idealOutput = priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();//收盘价
+		}
+		
+		/*
+		 * 将数据顺序改为正序
+		 */
+		Collections.reverse(parsedDataList);
+		
+//		for(String priceInfo : parsedDataList) System.out.println(priceInfo);//测试
+		return parsedDataList;
 	}
 }

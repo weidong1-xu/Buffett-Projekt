@@ -3,6 +3,7 @@ package com.hanslv.stock.machine.learning.neural.network.services;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.hanslv.stock.selector.commons.dto.TabStockInfo;
  * 4、预测指定股票												public void calculateStock(Integer stockId)
  * 5、获取并将全部预测上涨的股票输出到控制台						public void getResult()
  * 6、dl4j从指定ID开始训练全部股票日期-价格模型					public void dl4jTrainStockNN(Integer stockId)
- * 7、dl4j训练指定股票的日期-价格模型								public void dl4jTrainAStockNN(Integer stockId)
  * -----------------------------------------
  * @author hanslv
  *
@@ -217,21 +217,16 @@ public class NeuralNetworkService {
 		List<TabStockInfo> stockInfoList = tabStockInfoMapper.selectAllStockInfo();
 		
 		/*
-		 * 遍历全部股票信息并运行算法，算法将会被储存到NeuralNetworkConstants.ALGORITHM_BASE_DIR文件夹
+		 * 遍历全部股票信息并运行算法
 		 */
 		for(TabStockInfo stockInfo : stockInfoList) {
 			if(stockInfo.getStockId().compareTo(stockId) < 0) continue;
-			dl4jStockNNTrainer.train(stockInfo.getStockId() + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE, NeuralNetworkConstants.DL4J_TEST_SIZE , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
+			dl4jStockNNTrainer.train(stockInfo.getStockId() + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE , 3 , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
+			try {
+				TimeUnit.SECONDS.sleep(2);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		
-	}
-	
-	
-	
-	/**
-	 * 7、dl4j训练指定股票的日期-价格模型
-	 */
-	public void dl4jTrainAStockNN(Integer stockId) {
-		dl4jStockNNTrainer.train(stockId + "" , NeuralNetworkConstants.DL4J_TRAIN_SIZE, NeuralNetworkConstants.DL4J_TEST_SIZE , 2 , NeuralNetworkConstants.DL4J_MAX_EPOCH);
 	}
 }

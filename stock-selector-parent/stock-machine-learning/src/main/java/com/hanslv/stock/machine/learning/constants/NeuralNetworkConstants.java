@@ -42,7 +42,7 @@ public abstract class NeuralNetworkConstants {
 	
 	
 	public static final int DL4J_TRAIN_SIZE = 89;//dl4j训练数据长度
-	public static final int DL4J_TEST_SIZE = 5;//dl4j验证数据长度
+//	public static final int DL4J_TEST_SIZE = 5;//dl4j验证数据长度
 	public static final int DL4J_MAX_EPOCH = 50;//dl4j训练纪元
 	public static final double DL4J_ACCURACY_LIMIT = 0.8;//dl4j精确度下限
 	public static final String DL4J_NORMALIZER_SAVE_PATH = "E:\\Java\\eclipse\\stock-selector\\algorithm\\dl4j-normalizer";//dl4j标准化器存储根路径
