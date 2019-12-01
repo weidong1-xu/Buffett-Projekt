@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+ * 股票基本信息表					tab_stock_info
+ * 股票ID							stock_id										BIGINT								PRIMARY KEY					AUTO_INCREMENT
+ * 股票代码							stock_code										VARCHAR(10)							UNIQUE
+ * 股票名称							stock_name										VARCHAR(8) -->
+<mapper namespace="com.hanslv.crawler.repository.TabStockInfoRepository">
+	<!-- 插入一个集合 -->
+	<insert id="insertList" parameterType="com.hanslv.allgemein.dto.TabStockInfo">
+		INSERT INTO tab_stock_info (stock_code , stock_name)
+		<foreach item="stockInfo" collection="list" separator="," open="VALUES">
+			(#{stockInfo.stockCode} , #{stockInfo.stockName})
+		</foreach>
+	</insert>
+	
+	<!-- 删除全部数据 -->
+	<delete id="deleteAll">
+		DELETE FROM tab_stock_info
+	</delete>
+</mapper>

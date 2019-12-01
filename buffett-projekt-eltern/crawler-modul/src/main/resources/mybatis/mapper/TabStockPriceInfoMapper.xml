@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+ * 股票价格信息表（分表）				tab_stock_price
+ * 股票ID							stock_id										BIGINT								FOREIGN KEY (fk_stock_price_info)					PRIMARY KEY
+ * 日期								stock_price_date								VARCHAR(10)																				PRIMARY KEY
+ * 开盘价							stock_price_start_price							DECIMAL(18,2)
+ * 收盘价							stock_price_end_price							DECIMAL(18,2)
+ * 最高价							stock_price_highest_price						DECIMAL(18,2)
+ * 最低价							stock_price_lowest_price						DECIMAL(18,2)
+ * 成交量							stock_price_volume								INT(10)
+ * 成交额							stock_price_turnover							INT(10)
+ * 振幅								stock_price_amplitude							VARCHAR(40)
+ * 换手率							stock_price_turnover_rate						DECIMAL(4,1) -->
+<mapper namespace="com.hanslv.crawler.repository.TabStockPriceInfoRepository">
+	<!-- 插入一条记录 -->
+	<insert id="insertOne">
+		INSERT INTO ${tableName}
+		(stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , 
+		stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate)
+		VALUES
+		(#{priceInfo.stockId},#{priceInfo.stockPriceDate},#{priceInfo.stockPriceStartPrice},#{priceInfo.stockPriceEndPrice},
+		#{priceInfo.stockPriceHighestPrice},#{priceInfo.stockPriceLowestPrice},#{priceInfo.stockPriceVolume},#{priceInfo.stockPriceTurnover},
+		#{priceInfo.stockPriceAmplitude},#{priceInfo.stockPriceTurnoverRate})
+	</insert>
+</mapper>
