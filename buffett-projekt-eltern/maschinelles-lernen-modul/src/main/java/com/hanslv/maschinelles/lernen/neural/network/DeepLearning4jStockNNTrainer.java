@@ -46,8 +46,6 @@ public class DeepLearning4jStockNNTrainer {
 	 * @param epoch 训练纪元
 	 */
 	public void train(String stockId , int trainDataSize , int inputSize ,  int idealOutputSize , int epoch) {
-		logger.info("正在计算股票：" + stockId);
-		
 		/*
 		 * 获取训练数据和预测下一周信息的输入数据
 		 */
@@ -56,10 +54,7 @@ public class DeepLearning4jStockNNTrainer {
 		/*
 		 * 判断数据量是否符合标准
 		 */
-		if(mainDataList.size() < (trainDataSize + 1)) {
-			logger.error("数据集小于预期");
-			return;
-		}
+		if(mainDataList.size() < (trainDataSize + 1)) return;
 		
 		List<String> trainDataList = mainDataList.subList(0 , trainDataSize * 5);
 		List<String> forecastDataList = mainDataList.subList(trainDataSize * 5 , mainDataList.size());
@@ -96,10 +91,10 @@ public class DeepLearning4jStockNNTrainer {
 			if(diff.divide(new BigDecimal(resultMaxAndLow[1]) , 2 , BigDecimal.ROUND_HALF_UP).compareTo(new BigDecimal(0.03)) < 0) return;
 			
 			String stockCode = stockInfoMapper.selectById(new Integer(stockId)).getStockCode();
-			logger.info("找到符合要求股票：" + stockCode);
+			System.out.println("找到符合要求股票：" + stockCode);
 			double[] reuslt = getMaxAndLow(result.getValue());
-			logger.info(reuslt[0] + "," + reuslt[1]);
-			logger.info("-----------------------------------------------");
+			System.out.println(reuslt[0] + "," + reuslt[1]);
+			System.out.println("-----------------------------------------------");
 		}
 	}
 	
