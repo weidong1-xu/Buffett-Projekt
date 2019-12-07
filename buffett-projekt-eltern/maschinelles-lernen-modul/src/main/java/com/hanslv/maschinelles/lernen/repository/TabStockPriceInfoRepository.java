@@ -11,7 +11,7 @@ import com.hanslv.allgemein.dto.TabStockPriceInfo;
  * 股票价格信息Mapper
  * 
  * -----------------------------------------------------------
- * 2、获取DeepLearning4j股票模型的训练数据、评估数据					public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")String stockId , @Param("trainDataSize")Integer dataSize)
+ * 1、获取DeepLearning4j股票模型的训练数据、评估数据					public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")Integer stockId, @Param("trainDataSize")Integer dataSize , @Param("trainEndDate")String trainEndDate)
  * -----------------------------------------------------------
  * @author hanslv
  *
@@ -19,10 +19,11 @@ import com.hanslv.allgemein.dto.TabStockPriceInfo;
 @Mapper
 public interface TabStockPriceInfoRepository {
 	/**
-	 * 2、获取DeepLearning4j股票模型的训练数据、评估数据
+	 * 1、获取DeepLearning4j股票模型的训练数据、评估数据
 	 * @param stockId
 	 * @param dataSize
+	 * @param trainEndDate
 	 * @return
 	 */
-	public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")String stockId, @Param("trainDataSize")Integer dataSize);
+	public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")Integer stockId, @Param("trainDataSize")Integer dataSize , @Param("trainEndDate")String trainEndDate);
 }
