@@ -1,12 +1,12 @@
 package com.hanslv.maschinelles.lernen.neural.network.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +55,8 @@ public class NeuralNetworkService {
 		/*
 		 * 当前日期
 		 */
-		LocalDate currentDate = LocalDate.now();
+//		LocalDate currentDate = LocalDate.now();
+		LocalDate currentDate = LocalDate.parse("2019-11-29");
 		
 		/*
 		 * 对全部股票进行初步筛选预测，对初步预测通过的股票再进行最终筛选并存储筛选结果表tab_result
@@ -72,12 +73,19 @@ public class NeuralNetworkService {
 			 * 初步筛选
 			 */
 			for(int i = 1 ; i <= NeuralNetworkConstants.inPlanTrainCount ; i++)
-				dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.minusDays(i * 7).toString() , true);
+				dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.minusDays(i * 7) , true);
 			BigDecimal inPlanScore = (NeuralNetworkConstants.inPlanGoalCounter == 0 ? new BigDecimal(0) : new BigDecimal(NeuralNetworkConstants.inPlanGoalCounter).divide(new BigDecimal(NeuralNetworkConstants.inPlanMainCounter) , 2 , BigDecimal.ROUND_HALF_UP));
 			/*
 			 * 判断当前结果是否已存在
 			 */
-			if(resultMapper.selectByIdAndDate(stockInfo.getStockId() , currentDate.toString()) > 0) continue;
+			if(resultMapper.selectByIdAndDate(stockInfo.getStockId() , currentDate.toString()) > 0) {
+				/*
+				 * 2019-12-11修改Bug，避免跳过当前循环时不清空计数器
+				 */
+				NeuralNetworkConstants.inPlanMainCounter = 0;
+				NeuralNetworkConstants.inPlanGoalCounter = 0;
+				continue;
+			}
 			/*
 			 * 初步筛选通过
 			 */
@@ -85,7 +93,7 @@ public class NeuralNetworkService {
 				/*
 				 * 执行预测
 				 */
-				Map<Boolean , double[]> resultMap = dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.toString() , false);
+				Map<Boolean , double[]> resultMap = dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate , false);
 				double[] forcastResult = null;
 				if((forcastResult = resultMap.get(true)) != null) {
 					TabResult result = new TabResult();

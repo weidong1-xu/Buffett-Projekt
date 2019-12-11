@@ -1,6 +1,7 @@
 package com.hanslv.maschinelles.lernen.neural.network;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +43,13 @@ public class DeepLearning4jStockNNTrainer {
 	 * @param epoch 训练纪元
 	 * @param trainEndDate 训练结束日期
 	 */
-	public Map<Boolean , double[]> train(Integer stockId , String trainEndDate , boolean isInPlanTest) {
+	public Map<Boolean , double[]> train(Integer stockId , LocalDate trainEndDate , boolean isInPlanTest) {
+		/*
+		 * 2019-12-11日修改Bug，训练传入的数据源不准确
+		 */
+		String trainEndDateStr = trainEndDate.toString();
+		if(isInPlanTest) trainEndDateStr = trainEndDate.plusDays(7).toString();
+		
 		/*
 		 * 结果
 		 */
@@ -52,14 +59,23 @@ public class DeepLearning4jStockNNTrainer {
 		/*
 		 * 获取计算需要的数据
 		 */
-		List<String> mainDataList = DataUtil.dl4jDataFormatterNew(
+		/*
+		 * 2019-12-11日修改Bug，训练传入的数据源不准确
+		 */
+		List<String> mainDataList = null;
+		if(isInPlanTest)
+			mainDataList = DataUtil.dl4jDataFormatterNew(
 				stockPriceInfoMapper.getTrainAndTestDataDL4j(
-						stockId , (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize , trainEndDate));
+						stockId , (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.singleBatchSize , trainEndDateStr) , isInPlanTest);
+		else
+			mainDataList = DataUtil.dl4jDataFormatterNew(
+					stockPriceInfoMapper.getTrainAndTestDataDL4j(
+							stockId , (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize , trainEndDateStr) , isInPlanTest);
 		
 		/*
 		 * 判断数据量是否符合标准
 		 */
-		if(mainDataList.size() < (NeuralNetworkConstants.trainDataSize + 1)) return resultMap;
+		if(mainDataList.size() != (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize) return resultMap;
 		
 		/*
 		 * 拆分训练数据和测试数据

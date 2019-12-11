@@ -13,12 +13,13 @@ import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
 
 import com.hanslv.allgemein.dto.TabStockPriceInfo;
+import com.hanslv.maschinelles.lernen.constants.NeuralNetworkConstants;
 
 /**
  * 数据处理类
  * -----------------------------------------------
- * 5、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
- * 6、将数据转换为List<String>								public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList)
+ * 1、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
+ * 2、将数据转换为List<String>								public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList)
  * -----------------------------------------------
  * @author hanslv
  *
@@ -26,7 +27,7 @@ import com.hanslv.allgemein.dto.TabStockPriceInfo;
 public class DataUtil {
 	
 	/**
-	 * 5、将获取到的数据标准化并转换为DataSetIterator
+	 * 1、将获取到的数据标准化并转换为DataSetIterator
 	 * @param rawDataList
 	 * @param idealOutputSize
 	 * @return
@@ -64,11 +65,12 @@ public class DataUtil {
 	}
 	
 	/**
-	 * 6、将数据转换为List<String>
+	 * 2、将数据转换为List<String>
 	 * @param priceInfoList
+	 * @param isInPlanTest
 	 * @return
 	 */
-	public static List<String> dl4jDataFormatterNew(List<TabStockPriceInfo> priceInfoList){
+	public static List<String> dl4jDataFormatterNew(List<TabStockPriceInfo> priceInfoList , boolean isInPlanTest){
 		/*
 		 * 结果集合
 		 */
@@ -125,23 +127,38 @@ public class DataUtil {
 			}
 		}
 		
+		
 		/*
 		 * 匹配5日内的信息和后5日的最高价、最低价
 		 */
+		/*
+		 * 2019-12-11修改Bug，传入的训练数据源不准确
+		 */
+		Collections.reverse(priceInfoList);
+		Collections.reverse(highAndLowList);
+		
 		for(int i = 0 ; i < priceInfoList.size() ; i++) {
 			TabStockPriceInfo priceInfo = priceInfoList.get(i);
 			String inputData = priceInfo.getStockPriceVolume() + "," + priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();
-			String idealOutput = highAndLowList.get(i / 5);
-			String result = inputData + "," + idealOutput;
-			resultList.add(result);
+			
+			int highAndLowIndex = (i / NeuralNetworkConstants.singleBatchSize) + 1;
+			String idealOutput = "";
+			if(highAndLowIndex < highAndLowList.size()) idealOutput = highAndLowList.get(highAndLowIndex);
+			
+			String result = "";
+			if(isInPlanTest) {
+				if(!"".equals(idealOutput)) {
+					result = inputData + "," + idealOutput;
+					resultList.add(result);
+				}
+			}else {
+				/*
+				 * 若idealOutput为空则用其他值补位
+				 */
+				result = ("".equals(idealOutput)) ? inputData + "," + highAndLowList.get(0) : inputData + "," + idealOutput;
+				resultList.add(result);
+			}
 		}
-		
-		
-		/*
-		 * 将排序改为正序
-		 */
-		Collections.reverse(resultList);
-		
 		return resultList;
 	}
 	
