@@ -1,7 +1,7 @@
 package com.hanslv.maschinelles.lernen.neural.network;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,11 +15,10 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.hanslv.allgemein.dto.TabStockPriceInfo;
 import com.hanslv.maschinelles.lernen.constants.NeuralNetworkConstants;
-import com.hanslv.maschinelles.lernen.repository.TabStockPriceInfoRepository;
 import com.hanslv.maschinelles.lernen.util.DataUtil;
 
 /**
@@ -29,27 +28,14 @@ import com.hanslv.maschinelles.lernen.util.DataUtil;
  */
 @Component
 public class DeepLearning4jStockNNTrainer {
-	@Autowired
-	private TabStockPriceInfoRepository stockPriceInfoMapper;
-	
 	Logger logger = Logger.getLogger(DeepLearning4jStockNNTrainer.class);
 	
 	/**
 	 * 训练LSTM股票模型
-	 * @param stockId 股票ID
-	 * @param trainDataSize 训练数据长度
-	 * @param inputSize 输入神经元数量
-	 * @param idealOutputSize 输出神经元数量
-	 * @param epoch 训练纪元
-	 * @param trainEndDate 训练结束日期
+	 * @param priceInfoList
+	 * @param idInPlanTest
 	 */
-	public Map<Boolean , double[]> train(Integer stockId , LocalDate trainEndDate , boolean isInPlanTest) {
-		/*
-		 * 2019-12-11日修改Bug，训练传入的数据源不准确
-		 */
-		String trainEndDateStr = trainEndDate.toString();
-		if(isInPlanTest) trainEndDateStr = trainEndDate.plusDays(7).toString();
-		
+	public Map<Boolean , double[]> train(List<TabStockPriceInfo> priceInfoList, boolean isInPlanTest) {
 		/*
 		 * 结果
 		 */
@@ -62,28 +48,16 @@ public class DeepLearning4jStockNNTrainer {
 		/*
 		 * 2019-12-11日修改Bug，训练传入的数据源不准确
 		 */
-		List<String> mainDataList = null;
-		if(isInPlanTest)
-			mainDataList = DataUtil.dl4jDataFormatterNew(
-				stockPriceInfoMapper.getTrainAndTestDataDL4j(
-						stockId , (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.singleBatchSize , trainEndDateStr) , isInPlanTest);
-		else
-			mainDataList = DataUtil.dl4jDataFormatterNew(
-					stockPriceInfoMapper.getTrainAndTestDataDL4j(
-							stockId , (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize , trainEndDateStr) , isInPlanTest);
-		
-		/*
-		 * 判断数据量是否符合标准
-		 */
-		if(mainDataList.size() != (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize) return resultMap;
+		List<String> mainDataList = DataUtil.dl4jDataFormatterNew(priceInfoList , isInPlanTest);
 		
 		/*
 		 * 拆分训练数据和测试数据
 		 */
-		List<String> trainDataList = mainDataList.subList(
-				0 , NeuralNetworkConstants.trainDataSize * NeuralNetworkConstants.singleBatchSize);
-		List<String> testDataList = mainDataList.subList(
-				NeuralNetworkConstants.trainDataSize * NeuralNetworkConstants.singleBatchSize , mainDataList.size());
+		List<String> trainDataList = new ArrayList<>();
+		for(int i = 0 ; i < NeuralNetworkConstants.trainDataSize * NeuralNetworkConstants.singleBatchSize ; i++) trainDataList.add(mainDataList.get(i));
+		
+		List<String> testDataList = new ArrayList<>();
+		for(int i = NeuralNetworkConstants.trainDataSize * NeuralNetworkConstants.singleBatchSize ; i < mainDataList.size() ; i++) testDataList.add(mainDataList.get(i));
 		
 		/*
 		 * 标准化训练数据集、测试数据集
@@ -106,7 +80,7 @@ public class DeepLearning4jStockNNTrainer {
 		/*
 		 * 验证数据是否符合评判标准
 		 */
-		Map<Boolean , INDArray> forcastResultMap = checkData(lstmNetwork , iteratorList.get(1));
+		Map<Boolean , INDArray> forcastResultMap = checkData(lstmNetwork , iteratorList.get(1) , isInPlanTest);
 		Entry<Boolean , INDArray> result = forcastResultMap.entrySet().iterator().next();
 		
 		/*
@@ -238,7 +212,7 @@ public class DeepLearning4jStockNNTrainer {
 	 * @param forecastData
 	 * @return 返回是否符合标准，预测输出数据
 	 */
-	private Map<Boolean , INDArray> checkData(MultiLayerNetwork lstmNetwork , DataSetIterator forecastData) {
+	private Map<Boolean , INDArray> checkData(MultiLayerNetwork lstmNetwork , DataSetIterator forecastData , boolean isInPlanTest) {
 		/*
 		 * 结果Map
 		 */
@@ -261,6 +235,7 @@ public class DeepLearning4jStockNNTrainer {
 		 */
 		normalizerStandardize.revert(resultDataSet);
 		INDArray resultOutput = resultDataSet.getLabels();
+//		resultMap.clear();
 		resultMap.put(doCheckData(resultOutput) , resultOutput);
 		return resultMap;
 	}

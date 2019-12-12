@@ -2,6 +2,7 @@ package com.hanslv.maschinelles.lernen.neural.network.services;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,7 @@ public class NeuralNetworkService {
 		 * 当前日期
 		 */
 //		LocalDate currentDate = LocalDate.now();
-		LocalDate currentDate = LocalDate.parse("2019-11-29");
+		LocalDate currentDate = LocalDate.parse("2019-10-25");
 		
 		/*
 		 * 对全部股票进行初步筛选预测，对初步预测通过的股票再进行最终筛选并存储筛选结果表tab_result
@@ -69,12 +70,40 @@ public class NeuralNetworkService {
 				e.printStackTrace();
 			}
 			logger.info("正在计算股票：" + stockInfo.getStockCode());
+			
+			/*
+			 * 训练数据总数量=(训练数据数量+测试数据数量)*单批次数据量+测试数据数量*单批次数据量*初步计算循环次数
+			 */
+			int mainListSize = (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize * NeuralNetworkConstants.inPlanTrainCount;
+			
+			/*
+			 * 获取全部训练数据
+			 */
+			List<TabStockPriceInfo> priceInfoMainList = priceInfoMapper.getTrainAndTestDataDL4j(
+					stockInfo.getStockId() ,
+					mainListSize, 
+					currentDate.toString());
+			
+			if(priceInfoMainList.size() != mainListSize) continue;
+			
 			/*
 			 * 初步筛选
 			 */
-			for(int i = 1 ; i <= NeuralNetworkConstants.inPlanTrainCount ; i++)
-				dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.minusDays(i * 7) , true);
-			BigDecimal inPlanScore = (NeuralNetworkConstants.inPlanGoalCounter == 0 ? new BigDecimal(0) : new BigDecimal(NeuralNetworkConstants.inPlanGoalCounter).divide(new BigDecimal(NeuralNetworkConstants.inPlanMainCounter) , 2 , BigDecimal.ROUND_HALF_UP));
+			for(int i = 0 ; i < NeuralNetworkConstants.inPlanTrainCount ; i++) {
+				/*
+				 * 初步计算List起始位置=当前已进行的初步计算次数*测试数据数量*单批次数据量
+				 */
+				int startIndex = NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize * i;
+				/*
+				 * 初步计算List结束位置=(训练数据数量+测试数据数量)*单批次数据量+(当前已进行的初步计算次数+测试数据量*)单批次数据量
+				 */
+				int endIndex = (NeuralNetworkConstants.testDataSize + NeuralNetworkConstants.trainDataSize) * NeuralNetworkConstants.singleBatchSize + (NeuralNetworkConstants.testDataSize + i) * NeuralNetworkConstants.singleBatchSize;
+				
+				List<TabStockPriceInfo> priceInfoList = new ArrayList<>();
+				for(int j = startIndex ; j < endIndex ; j++) priceInfoList.add(priceInfoMainList.get(j));
+				
+				dl4jStockNNTrainer.train(priceInfoList , true);
+			}
 			/*
 			 * 判断当前结果是否已存在
 			 */
@@ -82,10 +111,12 @@ public class NeuralNetworkService {
 				/*
 				 * 2019-12-11修改Bug，避免跳过当前循环时不清空计数器
 				 */
-				NeuralNetworkConstants.inPlanMainCounter = 0;
 				NeuralNetworkConstants.inPlanGoalCounter = 0;
 				continue;
 			}
+			
+			BigDecimal inPlanScore = (NeuralNetworkConstants.inPlanGoalCounter == 0 ? new BigDecimal(0) : new BigDecimal(NeuralNetworkConstants.inPlanGoalCounter).divide(new BigDecimal(NeuralNetworkConstants.inPlanMainCounter) , 2 , BigDecimal.ROUND_HALF_UP));
+			
 			/*
 			 * 初步筛选通过
 			 */
@@ -93,7 +124,11 @@ public class NeuralNetworkService {
 				/*
 				 * 执行预测
 				 */
-				Map<Boolean , double[]> resultMap = dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate , false);
+				List<TabStockPriceInfo> priceInfoList = new ArrayList<>();
+				int endIndex = (NeuralNetworkConstants.testDataSize + NeuralNetworkConstants.trainDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize;
+				for(int j = 0 ; j < endIndex ; j++) priceInfoList.add(priceInfoMainList.get(j));
+				
+				Map<Boolean , double[]> resultMap = dl4jStockNNTrainer.train(priceInfoList , false);
 				double[] forcastResult = null;
 				if((forcastResult = resultMap.get(true)) != null) {
 					TabResult result = new TabResult();
@@ -110,7 +145,6 @@ public class NeuralNetworkService {
 			/*
 			 * 复位计分器
 			 */
-			NeuralNetworkConstants.inPlanMainCounter = 0;
 			NeuralNetworkConstants.inPlanGoalCounter = 0;
 		}
 		logger.info("---------------------------------------计算完成---------------------------------------");
