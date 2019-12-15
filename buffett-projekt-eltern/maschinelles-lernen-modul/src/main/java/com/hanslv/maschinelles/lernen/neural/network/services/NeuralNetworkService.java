@@ -47,8 +47,7 @@ public class NeuralNetworkService {
 		/*
 		 * 当前日期
 		 */
-//		LocalDate currentDate = LocalDate.now();
-		LocalDate currentDate = LocalDate.parse("2019-11-08");
+		LocalDate currentDate = LocalDate.parse("2019-12-13");
 		
 		/*
 		 * 对全部股票进行初步筛选预测，对初步预测通过的股票再进行最终筛选并存储筛选结果表tab_result

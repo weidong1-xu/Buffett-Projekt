@@ -81,7 +81,7 @@ public class DeepLearning4jStockNNTrainer {
 		if(forecastResult != null) {
 			TabResult resultObj = new TabResult();
 			resultObj.setStockId(stockId);
-			resultObj.setStockId(stockId);
+			resultObj.setDate(endDate);
 			resultObj.setSuggestRate(forecastResult.toString());
 			resultMapper.insert(resultObj);
 		}

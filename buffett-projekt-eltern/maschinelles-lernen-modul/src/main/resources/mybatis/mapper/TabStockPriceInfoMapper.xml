@@ -37,22 +37,6 @@
 	
 	<!-- 将日期向前移动count个数据量 -->
 	<select id="changeDateForward" resultType="com.hanslv.allgemein.dto.TabStockPriceInfo">
-		SELECT stock_price_date FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
-		UNION 
-		SELECT stock_price_date FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate}  
-		UNION 
-		SELECT stock_price_date FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
-		UNION 
-		SELECT stock_price_date FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
-		UNION 
-		SELECT stock_price_date FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate}  
-		UNION 
-		SELECT  stock_price_date FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
-		ORDER BY stock_price_date DESC LIMIT ${count}
-	</select>
-	
-	<!-- 将日期向后移动count个数据量 -->
-	<select id="changeDateBackward" resultType="com.hanslv.allgemein.dto.TabStockPriceInfo">
 		SELECT stock_price_date FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &lt; #{currentDate} 
 		UNION 
 		SELECT stock_price_date FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt; #{currentDate}  
@@ -63,7 +47,23 @@
 		UNION 
 		SELECT stock_price_date FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &lt; #{currentDate}  
 		UNION 
-		SELECT  stock_price_date FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt; #{currentDate} 
+		SELECT stock_price_date FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &lt; #{currentDate} 
+		ORDER BY stock_price_date DESC LIMIT ${count}
+	</select>
+	
+	<!-- 将日期向后移动count个数据量 -->
+	<select id="changeDateBackward" resultType="com.hanslv.allgemein.dto.TabStockPriceInfo">
+		SELECT stock_price_date FROM tab_stock_price_shangzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
+		UNION 
+		SELECT stock_price_date FROM tab_stock_price_shangzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate}  
+		UNION 
+		SELECT stock_price_date FROM tab_stock_price_shangzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
+		UNION 
+		SELECT stock_price_date FROM tab_stock_price_shenzheng_0001 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
+		UNION 
+		SELECT stock_price_date FROM tab_stock_price_shenzheng_0002 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate}  
+		UNION 
+		SELECT stock_price_date FROM tab_stock_price_shenzheng_0003 WHERE stock_id = #{stockId} AND stock_price_date &gt; #{currentDate} 
 		ORDER BY stock_price_date DESC LIMIT ${count}
 	</select>
 </mapper>

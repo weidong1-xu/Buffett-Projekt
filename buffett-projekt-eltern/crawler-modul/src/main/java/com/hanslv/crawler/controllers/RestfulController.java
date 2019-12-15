@@ -42,7 +42,6 @@ public class RestfulController {
 	 */
 	@GetMapping("/stock-price")
 	public void getStockPrice() {
-		System.out.println("1111111111111111111111111111111111111111");
 		crawlerService.runStockPriceCrawler(0);
 	}
 	

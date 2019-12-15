@@ -45,7 +45,7 @@ public class DeepLearning4jStockNNBuilder {
 		 * 输出层
 		 */
 		FeedForwardLayer outputLayer = new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
-				.nIn(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnSecondOutRight)
+				.nIn(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnThirdOutRight)
 				.nOut(NeuralNetworkConstants.idealOutputSize)
 				.activation(Activation.SOFTSIGN)
 				.dropOut(NeuralNetworkConstants.nnDropout)

@@ -227,40 +227,34 @@ public class DataUtil {
 	 */
 	private List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate){
 		List<String> resultList = new ArrayList<>();
-		/*
-		 * 测试日期后移n个价格数据量
-		 */
-		String endDateCopy = changeDate(stockId , endDate , NeuralNetworkConstants.batchUnitLength , false);
-		/*
-		 * 数据量增加1步长
-		 */
-		stepLong += 1;
-		
+		String endDateCopy = endDate;
 		/*
 		 * 获取每个矩形中包含的价格信息
 		 */
-		for(TabStockPriceInfo priceInfo : priceInfoMapper.getTrainAndTestDataDL4j(stockId , NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize , endDateCopy)) {
-			/*
-			 * 获取当前矩形价格的最高、最低
-			 */
-			dayCounter++;
-			BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
-			BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
-			if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
-			if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
-			if(dayCounter == NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize) {
+		for(int i = 0 ; i < stepLong ; i++) {
+			List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize , endDateCopy);
+			for(TabStockPriceInfo priceInfo : priceInfoList) {
 				/*
-				 * 获取结果
+				 * 获取当前矩形价格的最高、最低
 				 */
-				resultList.add(maxBuffer + "," + minBuffer);
-				/*
-				 * 复位计数器、buffer
-				 */
-				dayCounter = 0;
-				maxBuffer = null;
-				minBuffer = null;
+				dayCounter++;
+				BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
+				BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
+				if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
+				if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
+				if(dayCounter ==  NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize) {
+					/*
+					 * 获取结果
+					 */
+					resultList.add(maxBuffer + "," + minBuffer);
+					/*
+					 * 复位计数器、buffer
+					 */
+					dayCounter = 0;
+					maxBuffer = null;
+					minBuffer = null;
+				}
 			}
-			
 			/*
 			 * 将日期前移5个日期单位
 			 */
@@ -280,10 +274,11 @@ public class DataUtil {
 	 */
 	private String changeDate(Integer stockId , String currentDate , int count , boolean forwardOrBackward) {
 		String resultDate = "";
-		if(forwardOrBackward) 
+		if(forwardOrBackward) {
 			for(TabStockPriceInfo priceInfo : priceInfoMapper.changeDateForward(stockId , currentDate , count)) resultDate = priceInfo.getStockPriceDate();
-		else 
+		}else {
 			for(TabStockPriceInfo priceInfo : priceInfoMapper.changeDateBackward(stockId , currentDate , count)) resultDate = priceInfo.getStockPriceDate();
+		}
 		return resultDate;
 	}
 	
