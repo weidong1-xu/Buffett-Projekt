@@ -11,20 +11,31 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.factory.Nd4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.hanslv.allgemein.dto.TabStockPriceInfo;
 import com.hanslv.maschinelles.lernen.constants.NeuralNetworkConstants;
+import com.hanslv.maschinelles.lernen.repository.TabStockPriceInfoRepository;
 
 /**
  * 数据处理类
  * -----------------------------------------------
  * 1、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
- * 2、将数据转换为List<String>								public static List<String> dl4jDataFormatter(List<TabStockPriceInfo> priceInfoList)
+ * 2、2、根据股票ID获取预测股票矩形面积List					public List<String> dl4jDataFormatter(Integer stockId , int stepLong , String endDate)
  * -----------------------------------------------
  * @author hanslv
  *
  */
+@Component
 public class DataUtil {
+	static int dayCounter;//天数计数器
+	static BigDecimal maxBuffer;//最大值缓存
+	static BigDecimal minBuffer;//最小值缓存
+	
+	@Autowired
+	private TabStockPriceInfoRepository priceInfoMapper;
+	
 	
 	/**
 	 * 1、将获取到的数据标准化并转换为DataSetIterator
@@ -32,7 +43,7 @@ public class DataUtil {
 	 * @param idealOutputSize
 	 * @return
 	 */
-	public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize){
+	public List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize){
 		List<DataSetIterator> iteratorList = new ArrayList<>();
 		
 		/*
@@ -65,100 +76,37 @@ public class DataUtil {
 	}
 	
 	/**
-	 * 2、将数据转换为List<String>
-	 * @param priceInfoList
-	 * @param isInPlanTest
+	 * 2、根据股票ID获取预测股票矩形面积List
+	 * @param stockId
+	 * @param stepLong = 训练步长+测试步长
+	 * @param rectangleLong = 每个步长所包含的数据量
 	 * @return
 	 */
-	public static List<String> dl4jDataFormatterNew(List<TabStockPriceInfo> priceInfoList , boolean isInPlanTest){
-		/*
-		 * 结果集合
-		 */
+	public List<String> dl4jDataFormatter(Integer stockId , int stepLong , String endDate){
 		List<String> resultList = new ArrayList<>();
+		List<String> resultListBuffer = new ArrayList<>();
 		
-		/*
-		 * 获取将5天内的最高价和最低价
+		/**
+		 * 获取5天内的最大值、最小值
 		 */
-		int counter = 0;
-		BigDecimal highestBuffer = null;
-		BigDecimal lowestBuffer = null;
-		
-		/*
-		 * 记录每5天的最高价和最低价
-		 */
-		List<String> highAndLowList = new ArrayList<>();
-		
-		for(TabStockPriceInfo priceInfo : priceInfoList) {
-			/*
-			 * 当前最高价
-			 */
-			BigDecimal currentHighest = priceInfo.getStockPriceHighestPrice();
-			
-			/*
-			 * 当前最低价
-			 */
-			BigDecimal currentLowest = priceInfo.getStockPriceLowestPrice();
-			
-			/*
-			 * 初始化或比对5天内最高价
-			 */
-			if(highestBuffer == null) highestBuffer = currentHighest;
-			else if(highestBuffer.compareTo(currentHighest) < 0) highestBuffer = currentHighest;
-			/*
-			 * 初始化或比对5天内最低价
-			 */
-			if(lowestBuffer == null) lowestBuffer = currentLowest;
-			else if(lowestBuffer.compareTo(currentLowest) > 0) lowestBuffer = currentLowest;
-			
-			
-			/*
-			 * 为5天则添加到resultList中
-			 */
-			if(++counter == 5) {
-				String result = highestBuffer + "," + lowestBuffer;
-				highAndLowList.add(result);
-				
-				/*
-				 * 复原Buffers
-				 */
-				highestBuffer = null;
-				lowestBuffer = null;
-				counter = 0;
-			}
+		for(String maxAndLowStr : getRectangleMaxAndLow(stockId , stepLong , endDate)) {
+			String[] maxAndLowArray = maxAndLowStr.split(",");
+			BigDecimal[] maxAndMinArray = {new BigDecimal(maxAndLowArray[0]) , new BigDecimal(maxAndLowArray[1])};
+			resultListBuffer.add(doGetRectangleArea(maxAndMinArray));
 		}
 		
-		
 		/*
-		 * 匹配5日内的信息和后5日的最高价、最低价
+		 * 将后一天结果拼接到前一天
 		 */
-		Collections.reverse(priceInfoList);
-		Collections.reverse(highAndLowList);
-		
-		for(int i = 0 ; i < priceInfoList.size() ; i++) {
-			TabStockPriceInfo priceInfo = priceInfoList.get(i);
-			String inputData = priceInfo.getStockPriceVolume() + "," + priceInfo.getStockPriceStartPrice() + "," + priceInfo.getStockPriceEndPrice();
-			
-			int highAndLowIndex = (i / NeuralNetworkConstants.singleBatchSize) + 1;
-			String idealOutput = "";
-			if(highAndLowIndex < highAndLowList.size()) idealOutput = highAndLowList.get(highAndLowIndex);
-			
-			String result = "";
-			if(isInPlanTest) {
-				if(!"".equals(idealOutput)) {
-					result = inputData + "," + idealOutput;
-					resultList.add(result);
-				}
-			}else {
-				/*
-				 * 若idealOutput为空则用其他值补位
-				 */
-				result = ("".equals(idealOutput)) ? inputData + "," + highAndLowList.get(0) : inputData + "," + idealOutput;
-				resultList.add(result);
-			}
+		for(int i = 0 ; i < resultListBuffer.size() ; i++) {
+			if(i == 0) resultList.add(resultListBuffer.get(i) + "," + resultListBuffer.get(i));//包含当前日信息，并以任意值补位
+			if((i + 1) < resultListBuffer.size())
+				resultList.add(resultListBuffer.get(i + 1) + "," + resultListBuffer.get(i));
 		}
+		
+		Collections.reverse(resultList);
 		return resultList;
 	}
-	
 	
 	
 	
@@ -204,7 +152,7 @@ public class DataUtil {
 	 * @param idealOutputSize
 	 * @return
 	 */
-	private static List<DataSet> dl4jDataParser(List<String> rawDataList , int idealOutputSize){
+	private List<DataSet> dl4jDataParser(List<String> rawDataList , int idealOutputSize){
 		/*
 		 * 将数据封装成DataSet集合
 		 */
@@ -252,6 +200,91 @@ public class DataUtil {
 			dataSetList.add(new DataSet(inputScalerArray , idealOutputScalerArray));
 		}
 		return dataSetList;
+	}
+	
+	
+	
+	/**
+	 * 根据所给最高价与最低价差值百分比、矩形长度获取矩形面积
+	 * @param data
+	 * @return
+	 */
+	private static String doGetRectangleArea(BigDecimal[] maxAndMinArray) {
+		BigDecimal rectangleWidth = maxAndMinArray[0].subtract(maxAndMinArray[1]).divide(maxAndMinArray[1] , 2 , BigDecimal.ROUND_HALF_UP);//矩形宽度=(最大值-最小值)/最小值
+		return rectangleWidth.multiply(new BigDecimal(NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize)).setScale(2 , BigDecimal.ROUND_HALF_UP).toString();
+	}
+	
+	
+	
+	/**
+	 * 获取最高价、最低价
+	 * @param stockId
+	 * @param stepLong
+	 * @param endDate
+	 * @param batchSize
+	 * @param rectangleLong
+	 * @return
+	 */
+	private List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate){
+		List<String> resultList = new ArrayList<>();
+		/*
+		 * 测试日期后移n个价格数据量
+		 */
+		String endDateCopy = changeDate(stockId , endDate , NeuralNetworkConstants.batchUnitLength , false);
+		/*
+		 * 数据量增加1步长
+		 */
+		stepLong += 1;
+		
+		/*
+		 * 获取每个矩形中包含的价格信息
+		 */
+		for(TabStockPriceInfo priceInfo : priceInfoMapper.getTrainAndTestDataDL4j(stockId , NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize , endDateCopy)) {
+			/*
+			 * 获取当前矩形价格的最高、最低
+			 */
+			dayCounter++;
+			BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
+			BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
+			if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
+			if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
+			if(dayCounter == NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize) {
+				/*
+				 * 获取结果
+				 */
+				resultList.add(maxBuffer + "," + minBuffer);
+				/*
+				 * 复位计数器、buffer
+				 */
+				dayCounter = 0;
+				maxBuffer = null;
+				minBuffer = null;
+			}
+			
+			/*
+			 * 将日期前移5个日期单位
+			 */
+			endDateCopy = changeDate(stockId , endDateCopy , NeuralNetworkConstants.batchUnitLength , true);
+		}
+		return resultList;
+	}
+	
+	
+	/**
+	 * 将日期向前或后推进limit个数据长度
+	 * @param stockId
+	 * @param currentDate
+	 * @param limit
+	 * @param forwardOrBackward true-日期向前移动，false-日期向后移动
+	 * @return
+	 */
+	private String changeDate(Integer stockId , String currentDate , int count , boolean forwardOrBackward) {
+		String resultDate = "";
+		if(forwardOrBackward) 
+			for(TabStockPriceInfo priceInfo : priceInfoMapper.changeDateForward(stockId , currentDate , count)) resultDate = priceInfo.getStockPriceDate();
+		else 
+			for(TabStockPriceInfo priceInfo : priceInfoMapper.changeDateBackward(stockId , currentDate , count)) resultDate = priceInfo.getStockPriceDate();
+		return resultDate;
 	}
 	
 }

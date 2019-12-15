@@ -17,6 +17,7 @@ import java.util.Properties;
 public abstract class NeuralNetworkConstants {
 	public static int nnFirstOutRight;//第一次神经网络加权
 	public static int nnSecondOutRight;//第二层神经网络加权
+	public static int nnThirdOutRight;//第三层神经网络加权
 	public static double nnDropout;//神经网络失活比例
 	
 	//Adam参数
@@ -31,12 +32,8 @@ public abstract class NeuralNetworkConstants {
 	public static int inputSize;//输入神经元数量
 	public static int idealOutputSize;//输出神经元数量
 	public static int singleBatchSize;//单批次数据量
+	public static int batchUnitLength;//单批次中包含的数据单元数量（单批次数据量的个数）
 	public static double errorLimit;//误差容忍范围
-	public static int inPlanTrainCount;//初步计算单次循环次数
-	public static double inPlanGoalScore;//初步计算得分标准
-	
-	public static int inPlanMainCounter;//单只股票初步排查总结果数
-	public static int inPlanGoalCounter;//单只股票初步排查成功结果数
 	
 	private static final String PROP_PATH = "/machineLearning-config.properties";
 	
@@ -48,6 +45,7 @@ public abstract class NeuralNetworkConstants {
 			
 			nnFirstOutRight = Integer.parseInt(prop.getProperty("nnFirstOutRight"));
 			nnSecondOutRight = Integer.parseInt(prop.getProperty("nnSecondOutRight"));
+			nnThirdOutRight = Integer.parseInt(prop.getProperty("nnThirdOutRight"));
 			nnDropout = Double.parseDouble(prop.getProperty("nnDropout"));
 			
 			nnAdamLearningRate = Double.parseDouble(prop.getProperty("nnAdamLearningRate"));
@@ -61,9 +59,8 @@ public abstract class NeuralNetworkConstants {
 			inputSize = Integer.parseInt(prop.getProperty("inputSize"));
 			idealOutputSize = Integer.parseInt(prop.getProperty("idealOutputSize"));
 			singleBatchSize = Integer.parseInt(prop.getProperty("singleBatchSize"));
+			batchUnitLength = Integer.parseInt(prop.getProperty("batchUnitLength"));
 			errorLimit = Double.parseDouble(prop.getProperty("errorLimit"));
-			inPlanTrainCount = Integer.parseInt(prop.getProperty("inPlanTrainCount"));
-			inPlanGoalScore = Double.parseDouble(prop.getProperty("inPlanGoalScoreInt"));
 			
 		}catch(IOException e) {
 			e.printStackTrace();

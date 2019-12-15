@@ -12,7 +12,8 @@ import com.hanslv.allgemein.dto.TabStockPriceInfo;
  * 
  * -----------------------------------------------------------
  * 1、获取DeepLearning4j股票模型的训练数据、评估数据					public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")Integer stockId, @Param("trainDataSize")Integer dataSize , @Param("trainEndDate")String trainEndDate)
- * 2、根据股票ID、开始时间获取指定天数的股票数据						public List<TabStockPriceInfo> getPriceInfoByIdAndAfterDateAndCount(@Param("stockId")Integer stockId , @Param("startDate")String startDate , @Param("count")Integer count)
+ * 2、将日期向前移动count个数据量										public List<TabStockPriceInfo> changeDateForward(@Param("stockId") Integer stockId , @Param("currentDate")String currentDate , @Param("count")Integer count);
+ * 3、将日期向后移动count个数据量										public List<TabStockPriceInfo> changeDateBackward(@Param("stockId") Integer stockId , @Param("currentDate")String currentDate , @Param("count")Integer count);
  * -----------------------------------------------------------
  * @author hanslv
  *
@@ -29,11 +30,20 @@ public interface TabStockPriceInfoRepository {
 	public List<TabStockPriceInfo> getTrainAndTestDataDL4j(@Param("stockId")Integer stockId, @Param("trainDataSize")Integer dataSize , @Param("trainEndDate")String trainEndDate);
 	
 	/**
-	  * 2、根据股票ID、开始时间获取指定天数的股票数据
-	  * @param stockId
-	  * @param startDate
-	  * @param count
-	  * @return
-	  */
-	public List<TabStockPriceInfo> getPriceInfoByIdAndAfterDateAndCount(@Param("stockId")Integer stockId , @Param("startDate")String startDate , @Param("count")Integer count);
+	 * 2、将日期向前移动count个数据量
+	 * @param stockId
+	 * @param currentDate
+	 * @param count
+	 * @return
+	 */
+	public List<TabStockPriceInfo> changeDateForward(@Param("stockId") Integer stockId , @Param("currentDate")String currentDate , @Param("count")Integer count);
+	
+	/**
+	 * 3、将日期向后移动count个数据量
+	 * @param stockId
+	 * @param currentDate
+	 * @param count
+	 * @return
+	 */
+	public List<TabStockPriceInfo> changeDateBackward(@Param("stockId") Integer stockId , @Param("currentDate")String currentDate , @Param("count")Integer count);
 }

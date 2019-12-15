@@ -1,5 +1,6 @@
 package com.hanslv.maschinelles.lernen.neural.network;
 
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.FeedForwardLayer;
 import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
@@ -35,6 +36,11 @@ public class DeepLearning4jStockNNBuilder {
 				.nOut(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnSecondOutRight)
 				.activation(Activation.SOFTSIGN)
 				.build();
+		FeedForwardLayer hideLayerC = new DenseLayer.Builder()
+				.nIn(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnSecondOutRight)
+				.nOut(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnThirdOutRight)
+				.activation(Activation.SOFTSIGN)
+				.build();
 		/*
 		 * 输出层
 		 */
@@ -50,6 +56,7 @@ public class DeepLearning4jStockNNBuilder {
 				new Adam(NeuralNetworkConstants.nnAdamLearningRate , NeuralNetworkConstants.nnAdamBeta1 , NeuralNetworkConstants.nnAdamBeta2 , NeuralNetworkConstants.nnAdamEpsilon) , 
 				hideLayerA , 
 				hideLayerB , 
+				hideLayerC ,
 				outputLayer);
 	}
 }

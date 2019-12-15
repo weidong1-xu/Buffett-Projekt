@@ -13,7 +13,6 @@ import com.hanslv.maschinelles.lernen.neural.network.services.NeuralNetworkServi
  * 
  * -----------------------------------------
  * 1、dl4j训练全部股票						public void dl4jTrain(@PathVariable("stockId")Integer stockId)
- * 2、获取全部结果准确率						public void getSuccess()
  * -----------------------------------------
  * @author hanslv
  *
@@ -30,13 +29,5 @@ public class RestfulController {
 	@GetMapping("/train-from-dl4j/{stockId}")
 	public void dl4jTrain(@PathVariable("stockId")Integer stockId) {
 		nnService.dl4jTrainStockNN(stockId);
-	}
-	
-	/**
-	 * 2、获取全部结果准确率
-	 */
-	@GetMapping("/get-success")
-	public void getSuccess() {
-		nnService.successRateCalculate();
 	}
 }
