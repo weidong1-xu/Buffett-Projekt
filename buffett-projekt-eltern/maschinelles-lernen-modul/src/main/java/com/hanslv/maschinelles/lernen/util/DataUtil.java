@@ -131,9 +131,6 @@ public class DataUtil {
 		/*
 		 * 匹配5日内的信息和后5日的最高价、最低价
 		 */
-		/*
-		 * 2019-12-11修改Bug，传入的训练数据源不准确
-		 */
 		Collections.reverse(priceInfoList);
 		Collections.reverse(highAndLowList);
 		

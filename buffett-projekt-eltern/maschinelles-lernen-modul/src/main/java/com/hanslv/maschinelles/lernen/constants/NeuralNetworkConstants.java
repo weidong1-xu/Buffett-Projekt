@@ -3,7 +3,6 @@ package com.hanslv.maschinelles.lernen.constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.util.Properties;
 
 /**
@@ -34,8 +33,7 @@ public abstract class NeuralNetworkConstants {
 	public static int singleBatchSize;//单批次数据量
 	public static double errorLimit;//误差容忍范围
 	public static int inPlanTrainCount;//初步计算单次循环次数
-	private static int inPlanGoalScoreInt;
-	public static BigDecimal inPlanGoalScore = new BigDecimal(inPlanGoalScoreInt);//初步排查教研分数
+	public static double inPlanGoalScore;//初步计算得分标准
 	
 	public static int inPlanMainCounter;//单只股票初步排查总结果数
 	public static int inPlanGoalCounter;//单只股票初步排查成功结果数
@@ -65,7 +63,7 @@ public abstract class NeuralNetworkConstants {
 			singleBatchSize = Integer.parseInt(prop.getProperty("singleBatchSize"));
 			errorLimit = Double.parseDouble(prop.getProperty("errorLimit"));
 			inPlanTrainCount = Integer.parseInt(prop.getProperty("inPlanTrainCount"));
-			inPlanGoalScoreInt = Integer.parseInt(prop.getProperty("inPlanGoalScoreInt"));
+			inPlanGoalScore = Double.parseDouble(prop.getProperty("inPlanGoalScoreInt"));
 			
 		}catch(IOException e) {
 			e.printStackTrace();

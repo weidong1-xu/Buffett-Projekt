@@ -1,13 +1,10 @@
 package com.hanslv.maschinelles.lernen.neural.network;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.jboss.logging.Logger;
@@ -45,9 +42,6 @@ public class DeepLearning4jStockNNTrainer {
 		/*
 		 * 获取计算需要的数据
 		 */
-		/*
-		 * 2019-12-11日修改Bug，训练传入的数据源不准确
-		 */
 		List<String> mainDataList = DataUtil.dl4jDataFormatterNew(priceInfoList , isInPlanTest);
 		
 		/*
@@ -77,36 +71,18 @@ public class DeepLearning4jStockNNTrainer {
 			lstmNetwork.rnnClearPreviousState();
 		}
 		
+		double[] middleHighAndLow = getMiddleData(lstmNetwork , iteratorList.get(1));
 		/*
-		 * 验证数据是否符合评判标准
+		 * 将预测结果数据与当前价格比较
 		 */
-		Map<Boolean , INDArray> forcastResultMap = checkData(lstmNetwork , iteratorList.get(1) , isInPlanTest);
-		Entry<Boolean , INDArray> result = forcastResultMap.entrySet().iterator().next();
-		
+		Double currentPrice = new Double(trainDataList.get(trainDataList.size() - 1).split(",")[2]);
+		if(new Double(middleHighAndLow[0]).compareTo(currentPrice) <= 0 || new Double(middleHighAndLow[1]).compareTo(currentPrice) >= 0) return resultMap;
 		/*
-		 * 获取符合要求的股票
+		 * 是否为初步筛选
 		 */
-		if(result.getKey()) {
-			/*
-			 * 将预测结果数据与当前价格比较
-			 */
-			Double currentPrice = new Double(trainDataList.get(trainDataList.size() - 1).split(",")[2]);
-			double[] forcastResult = getMaxAndLow(result.getValue());
-
-			/*
-			 * 判断当前价格是否不符合预测
-			 * 预测最高价小于等于当前价格，预测最低价大于等于当前价格
-			 */
-			if(new Double(forcastResult[0]).compareTo(currentPrice) <= 0 || new Double(forcastResult[1]).compareTo(currentPrice) >= 0) return resultMap;
-			
-			/*
-			 * 是否为初步筛选
-			 */
-			if(isInPlanTest) getInPlanStocks(forcastResult , testDataList);
-			resultMap.clear();
-			resultMap.put(true , forcastResult);
-			return resultMap;
-		}
+		if(isInPlanTest) getInPlanStocks(middleHighAndLow , testDataList);
+		resultMap.clear();
+		resultMap.put(true , middleHighAndLow);
 		return resultMap;
 	}
 	
@@ -183,7 +159,7 @@ public class DeepLearning4jStockNNTrainer {
 		}
 		idealMaxAndLow[0] = idealMaxBuffer;
 		idealMaxAndLow[1] = idealMinBuffer;
-		  
+		
 		if(forcastOutput[0] * (1-NeuralNetworkConstants.errorLimit) <= forcastOutput[1]) return Result.EXCLUDE;
 		if(forcastOutput[1] * (1+NeuralNetworkConstants.errorLimit) >= forcastOutput[0]) return Result.EXCLUDE;
 		return (idealMaxAndLow[0] >= forcastOutput[0] * (1 - NeuralNetworkConstants.errorLimit) && idealMaxAndLow[1] <= forcastOutput[1] * (1 + NeuralNetworkConstants.errorLimit)) ? Result.TRUE : Result.FALSE;
@@ -204,20 +180,13 @@ public class DeepLearning4jStockNNTrainer {
 		if(Result.TRUE == checkResult) NeuralNetworkConstants.inPlanGoalCounter++;//预测结果准确
 		else if(Result.EXCLUDE == checkResult) NeuralNetworkConstants.inPlanMainCounter--;//预测结果应排除
 	}
-	
 	/**
-	 * 验证数据是否符合评判标准，
-	 * 当获取到的多次最高价和最低价比较相近时则为符合标准
+	 * 获取执行结果的中位数
 	 * @param lstmNetwork
 	 * @param forecastData
-	 * @return 返回是否符合标准，预测输出数据
+	 * @return
 	 */
-	private Map<Boolean , INDArray> checkData(MultiLayerNetwork lstmNetwork , DataSetIterator forecastData , boolean isInPlanTest) {
-		/*
-		 * 结果Map
-		 */
-		Map<Boolean , INDArray> resultMap = new HashMap<>();
-		
+	private double[] getMiddleData(MultiLayerNetwork lstmNetwork , DataSetIterator forecastData) {
 		/*
 		 * 获取当前标准化器
 		 */
@@ -227,6 +196,8 @@ public class DeepLearning4jStockNNTrainer {
 		 * 执行预测
 		 */
 		DataSet input = forecastData.next();
+//		forecastData.reset();
+//		INDArray output = lstmNetwork.output(forecastData);
 		INDArray output = lstmNetwork.rnnTimeStep(input.getFeatures());
 		DataSet resultDataSet = new DataSet(input.getFeatures() , output);
 		
@@ -235,48 +206,32 @@ public class DeepLearning4jStockNNTrainer {
 		 */
 		normalizerStandardize.revert(resultDataSet);
 		INDArray resultOutput = resultDataSet.getLabels();
-//		resultMap.clear();
-		resultMap.put(doCheckData(resultOutput) , resultOutput);
-		return resultMap;
-	}
-	/**
-	 * 判断当前反标准化结果集是否符合标准
-	 * @param unNormalizerOutput
-	 * @return
-	 */
-	private boolean doCheckData(INDArray resultOutput) {
-		Set<BigDecimal> setA = new HashSet<>();
-		Set<BigDecimal> setB = new HashSet<>();
-		for(int i = 0 ; i < NeuralNetworkConstants.singleBatchSize ; i ++) {
-			for(int j = 0 ; j < NeuralNetworkConstants.idealOutputSize ; j++) {
-				if(j == 0) setA.add(new BigDecimal(resultOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
-				else setB.add(new BigDecimal(resultOutput.getDouble(i , j)).setScale(1 , BigDecimal.ROUND_HALF_UP));
-			}
-		}
-		return (setA.size() > 1 || setB.size() > 1) ? false : true;
+		
+		return doGetMiddleData(resultOutput);
 	}
 	
 	/**
-	 * 获取当前INDArray的最大值最小值
-	 * @param output
+	 * 获取中位数的方法
+	 * @param resultOutput
 	 * @return
 	 */
-	private double[] getMaxAndLow(INDArray output) {
-		double[] maxAndLow = new double[2];
-		double testMaxBuffer = 0;
-		for(int i = 0 ; i < NeuralNetworkConstants.singleBatchSize ; i++) {
-			if(testMaxBuffer != 0) {
-				if(output.getDouble(i , 0) > testMaxBuffer) testMaxBuffer = output.getDouble(i , 0);
-			}else testMaxBuffer = output.getDouble(i , 0);
+	private double[] doGetMiddleData(INDArray resultOutput) {
+		List<Double> highList = new ArrayList<>();
+		List<Double> lowList = new ArrayList<>();
+		for(int i = 0 ; i < NeuralNetworkConstants.singleBatchSize ; i ++) {
+			for(int j = 0 ; j < NeuralNetworkConstants.idealOutputSize ; j++) {
+				if(j == 0) highList.add(resultOutput.getDouble(i , j));
+				else lowList.add(resultOutput.getDouble(i , j));
+			}
 		}
-		double testMinBuffer = 0;
-		for(int i = 0 ; i < NeuralNetworkConstants.singleBatchSize ; i++) {
-			if(testMinBuffer != 0) {
-				if(output.getDouble(i , 1) < testMinBuffer) testMinBuffer = output.getDouble(i , 1);
-			}else testMinBuffer = output.getDouble(i , 1);
-		}
-		maxAndLow[0] = testMaxBuffer;
-		maxAndLow[1] = testMinBuffer;
-		return maxAndLow;
+		
+//		for(int i = 0 ; i < NeuralNetworkConstants.singleBatchSize ; i ++) {
+//			highList.add(resultOutput.getDouble(i));
+//			lowList.add(resultOutput.getDouble(i + NeuralNetworkConstants.singleBatchSize));
+//		}
+		Collections.sort(highList);
+		Collections.sort(lowList);
+		
+		return new double[]{highList.get(NeuralNetworkConstants.singleBatchSize / 2) , lowList.get(NeuralNetworkConstants.singleBatchSize / 2)};
 	}
 }

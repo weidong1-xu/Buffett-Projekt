@@ -41,7 +41,12 @@ public class NeuralNetworkService {
 	@Autowired
 	private TabResultRepository resultMapper;
 	@Autowired
-	 private TabStockPriceInfoRepository priceInfoMapper;
+	private TabStockPriceInfoRepository priceInfoMapper;
+	
+	/*
+	 * 训练数据总数量=(训练数据数量+测试数据数量)*单批次数据量+测试数据数量*单批次数据量*初步计算循环次数
+	 */
+	int mainListSize = (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize * NeuralNetworkConstants.inPlanTrainCount;
 	
 	/**
 	 * 1、dl4j从指定ID开始训练全部股票日期-价格模型
@@ -57,34 +62,35 @@ public class NeuralNetworkService {
 		 * 当前日期
 		 */
 //		LocalDate currentDate = LocalDate.now();
-		LocalDate currentDate = LocalDate.parse("2019-10-25");
+		LocalDate currentDate = LocalDate.parse("2019-11-08");
 		
 		/*
 		 * 对全部股票进行初步筛选预测，对初步预测通过的股票再进行最终筛选并存储筛选结果表tab_result
 		 */
 		for(TabStockInfo stockInfo : stockInfoList) {
+			/*
+			 * 跳到请求指定的开始股票ID
+			 */
 			if(stockInfo.getStockId().compareTo(stockId) < 0) continue;
-			try {
-				TimeUnit.SECONDS.sleep(2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			
 			logger.info("正在计算股票：" + stockInfo.getStockCode());
 			
 			/*
-			 * 训练数据总数量=(训练数据数量+测试数据数量)*单批次数据量+测试数据数量*单批次数据量*初步计算循环次数
+			 * 获取全部训练数据，判断数据量是否正确
 			 */
-			int mainListSize = (NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.testDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize * NeuralNetworkConstants.inPlanTrainCount;
+			List<TabStockPriceInfo> priceInfoMainList = priceInfoMapper.getTrainAndTestDataDL4j(stockInfo.getStockId() , mainListSize , currentDate.toString());
+			if(priceInfoMainList.size() != mainListSize) continue;
 			
 			/*
-			 * 获取全部训练数据
+			 * 判断当前结果是否已存在
 			 */
-			List<TabStockPriceInfo> priceInfoMainList = priceInfoMapper.getTrainAndTestDataDL4j(
-					stockInfo.getStockId() ,
-					mainListSize, 
-					currentDate.toString());
+			if(resultMapper.selectByIdAndDate(stockInfo.getStockId() , currentDate.toString()) > 0) {
+				NeuralNetworkConstants.inPlanMainCounter = 0;
+				NeuralNetworkConstants.inPlanGoalCounter = 0;
+				continue;
+			}
 			
-			if(priceInfoMainList.size() != mainListSize) continue;
+			
 			
 			/*
 			 * 初步筛选
@@ -104,28 +110,18 @@ public class NeuralNetworkService {
 				
 				dl4jStockNNTrainer.train(priceInfoList , true);
 			}
-			/*
-			 * 判断当前结果是否已存在
-			 */
-			if(resultMapper.selectByIdAndDate(stockInfo.getStockId() , currentDate.toString()) > 0) {
-				/*
-				 * 2019-12-11修改Bug，避免跳过当前循环时不清空计数器
-				 */
-				NeuralNetworkConstants.inPlanGoalCounter = 0;
-				continue;
-			}
 			
 			BigDecimal inPlanScore = (NeuralNetworkConstants.inPlanGoalCounter == 0 ? new BigDecimal(0) : new BigDecimal(NeuralNetworkConstants.inPlanGoalCounter).divide(new BigDecimal(NeuralNetworkConstants.inPlanMainCounter) , 2 , BigDecimal.ROUND_HALF_UP));
-			
+
 			/*
 			 * 初步筛选通过
 			 */
-			if(inPlanScore.compareTo(NeuralNetworkConstants.inPlanGoalScore) == 1) {
+			if(inPlanScore.compareTo(new BigDecimal(NeuralNetworkConstants.inPlanGoalScore)) >= 0) {
 				/*
 				 * 执行预测
 				 */
 				List<TabStockPriceInfo> priceInfoList = new ArrayList<>();
-				int endIndex = (NeuralNetworkConstants.testDataSize + NeuralNetworkConstants.trainDataSize) * NeuralNetworkConstants.singleBatchSize + NeuralNetworkConstants.testDataSize * NeuralNetworkConstants.singleBatchSize;
+				int endIndex = (NeuralNetworkConstants.testDataSize + NeuralNetworkConstants.trainDataSize) * NeuralNetworkConstants.singleBatchSize;
 				for(int j = 0 ; j < endIndex ; j++) priceInfoList.add(priceInfoMainList.get(j));
 				
 				Map<Boolean , double[]> resultMap = dl4jStockNNTrainer.train(priceInfoList , false);
@@ -146,6 +142,12 @@ public class NeuralNetworkService {
 			 * 复位计分器
 			 */
 			NeuralNetworkConstants.inPlanGoalCounter = 0;
+			NeuralNetworkConstants.inPlanMainCounter = 0;
+			
+			/*
+			 * 每次运算完毕后休眠
+			 */
+			try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {}
 		}
 		logger.info("---------------------------------------计算完成---------------------------------------");
 	}

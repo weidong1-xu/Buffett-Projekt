@@ -28,12 +28,12 @@ public class DeepLearning4jStockNNBuilder {
 		FeedForwardLayer hideLayerA = new LSTM.Builder()
 				.nIn(NeuralNetworkConstants.inputSize)
 				.nOut(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnFirstOutRight)
-				.activation(Activation.TANH)
+				.activation(Activation.SOFTSIGN)
 				.build();
 		FeedForwardLayer hideLayerB = new LSTM.Builder()
 				.nIn(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnFirstOutRight)
 				.nOut(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnSecondOutRight)
-				.activation(Activation.TANH)
+				.activation(Activation.SOFTSIGN)
 				.build();
 		/*
 		 * 输出层
@@ -41,7 +41,7 @@ public class DeepLearning4jStockNNBuilder {
 		FeedForwardLayer outputLayer = new RnnOutputLayer.Builder(LossFunctions.LossFunction.MSE)
 				.nIn(NeuralNetworkConstants.idealOutputSize * NeuralNetworkConstants.nnSecondOutRight)
 				.nOut(NeuralNetworkConstants.idealOutputSize)
-				.activation(Activation.TANH)
+				.activation(Activation.SOFTSIGN)
 				.dropOut(NeuralNetworkConstants.nnDropout)
 				.build();
 		return DeepLearning4jNNFactory.buildRNN(
