@@ -31,7 +31,7 @@ public interface TabResultRepository {
 	 * 1、插入一条结果
 	 * @param result
 	 */
-	@Insert("INSERT INTO tab_result (stock_id , date , suggest_rate) VALUES (#{result.stockId} , #{result.date} , #{result.suggestRate})")
+	@Insert("INSERT INTO tab_result (stock_id , date , suggest_buy_price) VALUES (#{result.stockId} , #{result.date} , #{result.suggestBuyPrice})")
 	public void insert(@Param("result")TabResult result);
 	
 	/**

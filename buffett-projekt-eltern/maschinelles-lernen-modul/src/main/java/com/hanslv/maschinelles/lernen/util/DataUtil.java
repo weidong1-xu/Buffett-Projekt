@@ -22,14 +22,15 @@ import com.hanslv.maschinelles.lernen.repository.TabStockPriceInfoRepository;
  * 数据处理类
  * -----------------------------------------------
  * 1、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
- * 2、2、根据股票ID获取预测股票矩形面积List					public List<String> dl4jDataFormatter(Integer stockId , int stepLong , String endDate)
+ * 2、根据股票ID获取预测股票矩形面积List						public List<String> getRectangleArea(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize)
+ * 3、获取当前股票当前时间点的均线斜率						public BigDecimal getAverageSlope(Integer stockId , String date , Integer averageType)
+ * 4、获取最高价、最低价										public List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize)
  * -----------------------------------------------
  * @author hanslv
  *
  */
 @Component
 public class DataUtil {
-	static int dayCounter;//天数计数器
 	static BigDecimal maxBuffer;//最大值缓存
 	static BigDecimal minBuffer;//最小值缓存
 	
@@ -82,14 +83,14 @@ public class DataUtil {
 	 * @param rectangleLong = 每个步长所包含的数据量
 	 * @return
 	 */
-	public List<String> dl4jDataFormatter(Integer stockId , int stepLong , String endDate){
+	public List<String> getRectangleArea(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize){
 		List<String> resultList = new ArrayList<>();
 		List<String> resultListBuffer = new ArrayList<>();
 		
 		/**
-		 * 获取5天内的最大值、最小值
+		 * 获取矩形面积
 		 */
-		for(String maxAndLowStr : getRectangleMaxAndLow(stockId , stepLong , endDate)) {
+		for(String maxAndLowStr : getRectangleMaxAndLow(stockId , stepLong , endDate , batchUnitLength , singleBatchSize)) {
 			String[] maxAndLowArray = maxAndLowStr.split(",");
 			BigDecimal[] maxAndMinArray = {new BigDecimal(maxAndLowArray[0]) , new BigDecimal(maxAndLowArray[1])};
 			resultListBuffer.add(doGetRectangleArea(maxAndMinArray));
@@ -99,7 +100,7 @@ public class DataUtil {
 		 * 将后一天结果拼接到前一天
 		 */
 		for(int i = 0 ; i < resultListBuffer.size() ; i++) {
-			if(i == 0) resultList.add(resultListBuffer.get(i) + "," + resultListBuffer.get(i));//包含当前日信息，并以任意值补位
+			if(i == 0) resultList.add(resultListBuffer.get(i) + "," + resultListBuffer.get(i));//用当前矩形面积补全预测结果位置
 			if((i + 1) < resultListBuffer.size())
 				resultList.add(resultListBuffer.get(i + 1) + "," + resultListBuffer.get(i));
 		}
@@ -108,9 +109,80 @@ public class DataUtil {
 		return resultList;
 	}
 	
+	/**
+	 * 3、获取当前股票当前时间点的均线斜率
+	 * @param stockId
+	 * @param date
+	 * @param averageType
+	 * @return
+	 */
+	public BigDecimal getAverageSlope(Integer stockId , String date , Integer averageType) {
+		/*
+		 * 获取均线计算所需数据=均线天数+1
+		 */
+		List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , averageType + 1 , date);
+		/*
+		 * 当前时间点均线价格
+		 */
+		BigDecimal currentAverage = BigDecimal.ZERO;
+		for(int i = 0 ; i < priceInfoList.size() - 1 ; i++) currentAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
+		currentAverage = currentAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
+		
+		/*
+		 * 上一交易日均线价格
+		 */
+		BigDecimal lastAverage = BigDecimal.ZERO;
+		for(int i = 1 ; i < priceInfoList.size() ; i++) lastAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
+		lastAverage = lastAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
+		
+		return currentAverage.subtract(lastAverage);
+	}
 	
 	
-	
+	/**
+	 * 4、获取最高价、最低价
+	 * @param stockId
+	 * @param stepLong
+	 * @param endDate
+	 * @param batchSize
+	 * @param rectangleLong
+	 * @return
+	 */
+	public List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize){
+		List<String> resultList = new ArrayList<>();
+		String endDateCopy = endDate;
+		/*
+		 * 获取每个矩形中包含的价格信息
+		 */
+		for(int i = 0 ; i < stepLong ; i++) {
+			List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , batchUnitLength * singleBatchSize , endDateCopy);
+			for(TabStockPriceInfo priceInfo : priceInfoList) {
+				/*
+				 * 获取当前矩形价格的最高、最低
+				 */
+				BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
+				BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
+				if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
+				if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
+			}
+			if(priceInfoList.size() != 0) {
+				/*
+				 * 获取结果
+				 */
+				resultList.add(maxBuffer + "," + minBuffer);
+				/*
+				 * 复位buffer
+				 */
+				maxBuffer = null;
+				minBuffer = null;
+			}
+			/*
+			 * 将日期前移n个日期单位
+			 */
+			endDateCopy = changeDate(stockId , endDateCopy , singleBatchSize , true);
+		}
+		return resultList;
+	}
 	
 	
 	
@@ -214,54 +286,6 @@ public class DataUtil {
 		return rectangleWidth.multiply(new BigDecimal(NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize)).setScale(2 , BigDecimal.ROUND_HALF_UP).toString();
 	}
 	
-	
-	
-	/**
-	 * 获取最高价、最低价
-	 * @param stockId
-	 * @param stepLong
-	 * @param endDate
-	 * @param batchSize
-	 * @param rectangleLong
-	 * @return
-	 */
-	private List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate){
-		List<String> resultList = new ArrayList<>();
-		String endDateCopy = endDate;
-		/*
-		 * 获取每个矩形中包含的价格信息
-		 */
-		for(int i = 0 ; i < stepLong ; i++) {
-			List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize , endDateCopy);
-			for(TabStockPriceInfo priceInfo : priceInfoList) {
-				/*
-				 * 获取当前矩形价格的最高、最低
-				 */
-				dayCounter++;
-				BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
-				BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
-				if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
-				if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
-				if(dayCounter ==  NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize) {
-					/*
-					 * 获取结果
-					 */
-					resultList.add(maxBuffer + "," + minBuffer);
-					/*
-					 * 复位计数器、buffer
-					 */
-					dayCounter = 0;
-					maxBuffer = null;
-					minBuffer = null;
-				}
-			}
-			/*
-			 * 将日期前移5个日期单位
-			 */
-			endDateCopy = changeDate(stockId , endDateCopy , NeuralNetworkConstants.batchUnitLength , true);
-		}
-		return resultList;
-	}
 	
 	
 	/**

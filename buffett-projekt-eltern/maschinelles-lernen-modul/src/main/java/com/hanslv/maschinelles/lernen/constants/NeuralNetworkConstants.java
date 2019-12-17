@@ -33,7 +33,9 @@ public abstract class NeuralNetworkConstants {
 	public static int idealOutputSize;//输出神经元数量
 	public static int singleBatchSize;//单批次数据量
 	public static int batchUnitLength;//单批次中包含的数据单元数量（单批次数据量的个数）
-	public static double errorLimit;//误差容忍范围
+	public static int averageType;//均线类型
+	public static double errorLimit;//矩形误差容忍范围
+	public static double buyErrorLimit;//买入亏损容忍百分比
 	
 	private static final String PROP_PATH = "/machineLearning-config.properties";
 	
@@ -60,7 +62,9 @@ public abstract class NeuralNetworkConstants {
 			idealOutputSize = Integer.parseInt(prop.getProperty("idealOutputSize"));
 			singleBatchSize = Integer.parseInt(prop.getProperty("singleBatchSize"));
 			batchUnitLength = Integer.parseInt(prop.getProperty("batchUnitLength"));
+			averageType = Integer.parseInt(prop.getProperty("averageType"));
 			errorLimit = Double.parseDouble(prop.getProperty("errorLimit"));
+			buyErrorLimit = Double.parseDouble("buyErrorLimit");
 			
 		}catch(IOException e) {
 			e.printStackTrace();
