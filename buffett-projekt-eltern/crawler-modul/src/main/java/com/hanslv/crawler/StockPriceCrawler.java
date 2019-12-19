@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.logging.Logger;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -202,14 +203,15 @@ public class StockPriceCrawler{
 		else targetUrl += stockCode + CrawlerConstants.stockPriceTargetShangzhengUrlSuffix;//上证股票
 		
 		/*
+		 * 2019-12-19修改Bug，当股票不存在时跳过
+		 */
+		Document document = CrawlerUtil.getInstance().getHttpResponse(targetUrl, CrawlerConstants.stockEncoding);
+		if(document == null) return null;
+		
+		/*
 		 * 获取返回结果的字符串
 		 */
-		StringBuffer contextStringBuffer = new StringBuffer(
-				CrawlerUtil
-				.getInstance()
-				.getHttpResponse(targetUrl, CrawlerConstants.stockEncoding)
-				.select("body")
-				.text());
+		StringBuffer contextStringBuffer = new StringBuffer(document.select("body").text());
 		
 		/*
 		 * 排除股票退市或其他情况
