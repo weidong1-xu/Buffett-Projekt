@@ -64,7 +64,7 @@ public abstract class NeuralNetworkConstants {
 			batchUnitLength = Integer.parseInt(prop.getProperty("batchUnitLength"));
 			averageType = Integer.parseInt(prop.getProperty("averageType"));
 			errorLimit = Double.parseDouble(prop.getProperty("errorLimit"));
-			buyErrorLimit = Double.parseDouble("buyErrorLimit");
+			buyErrorLimit = Double.parseDouble(prop.getProperty("buyErrorLimit"));
 			
 		}catch(IOException e) {
 			e.printStackTrace();

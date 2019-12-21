@@ -118,21 +118,21 @@ public class DataUtil {
 	 */
 	public BigDecimal getAverageSlope(Integer stockId , String date , Integer averageType) {
 		/*
-		 * 获取均线计算所需数据=均线天数+1
+		 * 获取均线计算所需数据=均线天数+5
 		 */
-		List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , averageType + 1 , date);
+		List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , averageType + 5 , date);
 		/*
 		 * 当前时间点均线价格
 		 */
 		BigDecimal currentAverage = BigDecimal.ZERO;
-		for(int i = 0 ; i < priceInfoList.size() - 1 ; i++) currentAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
+		for(int i = 0 ; i < priceInfoList.size() - 5 ; i++) currentAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
 		currentAverage = currentAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
 		
 		/*
 		 * 上一交易日均线价格
 		 */
 		BigDecimal lastAverage = BigDecimal.ZERO;
-		for(int i = 1 ; i < priceInfoList.size() ; i++) lastAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
+		for(int i = 5 ; i < priceInfoList.size() ; i++) lastAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
 		lastAverage = lastAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
 		
 		return currentAverage.subtract(lastAverage);
