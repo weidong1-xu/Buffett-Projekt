@@ -37,6 +37,8 @@ public abstract class NeuralNetworkConstants {
 	public static double errorLimit;//矩形误差容忍范围
 	public static double buyErrorLimit;//买入亏损容忍百分比
 	
+	public static String trainDate;//训练日期
+	
 	private static final String PROP_PATH = "/machineLearning-config.properties";
 	
 	static {
@@ -65,6 +67,8 @@ public abstract class NeuralNetworkConstants {
 			averageType = Integer.parseInt(prop.getProperty("averageType"));
 			errorLimit = Double.parseDouble(prop.getProperty("errorLimit"));
 			buyErrorLimit = Double.parseDouble(prop.getProperty("buyErrorLimit"));
+			
+			trainDate = prop.getProperty("trainDate");
 			
 		}catch(IOException e) {
 			e.printStackTrace();

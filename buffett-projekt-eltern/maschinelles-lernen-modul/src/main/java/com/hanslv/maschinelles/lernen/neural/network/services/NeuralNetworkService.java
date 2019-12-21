@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hanslv.allgemein.dto.TabStockInfo;
+import com.hanslv.maschinelles.lernen.constants.NeuralNetworkConstants;
 import com.hanslv.maschinelles.lernen.neural.network.DeepLearning4jStockNNTrainer;
 import com.hanslv.maschinelles.lernen.repository.TabResultRepository;
 import com.hanslv.maschinelles.lernen.repository.TabStockInfoRepository;
@@ -47,7 +48,7 @@ public class NeuralNetworkService {
 		/*
 		 * 当前日期
 		 */
-		LocalDate currentDate = LocalDate.parse("2019-12-20");
+		LocalDate currentDate = LocalDate.parse(NeuralNetworkConstants.trainDate);
 		
 		/*
 		 * 对全部股票进行初步筛选预测，对初步预测通过的股票再进行最终筛选并存储筛选结果表tab_result
