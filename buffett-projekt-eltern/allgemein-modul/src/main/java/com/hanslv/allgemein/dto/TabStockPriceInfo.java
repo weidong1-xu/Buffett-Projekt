@@ -19,7 +19,7 @@ import lombok.Data;
  * 成交量							stock_price_volume								INT(10)
  * 成交额							stock_price_turnover							INT(10)
  * 振幅								stock_price_amplitude							VARCHAR(40)
- * 换手率							stock_price_turnover_rate						DECIMAL(4,1)
+ * 换手率							stock_price_turnover_rate						DECIMAL(18,1)
  * @author harrylu
  *
  */
