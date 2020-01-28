@@ -3,9 +3,13 @@
 <!--  
  * 筛选结果表						tab_result
  * 股票ID							stock_id										BIGINT								FOREIGN KEY(fk_result_stock)				PRIMARY KEY
- * 筛选时间							date											VARCHAR(10)																		PRIMARY KEY
- * 建议买入价格						suggest_buy_price								VARCHAR(255)
- * 是否成功							success											BOOLEAN								DEFAULT false -->
+ * 筛选时间							date											VARCHAR(10)	
+ * ACCURACY							accuracy										DECIMAL(5,4)
+ * PRECISION						precision										DECIMAL(5,4)
+ * RECALL							recall											DECIMAL(5,4)
+ * F1								f1												DECIMAL(5,4)
+ * 预测最高价						forcast_max										DECIMAL(18,2)
+ * 预测最低价						forcast_min										DECIMAL(18,2) -->
 <mapper namespace="com.hanslv.maschinelles.lernen.repository.TabResultRepository">
 
 </mapper>

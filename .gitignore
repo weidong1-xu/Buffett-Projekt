@@ -34,6 +34,7 @@
 *.err 
 *.eg
 *.log
+*.csv
 
 # OS generated files #  
 .DS_Store  

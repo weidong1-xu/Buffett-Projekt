@@ -1,5 +1,7 @@
 package com.hanslv.allgemein.dto;
 
+import java.math.BigDecimal;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -7,9 +9,13 @@ import lombok.Data;
 /**
  * 筛选结果表						tab_result
  * 股票ID							stock_id										BIGINT								FOREIGN KEY(fk_result_stock)				PRIMARY KEY
- * 筛选时间							date											VARCHAR(10)																		PRIMARY KEY
- * 建议买入价格						suggest_buy_price								VARCHAR(255)
- * 是否成功							success											BOOLEAN								DEFAULT false
+ * 筛选时间							date											VARCHAR(10)	
+ * ACCURACY							accuracy										DECIMAL(5,4)
+ * PRECISION						precisions										DECIMAL(5,4)
+ * RECALL							recall											DECIMAL(5,4)
+ * F1								f1												DECIMAL(5,4)
+ * 预测最高价						forcast_max										DECIMAL(18,2)
+ * 预测最低价						forcast_min										DECIMAL(18,2)
  * @author hanslv
  *
  */
@@ -20,8 +26,16 @@ public class TabResult {
 	private Integer stockId;
 	@ApiModelProperty(value="筛选时间" , name="date" , required=true , position=1)
 	private String date;
-	@ApiModelProperty(value="建议买入价格" , name="suggest_buy_price" , required=true , position=2)
-	private String suggestBuyPrice;
-	@ApiModelProperty(value="最终是否成功" , name="success" , required=true , position=3)
-	private boolean success;
+	@ApiModelProperty(value="accuracy" , name="accuracy" , required=true , position=2)
+	private BigDecimal accuracy;
+	@ApiModelProperty(value="precisions" , name="precisions" , required=true , position=3)
+	private BigDecimal precisions;
+	@ApiModelProperty(value="recall" , name="recall" , required=true , position=4)
+	private BigDecimal recall;
+	@ApiModelProperty(value="f1" , name="f1" , required=true , position=5)
+	private BigDecimal f1;
+	@ApiModelProperty(value="预测最高价" , name="forcastMax" , required=true , position=6)
+	private BigDecimal forcastMax;
+	@ApiModelProperty(value="预测最低价" , name="forcastMin" , required=true , position=7)
+	private BigDecimal forcastMin;
 }

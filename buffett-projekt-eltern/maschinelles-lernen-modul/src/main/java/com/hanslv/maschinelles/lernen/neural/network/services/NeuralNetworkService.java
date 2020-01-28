@@ -8,6 +8,7 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hanslv.allgemein.dto.TabResult;
 import com.hanslv.allgemein.dto.TabStockInfo;
 import com.hanslv.maschinelles.lernen.constants.NeuralNetworkConstants;
 import com.hanslv.maschinelles.lernen.neural.network.DeepLearning4jStockNNTrainer;
@@ -67,14 +68,15 @@ public class NeuralNetworkService {
 			if(resultMapper.selectByIdAndDate(stockInfo.getStockId() , currentDate.toString()) > 0) continue;
 			
 			/*
-			 * 执行预测
+			 * 执行预测，并将结果集插入数据库
 			 */
-			dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.toString());
+			TabResult result = dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.toString());
+			resultMapper.insert(result);
 						
 			/*
 			 * 每次运算完毕后休眠
 			 */
-			try {TimeUnit.SECONDS.sleep(2);} catch (InterruptedException e) {}
+			try {TimeUnit.SECONDS.sleep(NeuralNetworkConstants.sleepSecondCount);} catch (InterruptedException e) {}
 		}
 		logger.info("---------------------------------------计算完成---------------------------------------");
 	}

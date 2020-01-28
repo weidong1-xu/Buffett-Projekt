@@ -1,16 +1,22 @@
 package com.hanslv.maschinelles.lernen.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.deeplearning4j.datasets.iterator.impl.ListDataSetIterator;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.dataset.DataSet;
+import org.datavec.api.records.reader.SequenceRecordReader;
+import org.datavec.api.records.reader.impl.csv.CSVSequenceRecordReader;
+import org.datavec.api.split.NumberedFileInputSplit;
+import org.deeplearning4j.datasets.datavec.SequenceRecordReaderDataSetIterator;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
+import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
-import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,282 +27,76 @@ import com.hanslv.maschinelles.lernen.repository.TabStockPriceInfoRepository;
 /**
  * 数据处理类
  * -----------------------------------------------
- * 1、将获取到的数据标准化并转换为DataSetIterator				public static List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize)
- * 2、根据股票ID获取预测股票矩形面积List						public List<String> getRectangleArea(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize)
- * 3、获取当前股票当前时间点的均线斜率						public BigDecimal getAverageSlope(Integer stockId , String date , Integer averageType)
- * 4、获取最高价、最低价										public List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize)
+ * 1、获取训练源数据											public DataSetIterator[] getSourceData(Integer stockId , String date) throws IOException, InterruptedException
+ * 2、数据标准化												public DataNormalization normalize(DataSetIterator dataSetIterators[])
+ * 3、将日期向前或后推进limit个数据长度						public String changeDate(Integer stockId , String currentDate , int count , boolean forwardOrBackward)
  * -----------------------------------------------
  * @author hanslv
  *
  */
 @Component
 public class DataUtil {
-	static BigDecimal maxBuffer;//最大值缓存
-	static BigDecimal minBuffer;//最小值缓存
-	
 	@Autowired
 	private TabStockPriceInfoRepository priceInfoMapper;
 	
-	
 	/**
-	 * 1、将获取到的数据标准化并转换为DataSetIterator
-	 * @param rawDataList
-	 * @param idealOutputSize
+	 * 1、获取训练源数据
 	 * @return
+	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	public List<DataSetIterator> dl4jDataNormalizer(List<String> rawDataList , List<String> testDataList , int idealOutputSize){
-		List<DataSetIterator> iteratorList = new ArrayList<>();
-		
-		/*
-		 * 数据标准化器
-		 */
-		NormalizerMinMaxScaler normalizer = new NormalizerMinMaxScaler(-1 , 1);
-		
-		/*
-		 * 实例化数据集合迭代器
-		 */
-		DataSetIterator trainDataIterator = new ListDataSetIterator<>(dl4jDataParser(rawDataList, idealOutputSize) , rawDataList.size());
-		DataSetIterator testDataIterator = new ListDataSetIterator<>(dl4jDataParser(testDataList , idealOutputSize) , testDataList.size());
-		
-		/*
-		 * 初始化数据标准化器
-		 */
-		normalizer.fitLabel(true);//指定是否标准化idealOutput
-		normalizer.fit(trainDataIterator);
-		
-		/*
-		 * 给训练数据集合配置标准化器
-		 */
-		trainDataIterator.setPreProcessor(normalizer);
-		testDataIterator.setPreProcessor(normalizer);
-		
-		iteratorList.add(trainDataIterator);
-		iteratorList.add(testDataIterator);
-		
-		return iteratorList;
-	}
-	
-	/**
-	 * 2、根据股票ID获取预测股票矩形面积List
-	 * @param stockId
-	 * @param stepLong = 训练步长+测试步长
-	 * @param rectangleLong = 每个步长所包含的数据量
-	 * @return
-	 */
-	public List<String> getRectangleArea(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize){
-		List<String> resultList = new ArrayList<>();
-		List<String> resultListBuffer = new ArrayList<>();
-		
-		/**
-		 * 获取矩形面积
-		 */
-		for(String maxAndLowStr : getRectangleMaxAndLow(stockId , stepLong , endDate , batchUnitLength , singleBatchSize)) {
-			String[] maxAndLowArray = maxAndLowStr.split(",");
-			BigDecimal[] maxAndMinArray = {new BigDecimal(maxAndLowArray[0]) , new BigDecimal(maxAndLowArray[1])};
-			resultListBuffer.add(doGetRectangleArea(maxAndMinArray));
+	public DataSetIterator[] getSourceData(Integer stockId , String date){
+		DataSetIterator trainDataIterator = null;
+		DataSetIterator testDataIterator = null;
+		try {
+			String trainEndDate = changeDate(stockId , date , NeuralNetworkConstants.singleTimeLength , true);//将日期向前
+			boolean resultA = createDatas(stockId , trainEndDate , NeuralNetworkConstants.trainDataSize , NeuralNetworkConstants.trainDataFilePathPrefix , false);//创建训练数据集文件
+			boolean resultB = createDatas(stockId , date , NeuralNetworkConstants.forcastDataSize , NeuralNetworkConstants.forcastDataFilePathPrefix , true);//创建测试数据集文件
+			
+			if(!resultA || !resultB) return null;
+			
+			/*
+			 * 从CSV文件读取数据
+			 */
+			SequenceRecordReader trainDataReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+			trainDataReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.trainDataFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0, NeuralNetworkConstants.trainDataSize - 1));
+			SequenceRecordReader testDataReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+			testDataReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.forcastDataFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0, NeuralNetworkConstants.forcastDataSize - 1));
+			//定义单时间步长数据量、是否为回归模型
+			trainDataIterator = new SequenceRecordReaderDataSetIterator(trainDataReader , NeuralNetworkConstants.batchSize , 2 , NeuralNetworkConstants.inputSize , true);
+			testDataIterator = new SequenceRecordReaderDataSetIterator(testDataReader , NeuralNetworkConstants.batchSize , 2 , NeuralNetworkConstants.inputSize , true);
+		}catch(Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		
-		/*
-		 * 将后一天结果拼接到前一天
-		 */
-		for(int i = 0 ; i < resultListBuffer.size() ; i++) {
-			if(i == 0) resultList.add(resultListBuffer.get(i) + "," + resultListBuffer.get(i));//用当前矩形面积补全预测结果位置
-			if((i + 1) < resultListBuffer.size())
-				resultList.add(resultListBuffer.get(i + 1) + "," + resultListBuffer.get(i));
-		}
-		
-		Collections.reverse(resultList);
-		return resultList;
+		return new DataSetIterator[] {trainDataIterator , testDataIterator};
 	}
 	
 	/**
-	 * 3、获取当前股票当前时间点的均线斜率
-	 * @param stockId
-	 * @param date
-	 * @param averageType
+	 * 2、数据标准化
+	 * @param trainDataSet
 	 * @return
 	 */
-	public BigDecimal getAverageSlope(Integer stockId , String date , Integer averageType) {
-		/*
-		 * 获取均线计算所需数据=均线天数+5
-		 */
-		List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , averageType + 5 , date);
-		/*
-		 * 当前时间点均线价格
-		 */
-		BigDecimal currentAverage = BigDecimal.ZERO;
-		for(int i = 0 ; i < priceInfoList.size() - 5 ; i++) currentAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
-		currentAverage = currentAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
-		
-		/*
-		 * 上一交易日均线价格
-		 */
-		BigDecimal lastAverage = BigDecimal.ZERO;
-		for(int i = 5 ; i < priceInfoList.size() ; i++) lastAverage.add(priceInfoList.get(i).getStockPriceEndPrice());
-		lastAverage = lastAverage.divide(new BigDecimal(averageType) , 2 , BigDecimal.ROUND_HALF_UP);
-		
-		return currentAverage.subtract(lastAverage);
+	public DataNormalization normalize(DataSetIterator dataSetIterators[]) {
+		DataNormalization normalizer = new NormalizerMinMaxScaler(-1 , 1);
+		normalizer.fitLabel(true);
+		normalizer.fit(dataSetIterators[0]);
+		normalizer.fit(dataSetIterators[1]);
+		dataSetIterators[0].setPreProcessor(normalizer);
+		dataSetIterators[1].setPreProcessor(normalizer);
+		return normalizer;
 	}
 	
 	
 	/**
-	 * 4、获取最高价、最低价
-	 * @param stockId
-	 * @param stepLong
-	 * @param endDate
-	 * @param batchSize
-	 * @param rectangleLong
-	 * @return
-	 */
-	public List<String> getRectangleMaxAndLow(Integer stockId , int stepLong , String endDate , int batchUnitLength , int singleBatchSize){
-		List<String> resultList = new ArrayList<>();
-		String endDateCopy = endDate;
-		/*
-		 * 获取每个矩形中包含的价格信息
-		 */
-		for(int i = 0 ; i < stepLong ; i++) {
-			List<TabStockPriceInfo> priceInfoList = priceInfoMapper.getTrainAndTestDataDL4j(stockId , batchUnitLength * singleBatchSize , endDateCopy);
-			for(TabStockPriceInfo priceInfo : priceInfoList) {
-				/*
-				 * 获取当前矩形价格的最高、最低
-				 */
-				BigDecimal currentMax = priceInfo.getStockPriceHighestPrice();
-				BigDecimal currentMin = priceInfo.getStockPriceLowestPrice();
-				if(maxBuffer == null || currentMax.compareTo(maxBuffer) > 0) maxBuffer = currentMax;
-				if(minBuffer == null || currentMin.compareTo(minBuffer) < 0) minBuffer = currentMin;
-			}
-			if(priceInfoList.size() != 0) {
-				/*
-				 * 获取结果
-				 */
-				resultList.add(maxBuffer + "," + minBuffer);
-				/*
-				 * 复位buffer
-				 */
-				maxBuffer = null;
-				minBuffer = null;
-			}
-			/*
-			 * 将日期前移n个日期单位
-			 */
-			endDateCopy = changeDate(stockId , endDateCopy , singleBatchSize , true);
-		}
-		return resultList;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/**
-	 * 将List<String>数据转换为List<DataSet>数据
-	 * @param rawDataList
-	 * @param idealOutputSize
-	 * @return
-	 */
-	private List<DataSet> dl4jDataParser(List<String> rawDataList , int idealOutputSize){
-		/*
-		 * 将数据封装成DataSet集合
-		 */
-		List<DataSet> dataSetList = new ArrayList<>();
-		
-		/*
-		 * 遍历raw数据集
-		 */
-		for(String rawData : rawDataList) {
-			
-			/*
-			 * 未标准化数据字符串数组
-			 */
-			String[] rawDataArray = rawData.split(",");
-			
-			/*
-			 * 输入数据的double数组、期望输出数据数组
-			 */
-			double[] inputDataDoubleArray = new double[rawDataArray.length - idealOutputSize];
-			double[] idealOutputDataDoubleArray = new double[idealOutputSize];
-
-
-			
-			/*
-			 * 根据下标将数据插入到对应的double数组中
-			 */
-			for(int i = 0 ; i < rawDataArray.length ; i++) {
-				if(i < rawDataArray.length - idealOutputSize) inputDataDoubleArray[i] = new Double(rawDataArray[i]);
-				else idealOutputDataDoubleArray[i - rawDataArray.length + idealOutputSize] = new Double(rawDataArray[i]);
-			}
-			
-			/*
-			 * 输入数据向量数组、期望输出数据向量数组
-			 * dimension 0 = number of examples in minibatch(训练批次长度)
-			 * dimension 1 = size of each vector (i.e., number of characters)(训练数据列数)
-			 * dimension 2 = length of each time series/example(训练数据行数)
-			 * Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
-			 */
-			INDArray inputScalerArray = Nd4j.create(inputDataDoubleArray);
-			INDArray idealOutputScalerArray = Nd4j.create(idealOutputDataDoubleArray);
-			
-			/*
-			 * 实例化DataSet对象并存入List
-			 */
-			dataSetList.add(new DataSet(inputScalerArray , idealOutputScalerArray));
-		}
-		return dataSetList;
-	}
-	
-	
-	
-	/**
-	 * 根据所给最高价与最低价差值百分比、矩形长度获取矩形面积
-	 * @param data
-	 * @return
-	 */
-	private static String doGetRectangleArea(BigDecimal[] maxAndMinArray) {
-		BigDecimal rectangleWidth = maxAndMinArray[0].subtract(maxAndMinArray[1]).divide(maxAndMinArray[1] , 2 , BigDecimal.ROUND_HALF_UP);//矩形宽度=(最大值-最小值)/最小值
-		return rectangleWidth.multiply(new BigDecimal(NeuralNetworkConstants.batchUnitLength * NeuralNetworkConstants.singleBatchSize)).setScale(2 , BigDecimal.ROUND_HALF_UP).toString();
-	}
-	
-	
-	
-	/**
-	 * 将日期向前或后推进limit个数据长度
+	 * 3、将日期向前或后推进limit个数据长度
 	 * @param stockId
 	 * @param currentDate
 	 * @param limit
 	 * @param forwardOrBackward true-日期向前移动，false-日期向后移动
 	 * @return
 	 */
-	private String changeDate(Integer stockId , String currentDate , int count , boolean forwardOrBackward) {
+	public String changeDate(Integer stockId , String currentDate , int count , boolean forwardOrBackward) {
 		String resultDate = "";
 		if(forwardOrBackward) {
 			for(TabStockPriceInfo priceInfo : priceInfoMapper.changeDateForward(stockId , currentDate , count)) resultDate = priceInfo.getStockPriceDate();
@@ -306,4 +106,149 @@ public class DataUtil {
 		return resultDate;
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	/**
+	 * 生成数据文件
+	 * @param inputStart
+	 * @param stepLong
+	 * @param filePrefix
+	 * @throws IOException
+	 */
+	private boolean createDatas(Integer stockId , String date , int stepLong , String filePrefix , boolean isForcast) throws IOException {
+		/*
+		 * 将数据集合写入到文件
+		 */
+		List<String> sourceDataList = getParsedData(stockId , date , stepLong , NeuralNetworkConstants.singleTimeLength , isForcast);
+		if(sourceDataList.size() != stepLong - 1) return false;
+		for(int i = 0 ; i < stepLong - 1 ; i++) {
+			/*
+			 * 创建当前时间步长文件
+			 */
+			File dataFile = new File(filePrefix + i + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH);
+			if(dataFile.exists()) dataFile.delete();
+			dataFile.createNewFile();
+			
+			/*
+			 * 将指定数量的数据写入到单个文件
+			 */
+			try(RandomAccessFile randomAccessFile = new RandomAccessFile(dataFile , "rw");
+					FileChannel dataFileChannel = randomAccessFile.getChannel()){
+				for(int j = 0 ; j < NeuralNetworkConstants.batchSize ; j++) {
+					String data = sourceDataList.get(i * NeuralNetworkConstants.batchSize + j) + System.lineSeparator();
+					ByteBuffer dataBuffer = ByteBuffer.wrap(data.getBytes());
+					dataFileChannel.write(dataBuffer);
+				}
+			}catch(IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	
+	
+
+	/**
+	 * 获取格式化后的股票信息数据
+	 * @param stockId
+	 * @param date
+	 * @param stepLong
+	 * @param singleTimeLength
+	 * @param isForcast 当前是否为测试数据
+	 * @return
+	 */
+	private List<String> getParsedData(Integer stockId , String date , int stepLong , int singleTimeLength , boolean isForcast){
+		/*
+		 * 获取标准数据
+		 */
+		List<TabStockPriceInfo> rawStockPriceInfoList = priceInfoMapper.getStockPriceInfoList(stockId , stepLong * singleTimeLength , date);
+		Collections.reverse(rawStockPriceInfoList);//将数据翻转成顺序
+		BigDecimal max = null;//最大值
+		BigDecimal min = null;//最小值
+		BigDecimal startPrice = null;//开盘价
+		BigDecimal endPrice = null;//收盘价
+		BigDecimal turnoverRate = BigDecimal.ZERO;//换手率
+		int counterA = 0;
+		List<String> bufferList = new ArrayList<>();
+		for(TabStockPriceInfo rawData : rawStockPriceInfoList) {
+			BigDecimal currentMax = rawData.getStockPriceHighestPrice();//最大值
+			BigDecimal currentMin = rawData.getStockPriceLowestPrice();//最小值
+			BigDecimal currentStartPrice = rawData.getStockPriceStartPrice();//开盘价
+			BigDecimal currentEndPrice = rawData.getStockPriceEndPrice();//收盘价
+			BigDecimal currentTurnoverRate = rawData.getStockPriceTurnoverRate();//换手率
+			counterA++;
+			
+			if(max == null || max.compareTo(currentMax) < 0) max = currentMax;
+			if(min == null || min.compareTo(currentMin) > 0) min = currentMin;
+			if(counterA == 1) startPrice = currentStartPrice;
+			if(counterA == singleTimeLength) endPrice = currentEndPrice;
+			turnoverRate = turnoverRate.add(currentTurnoverRate);
+			if(counterA == singleTimeLength) {
+				String sourceData = 
+						max + "," +
+						min + "," + 
+						startPrice + "," + 
+						endPrice + "," + 
+						turnoverRate;
+				bufferList.add(sourceData);
+				max = null;
+				min = null;
+				startPrice = null;
+				endPrice = null;
+				turnoverRate = BigDecimal.ZERO;
+				counterA = 0;
+			}
+		}
+		
+		/*
+		 * 拼接实际结果
+		 */
+		List<String> sourceDataList = new ArrayList<>();
+		for(int i = 0 ; i < bufferList.size() ; i++) {
+			String[] nextValArray = null;
+			if(i + 1 < bufferList.size()) nextValArray = bufferList.get(i + 1).split(",");
+			else {
+				/*
+				 * 如果当前是预测数据，则使用当前数据补位
+				 */
+				if(isForcast) nextValArray = bufferList.get(i).split(",");
+			}
+			if(nextValArray != null) {
+				String nextMax = nextValArray[0];
+				String nextMin = nextValArray[1];
+				String sourceData = bufferList.get(i) + "," + nextMax + "," + nextMin;
+				sourceDataList.add(sourceData);
+			}
+		}
+		return sourceDataList;
+	}
 }
