@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.datavec.api.records.reader.SequenceRecordReader;
@@ -45,30 +44,29 @@ public class DataUtil {
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	public DataSetIterator[] getSourceData(Integer stockId , String date){
-		DataSetIterator trainDataIterator = null;
-		DataSetIterator testDataIterator = null;
-		try {
-			String trainEndDate = changeDate(stockId , date , NeuralNetworkConstants.singleTimeLength , true);//将日期向前
-			boolean resultA = createDatas(stockId , trainEndDate , NeuralNetworkConstants.trainDataSize , NeuralNetworkConstants.trainDataFilePathPrefix , false);//创建训练数据集文件
-			boolean resultB = createDatas(stockId , date , NeuralNetworkConstants.forcastDataSize , NeuralNetworkConstants.forcastDataFilePathPrefix , true);//创建测试数据集文件
-			
-			if(!resultA || !resultB) return null;
-			
-			/*
-			 * 从CSV文件读取数据
-			 */
-			SequenceRecordReader trainDataReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
-			trainDataReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.trainDataFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0, NeuralNetworkConstants.trainDataSize - 1));
-			SequenceRecordReader testDataReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
-			testDataReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.forcastDataFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0, NeuralNetworkConstants.forcastDataSize - 1));
-			//定义单时间步长数据量、是否为回归模型
-			trainDataIterator = new SequenceRecordReaderDataSetIterator(trainDataReader , NeuralNetworkConstants.batchSize , 2 , NeuralNetworkConstants.inputSize , true);
-			testDataIterator = new SequenceRecordReaderDataSetIterator(testDataReader , NeuralNetworkConstants.batchSize , 2 , NeuralNetworkConstants.inputSize , true);
-		}catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public DataSetIterator[] getSourceData(Integer stockId , String date) throws IOException, InterruptedException{
+		boolean createFileResult = createDatas(stockId , date);
+		/*
+		 * 判空
+		 */
+		if(!createFileResult) return null;
+		
+		/*
+		 * 从CSV文件读取数据
+		 */
+		SequenceRecordReader trainDataLabelReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+		trainDataLabelReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.trainDataLabelFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0 , NeuralNetworkConstants.trainDataSize - 1));
+		SequenceRecordReader trainDataFeaturesReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+		trainDataFeaturesReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.trainDataFeaturesFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0 , NeuralNetworkConstants.trainDataSize - 1));
+		
+		SequenceRecordReader testDataLabelReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+		testDataLabelReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.forcastDataLabelFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0 , NeuralNetworkConstants.forcastDataSize - 2));
+		SequenceRecordReader testDataFeaturesReader = new CSVSequenceRecordReader(0 , ",");//指定跳过的行数和分隔符
+		testDataFeaturesReader.initialize(new NumberedFileInputSplit(NeuralNetworkConstants.forcastDataFeaturesFilePathPrefix + "%d" + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH , 0 , NeuralNetworkConstants.forcastDataSize - 2));
+		//定义单时间步长数据量、是否为回归模型
+		DataSetIterator trainDataIterator = new SequenceRecordReaderDataSetIterator(trainDataFeaturesReader , trainDataLabelReader , NeuralNetworkConstants.batchSize , -1 , true , SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_START);
+		DataSetIterator testDataIterator = new SequenceRecordReaderDataSetIterator(testDataFeaturesReader , testDataLabelReader , NeuralNetworkConstants.batchSize , -1 , true , SequenceRecordReaderDataSetIterator.AlignmentMode.ALIGN_START);
+		
 		return new DataSetIterator[] {trainDataIterator , testDataIterator};
 	}
 	
@@ -77,14 +75,13 @@ public class DataUtil {
 	 * @param trainDataSet
 	 * @return
 	 */
-	public DataNormalization normalize(DataSetIterator dataSetIterators[]) {
+	public void normalize(DataSetIterator dataSetIterators[]) {
 		DataNormalization normalizer = new NormalizerMinMaxScaler(-1 , 1);
 		normalizer.fitLabel(true);
 		normalizer.fit(dataSetIterators[0]);
 		normalizer.fit(dataSetIterators[1]);
 		dataSetIterators[0].setPreProcessor(normalizer);
 		dataSetIterators[1].setPreProcessor(normalizer);
-		return normalizer;
 	}
 	
 	
@@ -141,57 +138,104 @@ public class DataUtil {
 	 * @param filePrefix
 	 * @throws IOException
 	 */
-	private boolean createDatas(Integer stockId , String date , int stepLong , String filePrefix , boolean isForcast) throws IOException {
+	private boolean createDatas(Integer stockId , String date) throws IOException {
 		/*
-		 * 将数据集合写入到文件
+		 * 获取全部数据
+		 * 注：不包括date当周数据
 		 */
-		List<String> sourceDataList = getParsedData(stockId , date , stepLong , NeuralNetworkConstants.singleTimeLength , isForcast);
-		if(sourceDataList.size() != stepLong - 1) return false;
-		for(int i = 0 ; i < stepLong - 1 ; i++) {
-			/*
-			 * 创建当前时间步长文件
-			 */
-			File dataFile = new File(filePrefix + i + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH);
-			if(dataFile.exists()) dataFile.delete();
-			dataFile.createNewFile();
-			
-			/*
-			 * 将指定数量的数据写入到单个文件
-			 */
-			try(RandomAccessFile randomAccessFile = new RandomAccessFile(dataFile , "rw");
-					FileChannel dataFileChannel = randomAccessFile.getChannel()){
-				for(int j = 0 ; j < NeuralNetworkConstants.batchSize ; j++) {
-					String data = sourceDataList.get(i * NeuralNetworkConstants.batchSize + j) + System.lineSeparator();
-					ByteBuffer dataBuffer = ByteBuffer.wrap(data.getBytes());
-					dataFileChannel.write(dataBuffer);
-				}
-			}catch(IOException e) {
-				e.printStackTrace();
-				return false;
-			}
+		List<String> sourceDataList = getSourceData(stockId , date , NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.forcastDataSize , NeuralNetworkConstants.singleTimeLength);
+		if(sourceDataList.size() != NeuralNetworkConstants.trainDataSize + NeuralNetworkConstants.forcastDataSize - 1) return false;
+		
+		/*
+		 * 拆分为训练数据、测试数据
+		 */
+		List<String> trainDataList = new ArrayList<>();
+		for(int i = 0 ; i < NeuralNetworkConstants.trainDataSize ; i++) trainDataList.add(sourceDataList.get(i));
+		List<String> testDataList = new ArrayList<>();
+		for(int i = NeuralNetworkConstants.trainDataSize ; i < sourceDataList.size() ; i++) testDataList.add(sourceDataList.get(i));
+		
+		try {
+			writeToFile(NeuralNetworkConstants.trainDataLabelFilePathPrefix , NeuralNetworkConstants.trainDataFeaturesFilePathPrefix , trainDataList);
+			writeToFile(NeuralNetworkConstants.forcastDataLabelFilePathPrefix , NeuralNetworkConstants.forcastDataFeaturesFilePathPrefix , testDataList);
+		}catch(IOException e) {
+			e.printStackTrace();
+			return false;
 		}
 		return true;
 	}
 	
 	
-	
+	/**
+	 * 将数据写入对应文件
+	 * @param labelFilePathPrefix
+	 * @param featuresFilePathPrefix
+	 * @param dataList
+	 * @throws IOException 
+	 */
+	private void writeToFile(String labelFilePathPrefix , String featuresFilePathPrefix , List<String> dataList) throws IOException {
+		int stepLong = dataList.size();//当前步长
+		/*
+		 * 将数据写入到文件中
+		 */
+		for(int i = 0 ; i < stepLong ; i++) {
+			/*
+			 * 创建新文件
+			 */
+			File labelDataFile = new File(labelFilePathPrefix + i + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH);
+			if(labelDataFile.exists()) labelDataFile.delete();
+			labelDataFile.createNewFile();
+			File featuresDataFile = new File(featuresFilePathPrefix + i + NeuralNetworkConstants.DATA_FILE_SUFFIX_PATH);
+			if(featuresDataFile.exists()) featuresDataFile.delete();
+			featuresDataFile.createNewFile();
+			
+			String[] currentData = dataList.get(i).split(",");//当前条数据
+			StringBuffer labelData = new StringBuffer();//输出数据
+			StringBuffer featuresData = new StringBuffer();//输入数据
+			for(int j = 0 ; j < currentData.length ; j++) {
+				/*
+				 * 输入数据
+				 */
+				if(j < NeuralNetworkConstants.inputSize) {
+					if(j == NeuralNetworkConstants.inputSize - 1) featuresData.append(currentData[j]);
+					else featuresData.append(currentData[j]).append(",");
+				}
+				/*
+				 * 实际输出数据
+				 */
+				else {
+					if(j == currentData.length - 1) labelData.append(currentData[j]);
+					else labelData.append(currentData[j]).append(",");
+				}
+			}
+			
+			/*
+			 * 将数据分别写入Labels和Features
+			 */
+			try(RandomAccessFile labelRandomAccessFile = new RandomAccessFile(labelDataFile , "rw");
+				FileChannel labelDataFileChannel = labelRandomAccessFile.getChannel();
+				RandomAccessFile featuresRandomAccessFile = new RandomAccessFile(featuresDataFile , "rw");
+				FileChannel featuresDataFileChannel = featuresRandomAccessFile.getChannel();){
+				ByteBuffer labelDataBuffer = ByteBuffer.wrap(labelData.toString().getBytes());
+				labelDataFileChannel.write(labelDataBuffer);
+				
+				ByteBuffer FeaturesDataBuffer = ByteBuffer.wrap(featuresData.toString().getBytes());
+				featuresDataFileChannel.write(FeaturesDataBuffer);
+			}
+		}
+	}
 	
 
 	/**
-	 * 获取格式化后的股票信息数据
+	 * 获取训练数据List
 	 * @param stockId
 	 * @param date
-	 * @param stepLong
-	 * @param singleTimeLength
-	 * @param isForcast 当前是否为测试数据
 	 * @return
 	 */
-	private List<String> getParsedData(Integer stockId , String date , int stepLong , int singleTimeLength , boolean isForcast){
+	private List<String> getSourceData(Integer stockId , String date , int stepLong , int singleTimeLength){
 		/*
 		 * 获取标准数据
 		 */
-		List<TabStockPriceInfo> rawStockPriceInfoList = priceInfoMapper.getStockPriceInfoList(stockId , stepLong * singleTimeLength , date);
-		Collections.reverse(rawStockPriceInfoList);//将数据翻转成顺序
+		List<TabStockPriceInfo> rawDataList = priceInfoMapper.getStockPriceInfoList(stockId , stepLong * NeuralNetworkConstants.singleTimeLength , date);
 		BigDecimal max = null;//最大值
 		BigDecimal min = null;//最小值
 		BigDecimal startPrice = null;//开盘价
@@ -199,12 +243,12 @@ public class DataUtil {
 		BigDecimal turnoverRate = BigDecimal.ZERO;//换手率
 		int counterA = 0;
 		List<String> bufferList = new ArrayList<>();
-		for(TabStockPriceInfo rawData : rawStockPriceInfoList) {
-			BigDecimal currentMax = rawData.getStockPriceHighestPrice();//最大值
-			BigDecimal currentMin = rawData.getStockPriceLowestPrice();//最小值
-			BigDecimal currentStartPrice = rawData.getStockPriceStartPrice();//开盘价
-			BigDecimal currentEndPrice = rawData.getStockPriceEndPrice();//收盘价
-			BigDecimal currentTurnoverRate = rawData.getStockPriceTurnoverRate();//换手率
+		for(TabStockPriceInfo rawData : rawDataList) {
+			BigDecimal currentMax = rawData.getStockPriceHighestPrice();
+			BigDecimal currentMin = rawData.getStockPriceLowestPrice();
+			BigDecimal currentStartPrice = rawData.getStockPriceStartPrice();
+			BigDecimal currentEndPrice = rawData.getStockPriceEndPrice();
+			BigDecimal currentTurnoverRate = rawData.getStockPriceTurnoverRate();
 			counterA++;
 			
 			if(max == null || max.compareTo(currentMax) < 0) max = currentMax;
@@ -213,13 +257,13 @@ public class DataUtil {
 			if(counterA == singleTimeLength) endPrice = currentEndPrice;
 			turnoverRate = turnoverRate.add(currentTurnoverRate);
 			if(counterA == singleTimeLength) {
-				String sourceData = 
-						max + "," +
-						min + "," + 
-						startPrice + "," + 
-						endPrice + "," + 
-						turnoverRate;
-				bufferList.add(sourceData);
+					String sourceData = 
+							max + "," +
+							min + "," + 
+							startPrice + "," + 
+							endPrice + "," + 
+							turnoverRate;
+					bufferList.add(sourceData);
 				max = null;
 				min = null;
 				startPrice = null;
@@ -234,15 +278,8 @@ public class DataUtil {
 		 */
 		List<String> sourceDataList = new ArrayList<>();
 		for(int i = 0 ; i < bufferList.size() ; i++) {
-			String[] nextValArray = null;
-			if(i + 1 < bufferList.size()) nextValArray = bufferList.get(i + 1).split(",");
-			else {
-				/*
-				 * 如果当前是预测数据，则使用当前数据补位
-				 */
-				if(isForcast) nextValArray = bufferList.get(i).split(",");
-			}
-			if(nextValArray != null) {
+			if(i + 1 < bufferList.size()) {
+				String[] nextValArray = bufferList.get(i + 1).split(",");
 				String nextMax = nextValArray[0];
 				String nextMin = nextValArray[1];
 				String sourceData = bufferList.get(i) + "," + nextMax + "," + nextMin;

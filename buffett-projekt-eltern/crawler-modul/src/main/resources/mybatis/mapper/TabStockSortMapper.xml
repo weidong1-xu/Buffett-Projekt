@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+ * 股票分类信息表							tab_stock_sort
+ * 分类ID									sort_id										BIGINT					PRIMARY KEY 						AUTO_INCREMENT
+ * 分类名称									sort_name									VARCHAR(255)
+ * 分类简码									sort_code									VARCHAR(50) -->
+<mapper namespace="com.hanslv.crawler.repository.TabStockSortRepository">
+
+</mapper>

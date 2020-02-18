@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+ * 股票标签信息表								tab_stock_label
+ * 分类ID										sort_id										BIGINT					FOREIGN_KEY fk_label_sort
+ * 股票ID										stock_id									BIGINT					FOREIGN_KEY fk_label_stock_info -->
+<mapper namespace="com.hanslv.allgemein.dto.TabStockLabel">
+
+</mapper>

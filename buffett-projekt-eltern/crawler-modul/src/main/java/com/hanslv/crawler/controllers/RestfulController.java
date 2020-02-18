@@ -13,6 +13,7 @@ import com.hanslv.crawler.services.CrawlerService;
  * 1、执行股票基本信息爬虫										public void getStockInfo()
  * 2、执行股票价格信息爬虫										public void getStockPrice()
  * 3、爬取指定ID的股票信息										public void getStockPrice(@PathVariable("stockId")int stockId)
+ * 4、执行股票分类爬虫											public void getStockSort()
  * -----------------------------------------------
  * @author hanslv
  *
@@ -52,5 +53,13 @@ public class RestfulController {
 	@GetMapping("/stock-price/{stockId}")
 	public void getStockPrice(@PathVariable("stockId")int stockId) {
 		crawlerService.runStockPriceCrawler(stockId);
+	}
+	
+	/**
+	 * 4、执行股票分类爬虫
+	 */
+	@GetMapping("/stock-sort")
+	public void getStockSort() {
+		crawlerService.runStockSortCrawler();
 	}
 }

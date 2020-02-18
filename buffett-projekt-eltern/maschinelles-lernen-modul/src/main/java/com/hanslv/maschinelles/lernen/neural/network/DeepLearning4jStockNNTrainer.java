@@ -1,6 +1,11 @@
 package com.hanslv.maschinelles.lernen.neural.network;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.deeplearning4j.eval.Evaluation;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -18,6 +23,15 @@ import com.hanslv.maschinelles.lernen.util.DataUtil;
 
 /**
  * 训练DeepLearning4j构建的股票神经网络
+ * 
+ * 波段选股SQL：
+DELETE FROM tab_stock_label WHERE sort_id = (SELECT sort_id FROM tab_stock_sort WHERE sort_name = '波段');
+DELETE FROM tab_stock_sort WHERE sort_name = '波段';
+INSERT INTO tab_stock_sort (sort_name , sort_code) VALUES ('波段' , '-');
+SELECT * FROM tab_stock_sort WHERE sort_name = '波段';
+SELECT * FROM tab_stock_info WHERE stock_code IN ('');
+INSERT INTO tab_stock_label (sort_id , stock_id) VALUES
+(2257 , 1683);
  * @author hanslv
  *
  */
@@ -28,53 +42,110 @@ public class DeepLearning4jStockNNTrainer {
 	@Autowired
 	private DataUtil dataUtil;
 	
+	/*
+	 * 记录当前股票当前日期每个Epoch的分值和结果
+	 */
+	private static Map<Double , TabResult> scoreMap = new HashMap<>();
+	
 	/**
 	 * 训练LSTM股票模型
 	 * @param priceInfoList
 	 * @param idInPlanTest
 	 */
 	public TabResult train(Integer stockId , String endDate) {
-		DataSetIterator[] dataSetIterators = dataUtil.getSourceData(stockId , endDate);
+		/*
+		 * 清空上次计算结果
+		 */
+		scoreMap.clear();
 		
+		/*
+		 * 获取训练数据、预测数据
+		 */
+		DataSetIterator[] dataSetIterators = null;
+		try {
+			dataSetIterators = dataUtil.getSourceData(stockId , endDate);
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		/*
+		 * 判空
+		 */
 		if(dataSetIterators == null) return null;
 		
 		/*
-		 * 数据归一化处理
+		 * 数据标准化处理
 		 */
-		DataNormalization normalize = dataUtil.normalize(dataSetIterators);
+		dataUtil.normalize(dataSetIterators);
 		
 		/*
 		 * 获取LSTM神经网络
 		 */
 		MultiLayerNetwork lstmNetwork = DeepLearning4jStockNNBuilder.build();
 		
+		/*
+		 * 训练和预测数据集
+		 */
 		DataSetIterator trainDataSetIterator = dataSetIterators[0];
 		DataSetIterator forcastDataSetIterator = dataSetIterators[1];
 		
 		/*
 		 * 拟合模型，并获取最佳结果
 		 */
-		Evaluation eval = new Evaluation(NeuralNetworkConstants.idealOutputSize);
-		TabResult result = new TabResult();
-		result.setStockId(stockId);
-		result.setDate(endDate);
+		Evaluation eval = null;
 		for(int i = 0 ; i < NeuralNetworkConstants.epoch ; i++) {
 			while(trainDataSetIterator.hasNext()) {
 				DataSet trainDataSet = trainDataSetIterator.next();
 				lstmNetwork.fit(trainDataSet);
 			}
+			eval = new Evaluation(NeuralNetworkConstants.idealOutputSize);
 			
 			/*
-			 * 记录当前迭代纪元信息
+			 * 使用部分预测数据集对模型进行评估
 			 */
-			checkForcast(lstmNetwork , forcastDataSetIterator , eval , normalize , result);
+			int testCounter = 0;
+			while(forcastDataSetIterator.hasNext()) {
+				testCounter++;
+	            DataSet testData = forcastDataSetIterator.next();
+	            INDArray features = testData.getFeatures();
+	            INDArray labels = testData.getLabels();
+	            INDArray predicted = lstmNetwork.output(features, true);
+	
+	            eval.evalTimeSeries(labels , predicted);
+	            if(testCounter == NeuralNetworkConstants.forcastDataSize - 1) break;
+			}
 			
 			/*
-			 * 将Iterator复位，准备进入下一纪元
+			 * 当前F1分值
+			 */
+			double currentF1 = eval.f1();
+			
+			/*
+			 * 重置训练、预测数据集
 			 */
 			trainDataSetIterator.reset();
 			forcastDataSetIterator.reset();
+			
+			/*
+			 * 当F1大于等于阈值时执行预测
+			 */
+			if(currentF1 >= NeuralNetworkConstants.f1MinLimit) {
+				/*
+				 * 执行测试并将测试结果记录到scoreMap中
+				 */
+				TabResult currentResult = doForcast(lstmNetwork , dataSetIterators);
+				scoreMap.put(currentF1 , currentResult);
+			}
 		}
+		
+		/*
+		 * 对scoreMap中的结果进行排序
+		 */
+		TabResult result = getFinalResult(scoreMap);
+		result.setDate(endDate);
+		result.setStockId(stockId);
+		
+		System.out.println(result);
 		return result;
 	}
 	
@@ -97,73 +168,72 @@ public class DeepLearning4jStockNNTrainer {
 	
 	
 	
-	
-	
-	
+	/**
+	 * 执行预测并返回当前预测结果
+	 * @param lstmNetwork
+	 * @param dataSetIterators
+	 * @return
+	 */
+	private TabResult doForcast(MultiLayerNetwork lstmNetwork , DataSetIterator[] dataSetIterators) {
+		DataSetIterator trainDataSetIterator = dataSetIterators[0];
+		DataSetIterator forcastDataSetIterator = dataSetIterators[1];
+		DataNormalization normalizer = (DataNormalization) trainDataSetIterator.getPreProcessor();
+		
+		/*
+		 * 执行预测
+		 */
+		TabResult result = new TabResult();
+		while(trainDataSetIterator.hasNext()) {
+			DataSet trainData = trainDataSetIterator.next();
+			lstmNetwork.rnnTimeStep(trainData.getFeatures());
+		}
+		INDArray predictedResult = null;
+		DataSet testData = null;
+		while(forcastDataSetIterator.hasNext()) {
+			testData = forcastDataSetIterator.next();
+			predictedResult = lstmNetwork.rnnTimeStep(testData.getFeatures());
+		}
+		
+		/*
+		 * 反标准化结果
+		 */
+		normalizer.revertLabels(predictedResult);
+		double[] predictedResultDouble = predictedResult.data().asDouble();
+		
+		result.setForcastMax(new BigDecimal(String.valueOf(predictedResultDouble[0])).setScale(2 , BigDecimal.ROUND_HALF_DOWN));
+		result.setForcastMin(new BigDecimal(String.valueOf(predictedResultDouble[1])).setScale(2 , BigDecimal.ROUND_HALF_DOWN));
+		
+		/*
+		 * 预测结束后复位LSTM和数据Iterator
+		 */
+		lstmNetwork.rnnClearPreviousState();
+		trainDataSetIterator.reset();
+		forcastDataSetIterator.reset();
+		return result;
+	}
 	
 	
 	
 	/**
-	 * 对当前纪元进行评估并记录最佳结果
-	 * @param lstmNetwork
-	 * @param forcastDataSetIterator
-	 * @param eval
-	 * @param normalize
-	 * @param result
+	 * 对结果集进行排序并获取最终结果
+	 * @param scoreMap
+	 * @return
 	 */
-	private void checkForcast(MultiLayerNetwork lstmNetwork , DataSetIterator forcastDataSetIterator , Evaluation eval , DataNormalization normalize , TabResult result) {
-		/*
-		 * 使用部分数据对当前模型进行评估
-		 */
-		int counter = 0;
-		while(forcastDataSetIterator.hasNext()) {
-			counter++;
-			DataSet testDataSet = forcastDataSetIterator.next();
-			INDArray testInput = testDataSet.getFeatures();
-			INDArray testOutput = testDataSet.getLabels();
-			INDArray checkOutput = lstmNetwork.output(testInput , false);
-			eval.evalTimeSeries(testOutput , checkOutput);
-			if(counter == NeuralNetworkConstants.forcastDataSize - 1) break;
-		}
-
-		/*
-		 * 使用当前时间步长数据预测下一步长结果
-		 */
-		DataSet testDataSet = forcastDataSetIterator.next();
-		INDArray testInput = testDataSet.getFeatures();
-		INDArray checkOutput = lstmNetwork.output(testInput , false);
-		DataSet checkDataSet = new DataSet(testInput , checkOutput);
-		normalize.revert(checkDataSet);
-		INDArray revertedForcastResult = checkDataSet.getLabels();
-		double[] forcastResultArray = revertedForcastResult.data().asDouble();
+	private TabResult getFinalResult(Map<Double , TabResult> scoreMap) {
+		if(scoreMap.size() == 0) return null;
+		Set<Double> keySet = scoreMap.keySet();
+		Object[] keyArray = keySet.toArray();
+		Arrays.sort(keyArray);
 		
-		/*
-		 * 当前评估结果
-		 */
-		BigDecimal currentAccuracy = result.getAccuracy();
-		BigDecimal accuracy = new BigDecimal(String.valueOf(eval.accuracy())).setScale(4 , BigDecimal.ROUND_HALF_UP);
-		BigDecimal currentPrecision = result.getAccuracy();
-		BigDecimal precision = new BigDecimal(String.valueOf(eval.precision())).setScale(4 , BigDecimal.ROUND_HALF_UP);
-		BigDecimal currentRecall = result.getAccuracy();
-		BigDecimal recall = new BigDecimal(String.valueOf(eval.recall())).setScale(4 , BigDecimal.ROUND_HALF_UP);
-		BigDecimal currentF1 = result.getAccuracy();
-		BigDecimal f1 = new BigDecimal(String.valueOf(eval.f1())).setScale(4 , BigDecimal.ROUND_HALF_UP);
-		
-		if(
-				accuracy.compareTo(currentAccuracy) >= 0
-				&&
-				precision.compareTo(currentPrecision) >= 0
-				&&
-				recall.compareTo(currentRecall) >= 0
-				&&
-				f1.compareTo(currentF1) >= 0
-			) {
-			result.setAccuracy(accuracy);
-			result.setPrecisions(precision);
-			result.setRecall(recall);
-			result.setF1(f1);
-			result.setForcastMax(new BigDecimal(String.valueOf(forcastResultArray[0])).setScale(2 , BigDecimal.ROUND_HALF_UP));
-			result.setForcastMin(new BigDecimal(String.valueOf(forcastResultArray[1])).setScale(2 , BigDecimal.ROUND_HALF_UP));
+		for(Object key : keyArray) {
+			Double keyDouble = Double.parseDouble(key.toString());
+			System.err.println("key = " + keyDouble + "，value = " + scoreMap.get(key));
 		}
+		
+		BigDecimal index = new BigDecimal(keyArray.length).divide(new BigDecimal(2) , 0 , BigDecimal.ROUND_HALF_DOWN);
+		Double f1 = Double.parseDouble(keyArray[index.intValue()].toString());
+		TabResult result = scoreMap.get(f1);
+		result.setF1(new BigDecimal(String.valueOf(String.valueOf(f1))).setScale(4 , BigDecimal.ROUND_HALF_UP));
+		return result;
 	}
 }

@@ -11,7 +11,7 @@ import com.hanslv.allgemein.dto.TabResult;
  * 结果集数据库操作
  * 
  * 获取结果SQL：
- * SELECT info.stock_code , info.stock_name , result.date , result.forcast_max , result.forcast_min 
+ * SELECT info.stock_code , info.stock_name , result.date , result.forcast_max , result.forcast_min  result.f1
  * FROM tab_result result LEFT JOIN tab_stock_info info 
  * ON result.stock_id = info.stock_id
  * WHERE result.date = '2019-12-08'
@@ -31,7 +31,7 @@ public interface TabResultRepository {
 	 * 1、插入一条结果
 	 * @param result
 	 */
-	@Insert("INSERT INTO tab_result (stock_id , date , accuracy , precisions , recall , f1 , forcast_max , forcast_min) VALUES (#{result.stockId} , #{result.date} , #{result.accuracy} , #{result.precision} , #{result.recall} , #{result.f1} , #{result.forcast_max} , #{result.forcast_min})")
+	@Insert("INSERT INTO tab_result (stock_id , date , f1 , forcast_max , forcast_min) VALUES (#{result.stockId} , #{result.date} , #{result.f1} , #{result.forcastMax} , #{result.forcastMin})")
 	public void insert(@Param("result")TabResult result);
 	
 	/**

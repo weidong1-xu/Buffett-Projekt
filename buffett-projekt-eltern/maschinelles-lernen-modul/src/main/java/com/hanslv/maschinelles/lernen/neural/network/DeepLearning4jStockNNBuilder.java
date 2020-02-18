@@ -27,9 +27,6 @@ public class DeepLearning4jStockNNBuilder {
 		paramMap.put(DeepLearning4jNNFactory.BIAS_INIT_KEY_NAME , NeuralNetworkConstants.biasInit);
 		IUpdater updater = new Adam(NeuralNetworkConstants.nnAdamLearningRate);
 		paramMap.put(DeepLearning4jNNFactory.UPDATER_KEY_NAME , updater);
-		paramMap.put(DeepLearning4jNNFactory.BACKPROP_TYPE_KEY_NAME , NeuralNetworkConstants.backpropType);
-		paramMap.put(DeepLearning4jNNFactory.BPTT_FORWARD_LENGTH_KEY_NAME , NeuralNetworkConstants.bpttForwardLength);
-		paramMap.put(DeepLearning4jNNFactory.BPTT_BACKWARD_LENGTH_KEY_NAME , NeuralNetworkConstants.bpttBackwardLength);
 	}
 	
 	/**
@@ -43,15 +40,15 @@ public class DeepLearning4jStockNNBuilder {
 		FeedForwardLayer hideLayerA = new GravesLSTM.Builder()
 				.nIn(NeuralNetworkConstants.inputSize)
 				.nOut(NeuralNetworkConstants.nnFirstOutRight)
-				.activation(NeuralNetworkConstants.lstmActivationA)
+				.activation(NeuralNetworkConstants.activationA)
 				.build();
 		FeedForwardLayer hideLayerB = new GravesLSTM.Builder()
 				.nOut(NeuralNetworkConstants.nnSecondOutRight)
-				.activation(NeuralNetworkConstants.lstmActivationB)
+				.activation(NeuralNetworkConstants.activationB)
 				.build();
 		FeedForwardLayer hideLayerC = new GravesLSTM.Builder()
 				.nOut(NeuralNetworkConstants.nnThirdOutRight)
-				.activation(NeuralNetworkConstants.lstmActivationC)
+				.activation(NeuralNetworkConstants.activationC)
 				.build();
 		/*
 		 * 输出层

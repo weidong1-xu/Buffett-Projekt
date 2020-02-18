@@ -12,6 +12,7 @@ import com.hanslv.crawler.StockInfoCrawler;
 import com.hanslv.crawler.StockPriceCrawler;
 import com.hanslv.crawler.repository.TabStockInfoRepository;
 import com.hanslv.crawler.util.StockPriceInfoSaver;
+import com.hanslv.crawler.util.StockSorter;
 
 /**
  * 爬虫模块Service
@@ -19,6 +20,7 @@ import com.hanslv.crawler.util.StockPriceInfoSaver;
  * -----------------------------------------
  * 1、初始化股票基本信息表													public void runStockInfoCrawler()
  * 2、执行股票价格信息爬虫													public void runStockPriceCrawler()
+ * 3、执行股票分类爬虫														public void runStockSortCrawler()
  * -----------------------------------------
  * @author hanslv
  *
@@ -37,6 +39,9 @@ public class CrawlerService {
 	
 	@Autowired
 	private StockPriceCrawler stockPriceCrawler;
+	
+	@Autowired
+	private StockSorter stockSorter;
 	
 	/**
 	 * 1、初始化股票基本信息表
@@ -85,5 +90,12 @@ public class CrawlerService {
 		for(int i = 0 ; i < CommonsOtherConstants.BASIC_THREAD_POOL_SIZE ; i++) {
 			priceInfoSaver.savePriceInfoToDB();
 		}
+	}
+	
+	/**
+	 * 3、执行股票分类爬虫
+	 */
+	public void runStockSortCrawler() {
+		stockSorter.doSort();
 	}
 }

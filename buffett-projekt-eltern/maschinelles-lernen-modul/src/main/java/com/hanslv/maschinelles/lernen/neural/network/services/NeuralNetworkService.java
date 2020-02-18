@@ -71,6 +71,12 @@ public class NeuralNetworkService {
 			 * 执行预测，并将结果集插入数据库
 			 */
 			TabResult result = dl4jStockNNTrainer.train(stockInfo.getStockId() , currentDate.toString());
+			
+			/*
+			 * 判空
+			 */
+			if(result == null) continue;
+			
 			resultMapper.insert(result);
 						
 			/*

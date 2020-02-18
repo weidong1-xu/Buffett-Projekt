@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-import org.deeplearning4j.nn.conf.BackpropType;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
@@ -33,22 +32,23 @@ public abstract class NeuralNetworkConstants {
 	public static int averageType;//均线类型
 	public static int batchSize;//单时间步长中包含的数据量
 	
-	public static Activation lstmActivationA = Activation.SOFTSIGN;//lstm层激活函数
-	public static Activation lstmActivationB = Activation.SOFTSIGN;//lstm层激活函数
-	public static Activation lstmActivationC = Activation.SOFTSIGN;//lstm层激活函数
+	public static Activation activationA = Activation.SOFTSIGN;//lstm层激活函数
+	public static Activation activationB = Activation.SOFTSIGN;//lstm层激活函数
+	public static Activation activationC = Activation.SOFTSIGN;//lstm层激活函数
 	public static Activation outputActivation = Activation.IDENTITY;//输出层激活函数
 	public static LossFunction lossFunction = LossFunctions.LossFunction.MSE;//损失函数
 	public static String seed;//随机权重种子
 	public static String biasInit;//偏置向量初始化
-	public static BackpropType backpropType = BackpropType.TruncatedBPTT;//反向传播类型
-	public static String bpttForwardLength;//正向传播截断长度
-	public static String bpttBackwardLength;//反向传播截断长度
+	
+	public static double f1MinLimit;//F1最小值限定
 	
 	public static String trainDate;//训练日期
 	
 	private static final String PROP_PATH = "/machineLearning-config.properties";
-	public static String trainDataFilePathPrefix;
-	public static String forcastDataFilePathPrefix;
+	public static String trainDataLabelFilePathPrefix;
+	public static String trainDataFeaturesFilePathPrefix;
+	public static String forcastDataLabelFilePathPrefix;
+	public static String forcastDataFeaturesFilePathPrefix;
 	public static final String DATA_FILE_SUFFIX_PATH = ".csv";
 	public static int sleepSecondCount;//每只股票执行时间间隔
 	
@@ -75,13 +75,15 @@ public abstract class NeuralNetworkConstants {
 			
 			seed = prop.getProperty("seed");
 			biasInit = prop.getProperty("biasInit");
-			bpttForwardLength = prop.getProperty("bpttForwardLength");
-			bpttBackwardLength = prop.getProperty("bpttBackwardLength");
+			
+			f1MinLimit = Double.parseDouble(prop.getProperty("f1MinLimit"));
 			
 			trainDate = prop.getProperty("trainDate");
 			
-			trainDataFilePathPrefix = prop.getProperty("trainDataFilePathPrefix");
-			forcastDataFilePathPrefix = prop.getProperty("forcastDataFilePathPrefix");
+			trainDataLabelFilePathPrefix = prop.getProperty("trainDataLabelFilePathPrefix");
+			trainDataFeaturesFilePathPrefix = prop.getProperty("trainDataFeaturesFilePathPrefix");
+			forcastDataLabelFilePathPrefix = prop.getProperty("forcastDataFilePathPrefix");
+			forcastDataFeaturesFilePathPrefix = prop.getProperty("forcastDataFeaturesPathPrefix");
 			sleepSecondCount = Integer.parseInt(prop.getProperty("sleepSecondCount"));
 			
 		}catch(IOException e) {
