@@ -19,48 +19,48 @@ import com.hanslv.stock.selector.crawler.test.constants.RequestUrlConstants;
 
 /**
  * 测试Controller中初始化股票基本信息请求
- * @author harrylu
  *
+ * @author harrylu
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=CrawlerServiceStarter.class)
+@SpringBootTest(classes = CrawlerServiceStarter.class)
 public class TestControllerInitStockInfo {
-	Logger logger = Logger.getLogger(TestControllerInitStockInfo.class);
-	
-	/**
-	 * 模拟Mvc对象
-	 */
-	private MockMvc mvc;
-	
-	/**
-	 *  Web上下文
-	 */
-	@Autowired
-	private WebApplicationContext applicationContext;
-	
-	/**
-	 * 在执行之前初始化MockMvc对象
-	 */
-	@Before
-	public void initMockMvc() {
-		mvc = MockMvcBuilders.webAppContextSetup(applicationContext).build();
-	}
-	
-	
-	/**
-	 * 执行测试逻辑
-	 */
+    Logger logger = Logger.getLogger(TestControllerInitStockInfo.class);
+
+    /**
+     * 模拟Mvc对象
+     */
+    private MockMvc mvc;
+
+    /**
+     * Web上下文
+     */
+    @Autowired
+    private WebApplicationContext applicationContext;
+
+    /**
+     * 在执行之前初始化MockMvc对象
+     */
+    @Before
+    public void initMockMvc() {
+        mvc = MockMvcBuilders.webAppContextSetup(applicationContext).build();
+    }
+
+
+    /**
+     * 执行测试逻辑
+     */
 //	@Transactional(transactionManager = "dataSourceTransactionManager")
-	@Test
-	public void testInit() {
-		try {
-			mvc
-				.perform(MockMvcRequestBuilders.get(RequestUrlConstants.INIT_STOCKINFO_URL).accept(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andReturn();
-		} catch (Exception e) {
-			logger.error("测试请求失败！");
-			e.printStackTrace();
-		}
-	}
+    @Test
+    public void testInit() {
+        try {
+            mvc
+                    .perform(MockMvcRequestBuilders.get(RequestUrlConstants.INIT_STOCKINFO_URL).accept(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+        } catch (Exception e) {
+            logger.error("测试请求失败！");
+            e.printStackTrace();
+        }
+    }
 }

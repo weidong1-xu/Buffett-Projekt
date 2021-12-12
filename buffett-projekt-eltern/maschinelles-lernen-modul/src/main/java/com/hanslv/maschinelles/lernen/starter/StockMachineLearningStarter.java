@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"com.hanslv"})
 @MapperScan("com.hanslv")
 public class StockMachineLearningStarter {
-	public static void main(String[] args) {
-		new SpringApplication(StockMachineLearningStarter.class).run(args);
-	}
+    public static void main(String[] args) {
+        new SpringApplication(StockMachineLearningStarter.class).run(args);
+    }
 }

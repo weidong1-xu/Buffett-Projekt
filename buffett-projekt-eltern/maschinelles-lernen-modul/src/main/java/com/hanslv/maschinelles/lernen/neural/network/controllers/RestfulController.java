@@ -10,24 +10,24 @@ import com.hanslv.maschinelles.lernen.neural.network.services.NeuralNetworkServi
 
 /**
  * Controller
- * 
+ * <p>
  * -----------------------------------------
  * 1、dl4j训练全部股票						public void dl4jTrain(@PathVariable("stockId")Integer stockId)
  * -----------------------------------------
- * @author hanslv
  *
+ * @author hanslv
  */
 @RequestMapping("/nn")
 @RestController
 public class RestfulController {
-	@Autowired
-	private NeuralNetworkService nnService;
-	
-	/**
-	 * 1、dl4j训练全部股票
-	 */
-	@GetMapping("/train-from-dl4j/{stockId}")
-	public void dl4jTrain(@PathVariable("stockId")Integer stockId) {
-		nnService.dl4jTrainStockNN(stockId);
-	}
+    @Autowired
+    private NeuralNetworkService nnService;
+
+    /**
+     * 1、dl4j训练全部股票
+     */
+    @GetMapping("/train-from-dl4j/{stockId}")
+    public void dl4jTrain(@PathVariable("stockId") Integer stockId) {
+        nnService.dl4jTrainStockNN(stockId);
+    }
 }

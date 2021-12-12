@@ -10,15 +10,15 @@ import com.hanslv.crawler.constants.CrawlerConstants;
 import com.hanslv.crawler.starter.CrawlerServiceStarter;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=CrawlerServiceStarter.class)
+@SpringBootTest(classes = CrawlerServiceStarter.class)
 public class TestConstants {
-	Logger logger = Logger.getLogger(TestConstants.class);
-	
-	/**
-	 * 测试常量类
-	 */
-	@Test
-	public void testConstants() {
-		logger.info(CrawlerConstants.stockInfoTargetUrl);
-	}
+    Logger logger = Logger.getLogger(TestConstants.class);
+
+    /**
+     * 测试常量类
+     */
+    @Test
+    public void testConstants() {
+        logger.info(CrawlerConstants.stockInfoTargetUrl);
+    }
 }

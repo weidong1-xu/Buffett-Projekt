@@ -6,16 +6,17 @@
  * 股票代码							stock_code										VARCHAR(10)							UNIQUE
  * 股票名称							stock_name										VARCHAR(8) -->
 <mapper namespace="com.hanslv.crawler.repository.TabStockInfoRepository">
-	<!-- 插入一个集合 -->
-	<insert id="insertList" parameterType="com.hanslv.allgemein.dto.TabStockInfo">
-		INSERT INTO tab_stock_info (stock_code , stock_name)
-		<foreach item="stockInfo" collection="list" separator="," open="VALUES">
-			(#{stockInfo.stockCode} , #{stockInfo.stockName})
-		</foreach>
-	</insert>
-	
-	<!-- 删除全部数据 -->
-	<delete id="deleteAll">
-		DELETE FROM tab_stock_info
-	</delete>
+    <!-- 插入一个集合 -->
+    <insert id="insertList" parameterType="com.hanslv.allgemein.dto.TabStockInfo">
+        INSERT INTO tab_stock_info (stock_code , stock_name)
+        <foreach item="stockInfo" collection="list" separator="," open="VALUES">
+            (#{stockInfo.stockCode} , #{stockInfo.stockName})
+        </foreach>
+    </insert>
+
+    <!-- 删除全部数据 -->
+    <delete id="deleteAll">
+        DELETE
+        FROM tab_stock_info
+    </delete>
 </mapper>

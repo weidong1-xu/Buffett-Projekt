@@ -13,14 +13,16 @@
  * 振幅								stock_price_amplitude							VARCHAR(40)
  * 换手率							stock_price_turnover_rate						DECIMAL(18,1) -->
 <mapper namespace="com.hanslv.crawler.repository.TabStockPriceInfoRepository">
-	<!-- 插入一条记录 -->
-	<insert id="insertOne">
-		INSERT INTO ${tableName}
-		(stock_id , stock_price_date , stock_price_start_price , stock_price_end_price , stock_price_highest_price , 
-		stock_price_lowest_price , stock_price_volume , stock_price_turnover , stock_price_amplitude , stock_price_turnover_rate)
-		VALUES
-		(#{priceInfo.stockId},#{priceInfo.stockPriceDate},#{priceInfo.stockPriceStartPrice},#{priceInfo.stockPriceEndPrice},
-		#{priceInfo.stockPriceHighestPrice},#{priceInfo.stockPriceLowestPrice},#{priceInfo.stockPriceVolume},#{priceInfo.stockPriceTurnover},
-		#{priceInfo.stockPriceAmplitude},#{priceInfo.stockPriceTurnoverRate})
-	</insert>
+    <!-- 插入一条记录 -->
+    <insert id="insertOne">
+        INSERT INTO ${tableName}
+        (stock_id, stock_price_date, stock_price_start_price, stock_price_end_price, stock_price_highest_price,
+         stock_price_lowest_price, stock_price_volume, stock_price_turnover, stock_price_amplitude,
+         stock_price_turnover_rate)
+        VALUES (#{priceInfo.stockId}, #{priceInfo.stockPriceDate}, #{priceInfo.stockPriceStartPrice},
+                #{priceInfo.stockPriceEndPrice},
+                #{priceInfo.stockPriceHighestPrice}, #{priceInfo.stockPriceLowestPrice}, #{priceInfo.stockPriceVolume},
+                #{priceInfo.stockPriceTurnover},
+                #{priceInfo.stockPriceAmplitude}, #{priceInfo.stockPriceTurnoverRate})
+    </insert>
 </mapper>

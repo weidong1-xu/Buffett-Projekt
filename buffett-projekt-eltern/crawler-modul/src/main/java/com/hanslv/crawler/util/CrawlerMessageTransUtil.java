@@ -16,29 +16,30 @@ import com.hanslv.allgemein.dto.TabStockPriceInfo;
  * ---------------------------------------
  * 1、向队列中写入股票价格信息List						public void writePriceInfoToQueue(List<TabStockPriceInfo> priceInfoList)
  * ---------------------------------------
- * @author hanslv
  *
+ * @author hanslv
  */
 @Component
 public class CrawlerMessageTransUtil {
-	Logger logger = Logger.getLogger(CrawlerMessageTransUtil.class);
-	
-	@Autowired
-	@Qualifier("stockPriceInfoBlockingQueue")
-	private BlockingQueue<List<TabStockPriceInfo>> stockPriceInfoQueue;
-	
-	/**
-	 * 1、向队列中写入股票价格信息List
-	 * @param priceInfoList
-	 */
-	public void writePriceInfoToQueue(List<TabStockPriceInfo> priceInfoList) {
-		/*
-		 * 将股票价格信息写入消息队列
-		 */
-		try {
-			stockPriceInfoQueue.put(priceInfoList);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+    Logger logger = Logger.getLogger(CrawlerMessageTransUtil.class);
+
+    @Autowired
+    @Qualifier("stockPriceInfoBlockingQueue")
+    private BlockingQueue<List<TabStockPriceInfo>> stockPriceInfoQueue;
+
+    /**
+     * 1、向队列中写入股票价格信息List
+     *
+     * @param priceInfoList
+     */
+    public void writePriceInfoToQueue(List<TabStockPriceInfo> priceInfoList) {
+        /*
+         * 将股票价格信息写入消息队列
+         */
+        try {
+            stockPriceInfoQueue.put(priceInfoList);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

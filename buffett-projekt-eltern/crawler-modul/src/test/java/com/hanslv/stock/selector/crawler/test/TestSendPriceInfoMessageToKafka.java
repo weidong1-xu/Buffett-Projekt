@@ -11,22 +11,23 @@ import com.hanslv.crawler.starter.CrawlerServiceStarter;
 
 /**
  * 向Kafka发送股票价格信息
- * @author hanslv
  *
+ * @author hanslv
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CrawlerServiceStarter.class)
 public class TestSendPriceInfoMessageToKafka {
-	@Autowired
-	private StockPriceCrawler priceCrawler;
-	
-	/**
-	 * 发送信息
-	 */
-	@Test
-	public void sendMessage() {
-		priceCrawler.runCrawler();
-		
-		while(true) {}
-	}
+    @Autowired
+    private StockPriceCrawler priceCrawler;
+
+    /**
+     * 发送信息
+     */
+    @Test
+    public void sendMessage() {
+        priceCrawler.runCrawler();
+
+        while (true) {
+        }
+    }
 }

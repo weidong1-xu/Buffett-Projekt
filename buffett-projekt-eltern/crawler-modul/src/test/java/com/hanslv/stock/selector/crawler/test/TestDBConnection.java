@@ -11,20 +11,20 @@ import com.hanslv.crawler.repository.TabStockInfoRepository;
 import com.hanslv.crawler.starter.CrawlerServiceStarter;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=CrawlerServiceStarter.class)
+@SpringBootTest(classes = CrawlerServiceStarter.class)
 public class TestDBConnection {
-	Logger logger = Logger.getLogger(TestDBConnection.class);
-	
-	@Autowired
-	private static TabStockInfoRepository stockInfoMapper;
-	
-	
+    Logger logger = Logger.getLogger(TestDBConnection.class);
+
+    @Autowired
+    private static TabStockInfoRepository stockInfoMapper;
+
+
 //	public TestDBConnection(TabStockInfoRepository stockInfoMapper) {
 //		TestDBConnection.stockInfoMapper = stockInfoMapper;
 //	}
-	
-	@Test
-	public void testDBConnection() {
-		logger.info("----------------------------------------" + stockInfoMapper.getCount());
-	}
+
+    @Test
+    public void testDBConnection() {
+        logger.info("----------------------------------------" + stockInfoMapper.getCount());
+    }
 }

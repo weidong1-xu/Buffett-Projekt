@@ -14,21 +14,21 @@ import com.hanslv.crawler.repository.TabStockInfoRepository;
 import com.hanslv.crawler.starter.CrawlerServiceStarter;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes=CrawlerServiceStarter.class)
+@SpringBootTest(classes = CrawlerServiceStarter.class)
 public class TestGetAllStockInfoFromDB {
-	Logger logger = Logger.getLogger(TestGetAllStockInfoFromDB.class);
-	
-	@Autowired
-	private TabStockInfoRepository stockInfoMapper;
-	
-	/**
-	 * 从数据库中获取全部股票基本信息
-	 */
-	@Test
-	public void getAllStockInfoFromDB() {
-		List<TabStockInfo> resultList = stockInfoMapper.selectAll();
-		for(TabStockInfo stockInfo : resultList) {
-			logger.info("获取到股票信息：" + stockInfo);
-		}
-	}
+    Logger logger = Logger.getLogger(TestGetAllStockInfoFromDB.class);
+
+    @Autowired
+    private TabStockInfoRepository stockInfoMapper;
+
+    /**
+     * 从数据库中获取全部股票基本信息
+     */
+    @Test
+    public void getAllStockInfoFromDB() {
+        List<TabStockInfo> resultList = stockInfoMapper.selectAll();
+        for (TabStockInfo stockInfo : resultList) {
+            logger.info("获取到股票信息：" + stockInfo);
+        }
+    }
 }

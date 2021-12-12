@@ -1,93 +1,91 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.hanslv</groupId>
-  <artifactId>buffett-projekt-eltern</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>buffett-projekt-eltern</name>
-  
-  <!-- spring-boot依赖版本管理 -->
-  <dependencyManagement>
-  	<dependencies>
-		<dependency>
-	  		<groupId>org.springframework.boot</groupId>
-	  		<artifactId>spring-boot-dependencies</artifactId>
-	  		<exclusions>
-	  			<exclusion>
-	  				<groupId>org.springframework.boot</groupId>
-	  				<artifactId>spring-boot-starter-logging</artifactId>
-	  			</exclusion>
-	  		</exclusions>
-	  		<version>2.1.2.RELEASE</version>
-	  		<type>pom</type>
-	  		<scope>import</scope>
-	  	</dependency>
-  	</dependencies>
-  </dependencyManagement>
-  
-  <!-- 公用依赖 -->
-  <dependencies>
-  	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-logging -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-logging</artifactId>
-	</dependency>
-  	
-  	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-devtools</artifactId>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-web</artifactId>
-	</dependency>
-	
-	
-	
-	
-	<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
-	<dependency>
-	    <groupId>io.springfox</groupId>
-	    <artifactId>springfox-swagger-ui</artifactId>
-	    <version>2.9.2</version>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
-	<dependency>
-	    <groupId>io.springfox</groupId>
-	    <artifactId>springfox-swagger2</artifactId>
-	    <version>2.9.2</version>
-	</dependency>
-  	
-  	<!-- https://mvnrepository.com/artifact/org.springframework/spring-tx -->
-	<dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-tx</artifactId>
-	</dependency>
-  	
-  	
-  	
-  	<!-- https://mvnrepository.com/artifact/junit/junit -->
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	
-  	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-test</artifactId>
-	    <scope>test</scope>
-	</dependency>
-  </dependencies>
-  
-  <modules>
-  	<module>crawler-modul</module>
-  	<module>allgemein-modul</module>
-  	<module>maschinelles-lernen-modul</module>
-  </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.hanslv</groupId>
+    <artifactId>buffett-projekt-eltern</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>buffett-projekt-eltern</name>
+
+    <!-- spring-boot依赖版本管理 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+                <version>2.1.2.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- 公用依赖 -->
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-logging -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-tx -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/junit/junit -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <modules>
+        <module>crawler-modul</module>
+        <module>allgemein-modul</module>
+        <module>maschinelles-lernen-modul</module>
+    </modules>
 </project>

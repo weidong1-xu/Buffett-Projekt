@@ -17,16 +17,17 @@ import com.hanslv.crawler.constants.CrawlerConstants;
 @ComponentScan({"com.hanslv"})
 @MapperScan("com.hanslv")
 public class CrawlerServiceStarter {
-	public static void main(String[] args) {
-		new SpringApplication(CrawlerServiceStarter.class).run(args);
-	}
-	
-	/**
-	 * 注入股票价格信息阻塞队列
-	 * @return
-	 */
-	@Bean("stockPriceInfoBlockingQueue")
-	public BlockingQueue<List<TabStockPriceInfo>> getStockPriceInfoBlockingQueue(){
-		return new ArrayBlockingQueue<>(CrawlerConstants.PRICE_INFO_MESSAGE_QUEUE_SIZE);
-	}
+    public static void main(String[] args) {
+        new SpringApplication(CrawlerServiceStarter.class).run(args);
+    }
+
+    /**
+     * 注入股票价格信息阻塞队列
+     *
+     * @return
+     */
+    @Bean("stockPriceInfoBlockingQueue")
+    public BlockingQueue<List<TabStockPriceInfo>> getStockPriceInfoBlockingQueue() {
+        return new ArrayBlockingQueue<>(CrawlerConstants.PRICE_INFO_MESSAGE_QUEUE_SIZE);
+    }
 }

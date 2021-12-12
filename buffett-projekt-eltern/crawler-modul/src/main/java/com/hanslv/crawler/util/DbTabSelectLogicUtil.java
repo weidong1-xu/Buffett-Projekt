@@ -10,7 +10,7 @@ import com.hanslv.crawler.repository.TabStockInfoRepository;
 /**
  * 数据库分表逻辑，
  * 由外部关闭传入的数据库连接
- * 
+ * <p>
  * 分表逻辑：
  * 插入：
  * 根据股票价格日期，
@@ -30,84 +30,61 @@ import com.hanslv.crawler.repository.TabStockInfoRepository;
  * .
  * .
  * 以此类推
- * 
- * 
+ * <p>
+ * <p>
  * ---------------------------------------------------
  * 1、返回当前价格信息应该插入的表名称														public static String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper)
  * ---------------------------------------------------
- * @author hanslv
  *
+ * @author hanslv
  */
 @Component
 public class DbTabSelectLogicUtil {
-	/**
-	 * 1、返回当前价格信息应该插入的表名称
-	 * 由外部关闭传入的数据库连接
-	 * @param currentPriceInfo
-	 * @return
-	 */
-	public String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo , TabStockInfoRepository stockInfoMapper) {
-		String tableName = "";
-		
-		/*
-		 * 获取当前价格日期
-		 */
-		Integer currentPriceInfoDay = getCurrentPriceInfoDay4PriceInfo(currentPriceInfo);
-		
-		/*
-		 * 表后缀
-		 */
-		int tabSuffix = currentPriceInfoDay % 3 + 1;
-		
-		/*
-		 * 获取当前股票基本信息
-		 */
-		TabStockInfo currentStockInfo = null;
-		currentStockInfo = stockInfoMapper.getStockInfoById(currentPriceInfo.getStockId());
-		
-		/*
-		 * 判断是否为上证股票
-		 */
-		if(currentStockInfo.getStockCode().indexOf("6") != 0) 
-			tableName = CrawlerConstants.PRICE_INFO_SHENZHENG_TAB_NAME_PREFIX + "000" + tabSuffix;
-		else
-			tableName = CrawlerConstants.PRICE_INFO_SHANGZHENG_TAB_NAME_PREFIX + "000" + tabSuffix;
-		
-		return tableName;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/**
-	 * 价格信息对象中价格日期的日期
-	 * @param currentPriceInfo
-	 * @return
-	 */
-	private static Integer getCurrentPriceInfoDay4PriceInfo(TabStockPriceInfo currentPriceInfo) {
-		return new Integer(currentPriceInfo.getStockPriceDate().split("-")[2]);
-	}
+    /**
+     * 1、返回当前价格信息应该插入的表名称
+     * 由外部关闭传入的数据库连接
+     *
+     * @param currentPriceInfo
+     * @return
+     */
+    public String tableSelector4PriceInfo(TabStockPriceInfo currentPriceInfo, TabStockInfoRepository stockInfoMapper) {
+        String tableName = "";
+
+        /*
+         * 获取当前价格日期
+         */
+        Integer currentPriceInfoDay = getCurrentPriceInfoDay4PriceInfo(currentPriceInfo);
+
+        /*
+         * 表后缀
+         */
+        int tabSuffix = currentPriceInfoDay % 3 + 1;
+
+        /*
+         * 获取当前股票基本信息
+         */
+        TabStockInfo currentStockInfo = null;
+        currentStockInfo = stockInfoMapper.getStockInfoById(currentPriceInfo.getStockId());
+
+        /*
+         * 判断是否为上证股票
+         */
+        if (currentStockInfo.getStockCode().indexOf("6") != 0)
+            tableName = CrawlerConstants.PRICE_INFO_SHENZHENG_TAB_NAME_PREFIX + "000" + tabSuffix;
+        else
+            tableName = CrawlerConstants.PRICE_INFO_SHANGZHENG_TAB_NAME_PREFIX + "000" + tabSuffix;
+
+        return tableName;
+    }
+
+
+    /**
+     * 价格信息对象中价格日期的日期
+     *
+     * @param currentPriceInfo
+     * @return
+     */
+    private static Integer getCurrentPriceInfoDay4PriceInfo(TabStockPriceInfo currentPriceInfo) {
+        return new Integer(currentPriceInfo.getStockPriceDate().split("-")[2]);
+    }
 }
